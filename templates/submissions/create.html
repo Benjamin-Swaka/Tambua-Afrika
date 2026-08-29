@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block body_class %}theme-default{% endblock %}
+
+{% block content %}
+<div style="padding: 2rem; max-width: 600px; margin: 0 auto;">
+    <h2>Upload New Work</h2>
+    <form method="post" enctype="multipart/form-data" style="margin-top: 1rem;">
+        {% csrf_token %}
+        <div style="margin-bottom: 1rem;">
+            <label>Title</label><br>
+            {{ form.title }}
+        </div>
+        <div style="margin-bottom: 1rem;">
+            <label>Category</label><br>
+            {{ form.category }}
+        </div>
+        <div style="margin-bottom: 1rem;">
+            <label>Upload File (PDF/Doc/Script)</label><br>
+            {{ form.file }}
+        </div>
+        <button type="submit" class="btn">Submit</button>
+    </form>
+</div>
+{% endblock %}

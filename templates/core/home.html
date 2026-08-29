@@ -1,0 +1,577 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block body_class %}theme-default{% endblock %}
+
+{% block content %}
+
+<!-- ═══════════════════════════════════
+     1. HERO SECTION (unchanged)
+════════════════════════════════════ -->
+<section class="hero-section d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+    <div class="container position-relative z-1">
+        <h1 class="display-3 mb-4">{% trans "African Stories. African Talent." %}<br>{% trans "Let's Recognise Africa." %}</h1>
+        <p class="lead mb-5 opacity-75">{% trans "Bridging the gap between raw talent and global audiences." %}</p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="{% url 'submission_dashboard' %}" class="btn btn-light btn-lg px-5 py-3 text-dark fw-bold" style="border-radius: 0;">{% trans "Submit Your Work" %}</a>
+            <a href="{% url 'shop_home' %}" class="btn btn-outline-light btn-lg px-5 py-3" style="border-radius: 0;">{% trans "Visit Our Shop" %}</a>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 1 — DEPARTMENTS (Premium Carousel)
+     ═══════════════════════════════════════════════════════════ -->
+<section class="home-depts-carousel" aria-labelledby="depts-heading">
+    <div class="container">
+
+        <div class="home-depts-header">
+            <p class="home-depts-eyebrow">{% trans "Our Ecosystem" %}</p>
+            <h2 class="home-depts-title" id="depts-heading">{% trans "Departments &amp; Divisions" %}</h2>
+
+        </div>
+
+        <!-- Carousel track -->
+        <div class="home-depts-track-wrapper">
+            <div class="home-depts-track" id="deptsTrack" role="list">
+
+                <!-- 1. Studios -->
+                <article class="home-dept-card home-dept-card--studios" role="listitem">
+                    <div class="home-dept-card-inner">
+                        <div class="home-dept-card-media" aria-hidden="true">
+                            <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.4">
+                                <rect x="2" y="8" width="18" height="12" rx="1.5"/>
+                                <path d="M7 8V6a4 4 0 018 0v2" stroke-linecap="round"/>
+                                <line x1="11" y1="12" x2="11" y2="16" stroke-linecap="round"/>
+                                <line x1="9" y1="14" x2="13" y2="14" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="home-dept-card-content">
+                            <span class="home-dept-card-label">{% trans "Core" %}</span>
+                            <h3 class="home-dept-card-name">{% trans "Studios" %}</h3>
+                            <p class="home-dept-card-desc">{% trans "Corporate identity, IP management, and the operational backbone of the Tambua Afrika ecosystem." %}</p>
+                            <a href="{% url 'about' %}" class="home-dept-card-link" aria-label="{% trans 'Learn more about Studios' %}">
+                                {% trans "Learn More" %}
+                                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M2 6h8M6 2l4 4-4 4"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- 2. Tambua Ink -->
+                <article class="home-dept-card home-dept-card--ink" role="listitem">
+                    <div class="home-dept-card-inner">
+                        <div class="home-dept-card-media" aria-hidden="true">
+                            <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.4">
+                                <path d="M14 2L4 12l-1 5 5-1L18 6a2.83 2.83 0 00-4-4z" stroke-linejoin="round"/>
+                                <path d="M12 4l4 4"/>
+                            </svg>
+                        </div>
+                        <div class="home-dept-card-content">
+                            <span class="home-dept-card-label">{% trans "Publishing" %}</span>
+                            <h3 class="home-dept-card-name">{% trans "Tambua Ink" %}</h3>
+                            <p class="home-dept-card-desc">{% trans "Books, poetry, and literary journals that give African writers a professional publishing pathway." %}</p>
+                            <a href="{% url 'ink_home' %}" class="home-dept-card-link" aria-label="{% trans 'Explore Tambua Ink' %}">
+                                {% trans "Read More" %}
+                                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M2 6h8M6 2l4 4-4 4"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- 3. Tambua Stage -->
+                <article class="home-dept-card home-dept-card--stage" role="listitem">
+                    <div class="home-dept-card-inner">
+                        <div class="home-dept-card-media" aria-hidden="true">
+                            <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.4">
+                                <circle cx="8" cy="9" r="3"/>
+                                <circle cx="14" cy="9" r="3"/>
+                                <path d="M3 20c0-3.31 2.24-6 5-6h6c2.76 0 5 2.69 5 6" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="home-dept-card-content">
+                            <span class="home-dept-card-label">{% trans "Theatre" %}</span>
+                            <h3 class="home-dept-card-name">{% trans "Tambua Stage" %}</h3>
+                            <p class="home-dept-card-desc">{% trans "Live theatre, voice acting, and performance arts — where stories become embodied experiences." %}</p>
+                            <a href="{% url 'stage_home' %}" class="home-dept-card-link" aria-label="{% trans 'Get tickets for Tambua Stage' %}">
+                                {% trans "Get Tickets" %}
+                                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M2 6h8M6 2l4 4-4 4"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- 4. Tambua Comics -->
+                <article class="home-dept-card home-dept-card--comics" role="listitem">
+                    <div class="home-dept-card-inner">
+                        <div class="home-dept-card-media" aria-hidden="true">
+                            <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.4">
+                                <rect x="2" y="2" width="8" height="8" rx="1.5"/>
+                                <rect x="12" y="2" width="8" height="8" rx="1.5"/>
+                                <rect x="2" y="12" width="8" height="8" rx="1.5"/>
+                                <rect x="12" y="12" width="8" height="8" rx="1.5"/>
+                            </svg>
+                        </div>
+                        <div class="home-dept-card-content">
+                            <span class="home-dept-card-label">{% trans "Visual Arts" %}</span>
+                            <h3 class="home-dept-card-name">{% trans "Tambua Comics" %}</h3>
+                            <p class="home-dept-card-desc">{% trans "Graphic novels, sequential art, animation, and gaming rooted in African visual culture." %}</p>
+                            <a href="{% url 'comics_home' %}" class="home-dept-card-link" aria-label="{% trans 'Explore Tambua Comics' %}">
+                                {% trans "Explore Art" %}
+                                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M2 6h8M6 2l4 4-4 4"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- 5. Sales & Marketing -->
+                <article class="home-dept-card home-dept-card--sales" role="listitem">
+                    <div class="home-dept-card-inner">
+                        <div class="home-dept-card-media" aria-hidden="true">
+                            <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.4">
+                                <path d="M11 2v18M2 11h18" stroke-linecap="round"/>
+                                <circle cx="11" cy="11" r="9"/>
+                                <path d="M7 7l3 3M14 14l3 3M7 14l3-3M14 7l3-3" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="home-dept-card-content">
+                            <span class="home-dept-card-label">{% trans "Commerce" %}</span>
+                            <h3 class="home-dept-card-name">{% trans "Sales &amp; Marketing" %}</h3>
+                            <p class="home-dept-card-desc">{% trans "Merchandise, partnerships, ticket sales, and brand strategy — bringing African creativity to market." %}</p>
+                            <a href="#" class="home-dept-card-link" aria-label="{% trans 'Visit the shop' %}">
+                                {% trans "Visit Shop" %}
+                                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M2 6h8M6 2l4 4-4 4"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 2 — FEATURED WORKS (Editorial Carousel)
+     ═══════════════════════════════════════════════════════════ -->
+<section class="home-featured-carousel" aria-labelledby="featured-heading">
+    <div class="container">
+
+        <div class="home-featured-header">
+            <p class="home-featured-eyebrow">{% trans "Portfolio" %}</p>
+            <h2 class="home-featured-title" id="featured-heading">{% trans "Featured Works" %}</h2>
+           
+        </div>
+
+        <div class="home-featured-track-wrapper">
+            <div class="home-featured-track" id="featuredTrack" role="list">
+
+                <!-- Work 1: Book -->
+                <article class="home-featured-item" role="listitem">
+                    <div class="home-featured-item-media" style="background: #e8e0d8;">
+                        <span class="home-featured-item-badge">{% trans "Book" %}</span>
+                        <!-- Placeholder – replace with real cover image -->
+                        <span class="home-featured-item-icon">📖</span>
+                    </div>
+                    <div class="home-featured-item-content">
+                        <span class="home-featured-item-category">{% trans "Tambua Ink" %}</span>
+                        <h3 class="home-featured-item-title">{% trans "Echoes of the Savanna" %}</h3>
+                        <p class="home-featured-item-meta">{% trans "by A. K. Mwangi · 2025" %}</p>
+                        <a href="#" class="home-featured-item-link">{% trans "Read More" %}</a>
+                    </div>
+                </article>
+
+                <!-- Work 2: Comic -->
+                <article class="home-featured-item" role="listitem">
+                    <div class="home-featured-item-media" style="background: #d0d0d0;">
+                        <span class="home-featured-item-badge">{% trans "Comic" %}</span>
+                        <span class="home-featured-item-icon">🎨</span>
+                    </div>
+                    <div class="home-featured-item-content">
+                        <span class="home-featured-item-category">{% trans "Tambua Comics" %}</span>
+                        <h3 class="home-featured-item-title">{% trans "The Golden Mask" %}</h3>
+                        <p class="home-featured-item-meta">{% trans "by S. O. Adebayo · 2025" %}</p>
+                        <a href="#" class="home-featured-item-link">{% trans "Explore" %}</a>
+                    </div>
+                </article>
+
+                <!-- Work 3: Play -->
+                <article class="home-featured-item" role="listitem">
+                    <div class="home-featured-item-media" style="background: #d4c4b0;">
+                        <span class="home-featured-item-badge">{% trans "Play" %}</span>
+                        <span class="home-featured-item-icon">🎭</span>
+                    </div>
+                    <div class="home-featured-item-content">
+                        <span class="home-featured-item-category">{% trans "Tambua Stage" %}</span>
+                        <h3 class="home-featured-item-title">{% trans "The Griot’s Daughter" %}</h3>
+                        <p class="home-featured-item-meta">{% trans "by L. N. Okafor · 2025" %}</p>
+                        <a href="#" class="home-featured-item-link">{% trans "View" %}</a>
+                    </div>
+                </article>
+
+                <!-- Work 4: Animation -->
+                <article class="home-featured-item" role="listitem">
+                    <div class="home-featured-item-media" style="background: #c0d4e8;">
+                        <span class="home-featured-item-badge">{% trans "Animation" %}</span>
+                        <span class="home-featured-item-icon">🎬</span>
+                    </div>
+                    <div class="home-featured-item-content">
+                        <span class="home-featured-item-category">{% trans "Tambua Comics" %}</span>
+                        <h3 class="home-featured-item-title">{% trans "Spirit of the Baobab" %}</h3>
+                        <p class="home-featured-item-meta">{% trans "by K. D. Mensah · 2025" %}</p>
+                        <a href="#" class="home-featured-item-link">{% trans "Watch" %}</a>
+                    </div>
+                </article>
+
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 3 — OPEN CALLS (Editorial List)
+     ═══════════════════════════════════════════════════════════ -->
+<section class="home-opencalls" aria-labelledby="opencalls-heading">
+    <div class="container">
+
+        <div class="home-opencalls-header">
+            <p class="home-opencalls-eyebrow">{% trans "Submissions" %}</p>
+            <h2 class="home-opencalls-title" id="opencalls-heading">{% trans "Open Calls" %}</h2>
+            <p class="home-opencalls-subtitle">{% trans "Find your opportunity. Submit your work." %}</p>
+        </div>
+
+        <div class="home-opencalls-grid">
+
+            <!-- Open -->
+            <div class="home-opencall-card">
+                <div class="home-opencall-status home-opencall-status--open">
+                    <span class="home-opencall-dot"></span> {% trans "Open" %}
+                </div>
+                <h3 class="home-opencall-title">{% trans "2026 Annual Anthology" %}</h3>
+                <p class="home-opencall-desc">{% trans "Manuscripts, poetry collections, and short stories from African writers worldwide." %}</p>
+                <div class="home-opencall-meta">
+                    <span class="home-opencall-deadline">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12,6 12,12 16,14" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {% trans "Closes 31 Dec 2026" %}
+                    </span>
+                    <span class="home-opencall-categories">{% trans "Manuscripts · Poetry · Short Stories · Scripts" %}</span>
+                </div>
+                <a href="{% url 'submission_dashboard' %}" class="home-opencall-action">
+                    {% trans "View Guidelines &amp; Submit" %}
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 6h8M6 2l4 4-4 4"/>
+                    </svg>
+                </a>
+            </div>
+
+            <!-- Closing Soon -->
+            <div class="home-opencall-card">
+                <div class="home-opencall-status home-opencall-status--closing">
+                    <span class="home-opencall-dot"></span> {% trans "Closing Soon" %}
+                </div>
+                <h3 class="home-opencall-title">{% trans "Stage Play Competition" %}</h3>
+                <p class="home-opencall-desc">{% trans "Original one-act plays by African playwrights. Selected works will be produced in 2027." %}</p>
+                <div class="home-opencall-meta">
+                    <span class="home-opencall-deadline">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12,6 12,12 16,14" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {% trans "Closes 15 Oct 2026" %}
+                    </span>
+                    <span class="home-opencall-categories">{% trans "Plays · Scripts" %}</span>
+                </div>
+                <a href="{% url 'submission_dashboard' %}" class="home-opencall-action">
+                    {% trans "Submit Now" %}
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 6h8M6 2l4 4-4 4"/>
+                    </svg>
+                </a>
+            </div>
+
+            <!-- Closed -->
+            <div class="home-opencall-card">
+                <div class="home-opencall-status home-opencall-status--closed">
+                    <span class="home-opencall-dot"></span> {% trans "Closed" %}
+                </div>
+                <h3 class="home-opencall-title">{% trans "Graphic Novel Fellowship" %}</h3>
+                <p class="home-opencall-desc">{% trans "Emerging African comic artists. The next fellowship round opens early 2027." %}</p>
+                <div class="home-opencall-meta">
+                    <span class="home-opencall-deadline">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12,6 12,12 16,14" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {% trans "Closed 30 Jun 2026" %}
+                    </span>
+                    <span class="home-opencall-categories">{% trans "Comics · Illustration" %}</span>
+                </div>
+                <span class="home-opencall-action home-opencall-action--disabled">{% trans "Closed for submissions" %}</span>
+            </div>
+
+        </div>
+
+        <div class="home-opencalls-cta">
+            <a href="{% url 'submission_dashboard' %}" class="home-opencalls-cta-primary">{% trans "All Open Calls" %}</a>
+        </div>
+
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 4 — SHOP HIGHLIGHTS (Carousel)
+     ═══════════════════════════════════════════════════════════ -->
+<section class="home-shop-carousel" aria-labelledby="shop-heading">
+    <div class="container">
+
+        <div class="home-shop-header">
+            <p class="home-shop-eyebrow">{% trans "Marketplace" %}</p>
+            <h2 class="home-shop-title" id="shop-heading">{% trans "Shop Highlights" %}</h2>
+            
+        </div>
+
+        <div class="home-shop-track-wrapper">
+            <div class="home-shop-track" id="shopTrack" role="list">
+
+                <div class="home-shop-item" role="listitem">
+                    <div class="home-shop-item-media" style="background: #e8e0d8;">
+                        <span class="home-shop-item-icon">📚</span>
+                    </div>
+                    <div class="home-shop-item-content">
+                        <h3 class="home-shop-item-title">{% trans "Best-Selling Books" %}</h3>
+                        <p class="home-shop-item-desc">{% trans "Novels, poetry, and literary journals" %}</p>
+                        <span class="home-shop-item-price">{% trans "From $14.99" %}</span>
+                        <a href="#" class="home-shop-item-action">{% trans "Browse" %}</a>
+                    </div>
+                </div>
+
+                <div class="home-shop-item" role="listitem">
+                    <div class="home-shop-item-media" style="background: #d4c9b0;">
+                        <span class="home-shop-item-icon">👕</span>
+                    </div>
+                    <div class="home-shop-item-content">
+                        <h3 class="home-shop-item-title">{% trans "Merchandise" %}</h3>
+                        <p class="home-shop-item-desc">{% trans "Apparel, accessories, and collectibles" %}</p>
+                        <span class="home-shop-item-price">{% trans "From $24.99" %}</span>
+                        <a href="#" class="home-shop-item-action">{% trans "Shop Now" %}</a>
+                    </div>
+                </div>
+
+                <div class="home-shop-item" role="listitem">
+                    <div class="home-shop-item-media" style="background: #d4c4b0;">
+                        <span class="home-shop-item-icon">🎫</span>
+                    </div>
+                    <div class="home-shop-item-content">
+                        <h3 class="home-shop-item-title">{% trans "Tickets" %}</h3>
+                        <p class="home-shop-item-desc">{% trans "Live performances, readings, and events" %}</p>
+                        <span class="home-shop-item-price">{% trans "From $12.00" %}</span>
+                        <a href="#" class="home-shop-item-action">{% trans "Get Tickets" %}</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<section class="home-crowdfunding-teaser crowdfunding" aria-labelledby="crowdfunding-title">
+    <div class="cf-feature-wrap">
+
+        <!-- Header -->
+        <div class="cf-feature-header">
+
+            <div class="cf-heading-block">
+                <span class="cf-kicker">
+                    <span class="cf-kicker-dot"></span>
+                    FUND THE FUTURE
+                </span>
+
+                <h2 id="crowdfunding-title">
+                    Great ideas need<br>
+                    <em>people behind them.</em>
+                </h2>
+
+                <p>
+                    Discover projects worth backing and help bring
+                    ambitious creative work to life.
+                </p>
+            </div>
+
+            <a href="{% url 'campaign_list' %}" class="cf-main-cta">
+                <span>Explore campaigns</span>
+                <strong>↗</strong>
+            </a>
+
+        </div>
+
+
+        {% if featured_campaigns %}
+
+        <!-- Featured campaigns -->
+        <div class="cf-feature-grid">
+
+            {% for campaign in featured_campaigns %}
+
+            <a href="{% url 'campaign_detail' campaign.slug %}"
+               class="cf-project-card {% if forloop.first %}cf-project-card-primary{% endif %}">
+
+                <div class="cf-project-number">
+                    {{ forloop.counter|stringformat:"02d" }}
+                </div>
+
+                <div class="cf-project-body">
+
+                    <div class="cf-project-category">
+                        {{ campaign.department.name|default:"General" }}
+                    </div>
+
+                    <h3>{{ campaign.title }}</h3>
+
+                    {% if campaign.description %}
+                    <p class="cf-project-description">
+                        {{ campaign.description|striptags|truncatechars:120 }}
+                    </p>
+                    {% endif %}
+
+                    <div class="cf-funding">
+
+                        <div class="cf-funding-info">
+                            <span>Currently funded</span>
+                            <strong>{{ campaign.progress_percent }}%</strong>
+                        </div>
+
+                        <div class="cf-progress">
+                            <span style="width: {{ campaign.progress_percent }}%;"></span>
+                        </div>
+
+                    </div>
+
+                    <div class="cf-project-action">
+                        <span>Support this project</span>
+                        <span class="cf-project-arrow">→</span>
+                    </div>
+
+                </div>
+
+            </a>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- Impact statement -->
+        <div class="cf-impact">
+
+            <div class="cf-impact-mark">✦</div>
+
+            <div class="cf-impact-text">
+                <span>YOUR SUPPORT MATTERS</span>
+                <p>
+                    Back a project. Amplify an idea.
+                    Help make something remarkable possible.
+                </p>
+            </div>
+
+            <a href="{% url 'campaign_list' %}" class="cf-impact-link">
+                See all projects
+                <span>↗</span>
+            </a>
+
+        </div>
+
+        {% else %}
+
+        <div class="cf-empty">
+            <span>✦</span>
+            <h3>Something new is taking shape.</h3>
+            <p>
+                New projects will appear here soon.
+            </p>
+        </div>
+
+        {% endif %}
+
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 5 — PARTNERS & IMPACT
+     ═══════════════════════════════════════════════════════════ -->
+<section class="home-partners" aria-labelledby="partners-heading">
+    <div class="container">
+
+        <div class="home-partners-header">
+            <p class="home-partners-eyebrow" id="partners-heading">{% trans "Trusted by cultural institutions across Africa" %}</p>
+        </div>
+
+        <!-- Marquee -->
+        <div class="home-partners-marquee" aria-hidden="true">
+            <div class="home-partners-track" id="partnersTrack">
+                <span class="home-partner-logo">{% trans "African Arts Council" %}</span>
+                <span class="home-partner-logo">{% trans "Pan-African Writers" %}</span>
+                <span class="home-partner-logo">{% trans "Cultural Heritage Fund" %}</span>
+                <span class="home-partner-logo">{% trans "African University Network" %}</span>
+                <span class="home-partner-logo">{% trans "Creative Africa Exchange" %}</span>
+                <!-- Duplicate for seamless loop -->
+                <span class="home-partner-logo">{% trans "African Arts Council" %}</span>
+                <span class="home-partner-logo">{% trans "Pan-African Writers" %}</span>
+                <span class="home-partner-logo">{% trans "Cultural Heritage Fund" %}</span>
+                <span class="home-partner-logo">{% trans "African University Network" %}</span>
+                <span class="home-partner-logo">{% trans "Creative Africa Exchange" %}</span>
+            </div>
+        </div>
+
+        <!-- Impact Strip -->
+        <div class="home-impact-strip" role="list" aria-label="{% trans 'Impact statistics' %}">
+            <div class="home-impact-item" role="listitem">
+                <span class="home-impact-number">500+</span>
+                <span class="home-impact-label">{% trans "Creators supported" %}</span>
+            </div>
+            <div class="home-impact-divider" aria-hidden="true"></div>
+            <div class="home-impact-item" role="listitem">
+                <span class="home-impact-number">14</span>
+                <span class="home-impact-label">{% trans "African countries" %}</span>
+            </div>
+            <div class="home-impact-divider" aria-hidden="true"></div>
+            <div class="home-impact-item" role="listitem">
+                <span class="home-impact-number">80+</span>
+                <span class="home-impact-label">{% trans "Published works" %}</span>
+            </div>
+            <div class="home-impact-divider" aria-hidden="true"></div>
+            <div class="home-impact-item" role="listitem">
+                <span class="home-impact-number">5</span>
+                <span class="home-impact-label">{% trans "Creative disciplines" %}</span>
+            </div>
+        </div>
+
+        <div class="home-partners-tags">
+            <span class="home-partner-tag">🎓 {% trans "Schools" %}</span>
+            <span class="home-partner-tag">🏛️ {% trans "Cultural Institutions" %}</span>
+            <span class="home-partner-tag">💰 {% trans "Grants" %}</span>
+            <span class="home-partner-tag">🌍 {% trans "Diaspora Programs" %}</span>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

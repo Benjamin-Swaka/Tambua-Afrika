@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block body_class %}theme-default{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="legal-header">
+    <div class="container">
+        <h1 class="display-4">Privacy Policy</h1>
+        <p class="lead opacity-75">Last Updated: October 24, 2026</p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-md-3 d-none d-md-block">
+            <div class="legal-sidebar">
+                <h6 class="text-uppercase fw-bold mb-3 ls-1">Contents</h6>
+                <nav>
+                    <a href="#intro" class="legal-nav-link">1. Introduction</a>
+                    <a href="#collection" class="legal-nav-link">2. Information We Collect</a>
+                    <a href="#usage" class="legal-nav-link">3. How We Use Data</a>
+                    <a href="#submissions" class="legal-nav-link">4. Creative Submissions</a>
+                    <a href="#sharing" class="legal-nav-link">5. Third-Party Sharing</a>
+                    <a href="#rights" class="legal-nav-link">6. Your Rights</a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 legal-content">
+            
+            <!-- Quick Summary -->
+            <div class="legal-summary-box">
+                <h5 class="fw-bold"><i class="fas fa-shield-alt me-2"></i> At a Glance</h5>
+                <p class="mb-0 small">We respect your privacy. We only collect data necessary to process your orders, review your submissions, and improve your experience. We never sell your personal data or your intellectual property to advertisers.</p>
+            </div>
+
+            <section id="intro">
+                <h2>1. Introduction</h2>
+                <p>Tambua Afrika Studios ("we," "our," or "us") is committed to protecting your personal information. This Privacy Policy explains how we collect, use, and safeguard your data when you visit our website, purchase from our shop, or submit creative work via our dashboard.</p>
+            </section>
+
+            <section id="collection">
+                <h2>2. Information We Collect</h2>
+                <h3>A. Personal Information</h3>
+                <p>When you create an account, purchase a book, or sign up for our newsletter, we may collect:</p>
+                <ul>
+                    <li>Identity Data: Name, username.</li>
+                    <li>Contact Data: Email address, phone number, shipping address.</li>
+                    <li>Financial Data: Payment details (processed securely via third-party gateways like M-Pesa/Stripe; we do not store full card numbers).</li>
+                </ul>
+
+                <h3>B. Usage Data</h3>
+                <p>We automatically collect information about how you interact with our site, including IP address, browser type, and pages visited, to help us improve our platform.</p>
+            </section>
+
+            <section id="usage">
+                <h2>3. How We Use Your Data</h2>
+                <p>We use your data to:</p>
+                <ul>
+                    <li>Process and deliver orders from the Tambua Market.</li>
+                    <li>Manage your account and Creator Dashboard.</li>
+                    <li>Communicate with you regarding submission status (Accepted/Rejected/In Review).</li>
+                    <li>Send newsletters (only if you have opted in).</li>
+                </ul>
+            </section>
+
+            <section id="submissions">
+                <h2>4. Creative Submissions & Intellectual Property</h2>
+                <p><strong>This is critical for our creators:</strong> When you upload a manuscript, script, or artwork to our Submission Portal, that file is stored securely. It is accessible <strong>only</strong> to our editorial and production teams for the purpose of review.</p>
+                <p>Uploading a file does <strong>not</strong> transfer copyright to us. See our <a href="{% url 'terms' %}">Terms of Service</a> for more details on IP rights.</p>
+            </section>
+
+            <section id="sharing">
+                <h2>5. Third-Party Sharing</h2>
+                <p>We do not sell your data. We share data only with trusted partners essential to our operations:</p>
+                <ul>
+                    <li><strong>Logistics:</strong> Delivery companies to ship your books/merch.</li>
+                    <li><strong>Payment Processors:</strong> To handle secure transactions.</li>
+                    <li><strong>Cloud Storage:</strong> Encrypted hosting services where our website resides.</li>
+                </ul>
+            </section>
+
+            <section id="rights">
+                <h2>6. Your Rights</h2>
+                <p>You have the right to access, correct, or delete your personal data. You can manage your profile settings in your Dashboard or contact us at <a href="mailto:privacy@tambuaafrika.com">privacy@tambuaafrika.com</a>.</p>
+            </section>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

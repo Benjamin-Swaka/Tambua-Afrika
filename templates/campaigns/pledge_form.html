@@ -1,0 +1,54 @@
+{% extends "base_minimal.html" %}
+{% load static %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/crowdfunding.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="crowdfunding crowdfunding-pledge-page">
+  <h1>Back "{{ campaign.title }}"</h1>
+  <p class="cf-subtitle">Choose a reward tier or enter your own amount.</p>
+
+  <form method="post" class="cf-pledge-form" id="cf-pledge-form" novalidate>
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="cf-form-errors">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="cf-reward-select-list">
+      <label class="cf-reward-option">
+        <input type="radio" name="reward_choice" value="" checked data-amount="">
+        <span class="cf-reward-option-body">
+          <strong>No reward — just support the project</strong>
+        </span>
+      </label>
+
+      {% for reward in campaign.rewards.all %}
+        <label class="cf-reward-option">
+          <input type="radio" name="reward_choice" value="{{ reward.id }}" data-amount="{{ reward.amount }}">
+          <span class="cf-reward-option-body">
+            <strong>{{ reward.title }} — {{ reward.amount }}</strong>
+            <span class="cf-reward-option-desc">{{ reward.description }}</span>
+          </span>
+        </label>
+      {% endfor %}
+    </div>
+
+    <div style="display:none;">
+      {{ form.reward }}
+    </div>
+
+    <div class="cf-form-group">
+      <label for="{{ form.amount.id_for_label }}">Pledge Amount</label>
+      {{ form.amount }}
+      {{ form.amount.errors }}
+    </div>
+
+    <button type="submit" class="btn-custom cf-submit-btn">Continue to Payment</button>
+  </form>
+</div>
+
+<script src="{% static 'js/crowdfunding.js' %}"></script>
+{% endblock %}

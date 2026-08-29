@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block body_class %}theme-default{% endblock %}
+{% load static %}
+
+{% block content %}
+<section class="bg-black text-white py-5 text-center">
+    <div class="container py-3">
+        <h1 class="display-4 fw-bold">The Team</h1>
+        <p class="lead text-secondary">The minds behind the African Renaissance.</p>
+    </div>
+</section>
+
+<div class="container py-5">
+    <div class="row g-5 text-center">
+        <!-- CEO -->
+        <div class="col-md-4">
+            <div class="mb-3">
+                <!-- Replace src with actual images -->
+                <div style="width: 150px; height: 150px; background: #ddd; border-radius: 50%; margin: 0 auto; overflow: hidden;">
+                    <img src="{% static 'img/team-1.jpg' %}" alt="CEO" style="width:100%; height:100%; object-fit:cover;">
+                </div>
+            </div>
+            <h4>Full Name</h4>
+            <p class="text-uppercase text-muted small fw-bold ls-1">Founder & CEO</p>
+            <p class="text-muted small px-3">Visionary leader dedicated to building sustainable creative infrastructures in Africa.</p>
+        </div>
+        
+        <!-- Ink Head -->
+        <div class="col-md-4">
+            <div class="mb-3">
+                <div style="width: 150px; height: 150px; background: #ddd; border-radius: 50%; margin: 0 auto; overflow: hidden;">
+                    <img src="{% static 'img/team-2.jpg' %}" alt="Editor" style="width:100%; height:100%; object-fit:cover;">
+                </div>
+            </div>
+            <h4>Full Name</h4>
+            <p class="text-uppercase small fw-bold ls-1" style="color: var(--col-ink-blue);">Head of Ink</p>
+            <p class="text-muted small px-3">Award-winning editor ensuring literary excellence across all publications.</p>
+        </div>
+
+        <!-- Stage Head -->
+        <div class="col-md-4">
+            <div class="mb-3">
+                <div style="width: 150px; height: 150px; background: #ddd; border-radius: 50%; margin: 0 auto; overflow: hidden;">
+                    <img src="{% static 'img/team-3.jpg' %}" alt="Director" style="width:100%; height:100%; object-fit:cover;">
+                </div>
+            </div>
+            <h4>Full Name</h4>
+            <p class="text-uppercase small fw-bold ls-1" style="color: var(--col-stage-brown);">Head of Stage</p>
+            <p class="text-muted small px-3">Theatre producer connecting stories from the page to the stage.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

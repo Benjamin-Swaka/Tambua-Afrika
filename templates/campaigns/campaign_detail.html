@@ -1,0 +1,66 @@
+{% extends "base_minimal.html" %}
+{% load static %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/crowdfunding.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="crowdfunding crowdfunding-detail-page">
+  <header class="cf-detail-header">
+    <div class="cf-card-tag">{{ campaign.department.name|default:"General" }}</div>
+    <h1>{{ campaign.title }}</h1>
+    <p class="cf-detail-byline">by {{ campaign.creator.get_full_name|default:campaign.creator.username }}</p>
+  </header>
+
+  <div class="cf-detail-layout">
+    <div class="cf-detail-main">
+      <div class="cf-description">
+        {{ campaign.description|linebreaks }}
+      </div>
+
+      <h2 class="cf-section-heading">Backers</h2>
+      {% if backers %}
+        <ul class="cf-backer-list">
+          {% for pledge in backers %}
+            <li>{{ pledge.user.get_full_name|default:pledge.user.username }} — pledged {{ pledge.amount }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="cf-empty-state">Be the first to back this project.</p>
+      {% endif %}
+    </div>
+
+    <aside class="cf-detail-sidebar">
+      <div class="cf-progress-track">
+        <div class="cf-progress-fill" style="width: {{ campaign.progress_percent }}%;"></div>
+      </div>
+      <p class="cf-stat-primary">{{ campaign.raised_amount }} raised of {{ campaign.goal_amount }}</p>
+      <p class="cf-stat-secondary">{{ campaign.progress_percent }}% funded · {{ campaign.days_remaining }} days left</p>
+
+      {% if campaign.is_active %}
+        <a href="{% url 'campaign_pledge' campaign.slug %}" class="btn-custom cf-pledge-btn">Back this Project</a>
+      {% else %}
+        <p class="cf-closed-note">This campaign is no longer accepting pledges.</p>
+      {% endif %}
+
+      {% if user == campaign.creator %}
+        <a href="{% url 'campaign_edit' campaign.slug %}" class="cf-edit-link">Edit campaign</a>
+      {% endif %}
+
+      {% if rewards %}
+        <h3 class="cf-section-heading cf-rewards-heading">Reward Tiers</h3>
+        <div class="cf-reward-list">
+          {% for reward in rewards %}
+            <div class="cf-reward-card">
+              <div class="cf-reward-amount">{{ reward.amount }}</div>
+              <div class="cf-reward-title">{{ reward.title }}</div>
+              <p class="cf-reward-description">{{ reward.description }}</p>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </aside>
+  </div>
+</div>
+{% endblock %}

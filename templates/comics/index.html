@@ -1,0 +1,192 @@
+
+
+{% extends 'base.html' %}
+{% load static %}
+{% block body_class %}theme-comics{% endblock %}
+
+{% block content %}
+
+<!-- ═══════════════════════════════════════════════
+     HERO SECTION
+════════════════════════════════════════════════ -->
+<section class="comics-hero" aria-labelledby="comics-hero-heading">
+    <div class="comics-hero-bg" aria-hidden="true">
+        <!-- Halftone / dot-grid pattern -->
+        <div class="comics-hero-dots"></div>
+        <!-- Decorative panel lines -->
+        <div class="comics-panel-line comics-panel-line--1" aria-hidden="true"></div>
+        <div class="comics-panel-line comics-panel-line--2" aria-hidden="true"></div>
+    </div>
+
+    <div class="container position-relative" style="z-index: 2;">
+        <div class="comics-hero-inner">
+            <div class="comics-hero-eyebrow">
+                <span class="comics-tag">Visual Storytelling</span>
+            </div>
+            <h1 class="comics-hero-title" id="comics-hero-heading">
+                Tambua Afrika<br>
+                <em class="comics-hero-title-accent">Comics</em>
+            </h1>
+            <p class="comics-hero-subtitle">
+                Graphic novels, illustrated stories, and sequential art rooted in African culture and imagination.
+            </p>
+            <div class="comics-hero-actions">
+                <a href="{% url 'submission_dashboard' %}" class="comics-btn-primary">
+                    Submit Your Art
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                        <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+                <a href="{% url 'shop_home' %}" class="comics-btn-ghost">Browse the Shop</a>
+            </div>
+
+            <!-- Stats strip -->
+            <div class="comics-hero-stats" role="list">
+                <div class="comics-hero-stat" role="listitem">
+                    <span class="comics-hero-stat-number">{{ comics.count|default:"0" }}+</span>
+                    <span class="comics-hero-stat-label">Published titles</span>
+                </div>
+                <div class="comics-hero-stat-sep" aria-hidden="true"></div>
+                <div class="comics-hero-stat" role="listitem">
+                    <span class="comics-hero-stat-number">12</span>
+                    <span class="comics-hero-stat-label">African artists</span>
+                </div>
+                <div class="comics-hero-stat-sep" aria-hidden="true"></div>
+                <div class="comics-hero-stat" role="listitem">
+                    <span class="comics-hero-stat-number">7</span>
+                    <span class="comics-hero-stat-label">Countries</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════
+     GALLERY SECTION
+════════════════════════════════════════════════ -->
+<section class="comics-gallery-section" aria-label="Comics gallery">
+    <div class="container">
+
+        <!-- Section header -->
+        <div class="comics-section-header">
+            <div>
+                <p class="comics-section-eyebrow">The Collection</p>
+                <h2 class="comics-section-title">Visual Narratives</h2>
+            </div>
+            <a href="{% url 'shop_home' %}" class="comics-section-viewall">
+                View all in shop
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                    <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+        </div>
+
+        <!-- Comics grid -->
+        {% if comics %}
+        <div class="comics-grid" role="list">
+            {% for comic in comics %}
+            <article class="comics-card" role="listitem">
+                <!-- Cover image -->
+                <a href="{% url 'comic_detail' comic.pk %}" class="comics-card-cover-link" aria-label="Read {{ comic.title }}">
+                    <div class="comics-card-cover">
+                        <img
+                            src="{{ comic.cover_image.url }}"
+                            alt="{{ comic.title }} cover"
+                            class="comics-card-cover-img"
+                            loading="lazy"
+                        >
+                        <!-- Hover overlay -->
+                        <div class="comics-card-overlay" aria-hidden="true">
+                            <span class="comics-card-overlay-label">View Details</span>
+                        </div>
+                        <!-- Panel number badge -->
+                        <span class="comics-card-number" aria-hidden="true">
+                            {{ forloop.counter|stringformat:"02d" }}
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Card body -->
+                <div class="comics-card-body">
+                    <p class="comics-card-artist">Art by {{ comic.artist }}</p>
+                    <h3 class="comics-card-title">
+                        <a href="{% url 'comic_detail' comic.pk %}">{{ comic.title }}</a>
+                    </h3>
+                    <p class="comics-card-excerpt">
+                        {{ comic.description|truncatechars:90 }}
+                    </p>
+                    <div class="comics-card-footer">
+                        <a href="{% url 'comic_detail' comic.pk %}" class="comics-card-readmore">
+                            Read more
+                            <svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true">
+                                <path d="M2 5.5h7M6 2l3 3.5-3 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </a>
+                        {% if comic.sample_pdf %}
+                        <span class="comics-card-preview-badge" title="Preview available">
+                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-label="Preview available" aria-hidden="true">
+                                <path d="M1 5C1 5 2.5 2 5 2s4 3 4 3-1.5 3-4 3-4-3-4-3Z" stroke="currentColor" stroke-width="1.1"/>
+                                <circle cx="5" cy="5" r="1.2" stroke="currentColor" stroke-width="1.1"/>
+                            </svg>
+                            Preview
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+
+        {% else %}
+        <!-- Empty state -->
+        <div class="comics-empty-state" role="status">
+            <div class="comics-empty-icon" aria-hidden="true">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                    <rect x="8" y="6" width="32" height="36" rx="3" stroke="currentColor" stroke-width="1.5"/>
+                    <rect x="13" y="12" width="12" height="12" rx="1" stroke="currentColor" stroke-width="1.2"/>
+                    <line x1="13" y1="28" x2="35" y2="28" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                    <line x1="13" y1="33" x2="28" y2="33" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <h3 class="comics-empty-title">First pages loading…</h3>
+            <p class="comics-empty-body">No comics have been published yet. Be the first to submit your work.</p>
+            <a href="{% url 'submission_dashboard' %}" class="comics-btn-primary" style="display:inline-flex;">
+                Submit Artwork
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════
+     SUBMIT CTA BANNER
+════════════════════════════════════════════════ -->
+<section class="comics-cta-section" aria-label="Submit your work">
+    <div class="container">
+        <div class="comics-cta-inner">
+            <div class="comics-cta-text">
+                <p class="comics-cta-eyebrow">Open Submissions</p>
+                <h2 class="comics-cta-title">Your story deserves to be seen.</h2>
+                <p class="comics-cta-body">We're actively looking for graphic novelists, illustrators, and comics artists across Africa. Submit your portfolio today.</p>
+            </div>
+            <div class="comics-cta-actions">
+                <a href="{% url 'submission_dashboard' %}" class="comics-btn-primary comics-btn-primary--light">
+                    Start Submission
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                        <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+                <a href="#" class="comics-btn-ghost comics-btn-ghost--light">Read Guidelines</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+

@@ -1,0 +1,156 @@
+
+{% extends 'base.html' %}
+{% load static %}
+{% block body_class %}theme-shop{% endblock %}
+ 
+{% block content %}
+ 
+<!-- Page title bar -->
+<div class="cart-topbar">
+    <div class="container">
+        <nav aria-label="Breadcrumb">
+            <ol class="cart-breadcrumb">
+                <li><a href="{% url 'shop_home' %}">Shop</a></li>
+                <li aria-hidden="true">
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </li>
+                <li aria-current="page">Shopping Cart</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+ 
+<section class="cart-page-section">
+    <div class="container">
+        <div class="cart-header">
+            <h1 class="cart-title">Shopping Cart</h1>
+            {% if cart_items %}
+            <span class="cart-count-label">{{ cart_items|length }} item{{ cart_items|length|pluralize }}</span>
+            {% endif %}
+        </div>
+ 
+        {% if cart_items %}
+ 
+        <div class="cart-layout">
+            <!-- Items column -->
+            <div>
+                <div class="cart-table-wrap">
+                    <table class="cart-table" aria-label="Cart items">
+                        <thead>
+                            <tr>
+                                <th scope="col">Product</th>
+                                <th scope="col" style="text-align:center;">Quantity</th>
+                                <th scope="col" style="text-align:right;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cart_items %}
+                            <tr>
+                                <!-- Product info -->
+                                <td>
+                                    <div class="cart-product-cell">
+                                        {% if item.product.image %}
+                                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="cart-product-thumb">
+                                        {% else %}
+                                        <div class="cart-product-thumb-placeholder" aria-hidden="true">
+                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.2"/></svg>
+                                        </div>
+                                        {% endif %}
+                                        <div>
+                                            <p class="cart-product-name">{{ item.product.name }}</p>
+                                            <p class="cart-product-cat">{{ item.product.category|title }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+ 
+                                <!-- Quantity -->
+                                <td style="text-align:center;">
+                                    <span class="cart-qty-badge" aria-label="{{ item.quantity }} in cart">{{ item.quantity }}</span>
+                                </td>
+ 
+                                <!-- Price -->
+                                <td>
+                                    <p class="cart-item-price">KES {{ item.total }}</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+ 
+                <a href="{% url 'shop_home' %}" class="cart-continue-link" style="display:block; margin-top: 1rem; padding: 0.8rem 0; text-align:left;">
+                    ← Continue Shopping
+                </a>
+            </div>
+ 
+            <!-- Summary panel -->
+            <aside class="cart-summary-panel" aria-label="Order summary">
+                <h2 class="cart-summary-title">Order Summary</h2>
+ 
+                <div class="cart-summary-rows">
+                    <div class="cart-summary-row">
+                        <span class="cart-summary-row-label">Subtotal</span>
+                        <span class="cart-summary-row-value">KES {{ total_price }}</span>
+                    </div>
+                    <div class="cart-summary-row">
+                        <span class="cart-summary-row-label">Shipping</span>
+                        <span class="cart-summary-row-value">Calculated at checkout</span>
+                    </div>
+                    <div class="cart-summary-row">
+                        <span class="cart-summary-row-label">Tax</span>
+                        <span class="cart-summary-row-value">Calculated at checkout</span>
+                    </div>
+                </div>
+ 
+                <div class="cart-summary-total">
+                    <span class="cart-summary-total-label">Estimated Total</span>
+                    <span class="cart-summary-total-value">KES {{ total_price }}</span>
+                </div>
+ 
+                <!-- Checkout button (links to your checkout view when built) -->
+                <a href="#" class="cart-checkout-btn" aria-label="Proceed to checkout">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                        <path d="M5 6l2-2 5 5M7 4l2-2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 12h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                    </svg>
+                    Proceed to Checkout
+                </a>
+ 
+                <p class="cart-payment-note">
+                    Accepted: M-Pesa · Visa · Mastercard · PayPal
+                </p>
+ 
+                <a href="{% url 'shop_home' %}" class="cart-continue-link">← Continue Shopping</a>
+            </aside>
+ 
+        </div>
+ 
+        {% else %}
+ 
+        <!-- Empty cart -->
+        <div class="cart-table-wrap">
+            <div class="cart-empty">
+                <div class="cart-empty-icon" aria-hidden="true">
+                    <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+                        <path d="M7 7h7l5 21h21l5-16H20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="25" cy="46" r="3" stroke="currentColor" stroke-width="1.6"/>
+                        <circle cx="40" cy="46" r="3" stroke="currentColor" stroke-width="1.6"/>
+                    </svg>
+                </div>
+                <h3>Your cart is empty</h3>
+                <p>Browse the shop and add something you love.</p>
+                <a href="{% url 'shop_home' %}" class="cart-empty-shop-btn">
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+                        <path d="M2 6.5h9M6 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Browse Shop
+                </a>
+            </div>
+        </div>
+ 
+        {% endif %}
+    </div>
+</section>
+ 
+{% endblock %}
+ 

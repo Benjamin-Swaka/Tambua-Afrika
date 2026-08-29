@@ -1,0 +1,110 @@
+{% extends "base_minimal.html" %}
+{% load static %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/crowdfunding.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="crowdfunding crowdfunding-form-page">
+  <h1>{% if is_edit %}Edit Campaign{% else %}Start a Campaign{% endif %}</h1>
+
+  <form method="post" class="cf-campaign-form" novalidate>
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="cf-form-errors">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="cf-form-group">
+      <label for="{{ form.title.id_for_label }}">Title</label>
+      {{ form.title }}
+      {{ form.title.errors }}
+    </div>
+
+    <div class="cf-form-group">
+      <label for="{{ form.description.id_for_label }}">Description</label>
+      {{ form.description }}
+      {{ form.description.errors }}
+    </div>
+
+    <div class="cf-form-row">
+      <div class="cf-form-group">
+        <label for="{{ form.goal_amount.id_for_label }}">Funding Goal</label>
+        {{ form.goal_amount }}
+        {{ form.goal_amount.errors }}
+      </div>
+
+      <div class="cf-form-group">
+        <label for="{{ form.deadline.id_for_label }}">Deadline</label>
+        {{ form.deadline }}
+        {{ form.deadline.errors }}
+      </div>
+
+      <div class="cf-form-group">
+        <label for="{{ form.department.id_for_label }}">Department</label>
+        {{ form.department }}
+        {{ form.department.errors }}
+      </div>
+    </div>
+
+    <h2 class="cf-section-heading">Reward Tiers</h2>
+    <div id="cf-reward-formset" data-prefix="{{ formset.prefix }}">
+      {{ formset.management_form }}
+      <div class="cf-reward-rows">
+        {% for reward_form in formset %}
+          <div class="cf-reward-row">
+            {{ reward_form.id }}
+            <div class="cf-form-group">
+              <label>Title</label>
+              {{ reward_form.title }}
+            </div>
+            <div class="cf-form-group">
+              <label>Description</label>
+              {{ reward_form.description }}
+            </div>
+            <div class="cf-form-group cf-form-group-narrow">
+              <label>Amount</label>
+              {{ reward_form.amount }}
+            </div>
+            {% if reward_form.instance.pk %}
+              <div class="cf-form-group cf-form-group-narrow cf-delete-group">
+                <label>{{ reward_form.DELETE.label }}</label>
+                {{ reward_form.DELETE }}
+              </div>
+            {% endif %}
+            <button type="button" class="cf-remove-row-btn" aria-label="Remove reward">&times;</button>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- Hidden empty-form template used by JS to clone new reward rows -->
+      <template id="cf-empty-reward-row">
+        <div class="cf-reward-row">
+          <div class="cf-form-group">
+            <label>Title</label>
+            {{ formset.empty_form.title }}
+          </div>
+          <div class="cf-form-group">
+            <label>Description</label>
+            {{ formset.empty_form.description }}
+          </div>
+          <div class="cf-form-group cf-form-group-narrow">
+            <label>Amount</label>
+            {{ formset.empty_form.amount }}
+          </div>
+          <button type="button" class="cf-remove-row-btn" aria-label="Remove reward">&times;</button>
+        </div>
+      </template>
+
+      <button type="button" id="cf-add-reward-btn" class="cf-add-row-btn">+ Add Reward Tier</button>
+    </div>
+
+    <button type="submit" class="btn-custom cf-submit-btn">
+      {% if is_edit %}Save Changes{% else %}Create Campaign{% endif %}
+    </button>
+  </form>
+</div>
+
+<script src="{% static 'js/crowdfunding.js' %}"></script>
+{% endblock %}

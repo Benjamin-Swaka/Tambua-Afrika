@@ -1,0 +1,440 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-28 16:21+0300\n"
+"PO-Revision-Date: 2026-08-28 17:00+0300\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: .\templates\core\home.html:14
+msgid "African Stories. African Talent."
+msgstr "Histoires africaines. Talents africains."
+
+#: .\templates\core\home.html:14
+msgid "Let's Recognise Africa."
+msgstr "Reconnaissons l'Afrique."
+
+#: .\templates\core\home.html:15
+msgid "Bridging the gap between raw talent and global audiences."
+msgstr "Combler le fossé entre les talents bruts et les publics mondiaux."
+
+#: .\templates\core\home.html:17
+msgid "Submit Your Work"
+msgstr "Soumettre votre travail"
+
+#: .\templates\core\home.html:18
+msgid "Visit Our Shop"
+msgstr "Visiter notre boutique"
+
+#: .\templates\core\home.html:30
+msgid "Our Ecosystem"
+msgstr "Notre écosystème"
+
+#: .\templates\core\home.html:31
+msgid "Departments &amp; Divisions"
+msgstr "Départements et divisions"
+
+#: .\templates\core\home.html:34
+msgid "Previous slide"
+msgstr "Diapositive précédente"
+
+#: .\templates\core\home.html:44
+msgid "Next slide"
+msgstr "Diapositive suivante"
+
+#: .\templates\core\home.html:68
+msgid "Core"
+msgstr "Cœur"
+
+#: .\templates\core\home.html:69
+msgid "Studios"
+msgstr "Studios"
+
+#: .\templates\core\home.html:70
+msgid "Corporate identity, IP management, and the operational backbone of the Tambua Afrika ecosystem."
+msgstr "Identité d'entreprise, gestion de la propriété intellectuelle et colonne vertébrale opérationnelle de l'écosystème Tambua Afrika."
+
+#: .\templates\core\home.html:71
+msgid "Learn more about Studios"
+msgstr "En savoir plus sur les Studios"
+
+#: .\templates\core\home.html:72
+msgid "Learn More"
+msgstr "En savoir plus"
+
+#: .\templates\core\home.html:91
+msgid "Publishing"
+msgstr "Édition"
+
+#: .\templates\core\home.html:92 .\templates\core\home.html:223
+msgid "Tambua Ink"
+msgstr "Tambua Ink"
+
+#: .\templates\core\home.html:93
+msgid "Books, poetry, and literary journals that give African writers a professional publishing pathway."
+msgstr "Livres, poésie et revues littéraires qui offrent aux écrivains africains une voie d'édition professionnelle."
+
+#: .\templates\core\home.html:94
+msgid "Explore Tambua Ink"
+msgstr "Explorer Tambua Ink"
+
+#: .\templates\core\home.html:95 .\templates\core\home.html:226
+msgid "Read More"
+msgstr "Lire la suite"
+
+#: .\templates\core\home.html:115
+msgid "Theatre"
+msgstr "Théâtre"
+
+#: .\templates\core\home.html:116 .\templates\core\home.html:251
+msgid "Tambua Stage"
+msgstr "Tambua Stage"
+
+#: .\templates\core\home.html:117
+msgid "Live theatre, voice acting, and performance arts — where stories become embodied experiences."
+msgstr "Théâtre vivant, doublage et arts de la scène — où les histoires deviennent des expériences incarnées."
+
+#: .\templates\core\home.html:118
+msgid "Get tickets for Tambua Stage"
+msgstr "Obtenir des billets pour Tambua Stage"
+
+#: .\templates\core\home.html:119 .\templates\core\home.html:436
+msgid "Get Tickets"
+msgstr "Obtenir des billets"
+
+#: .\templates\core\home.html:140
+msgid "Visual Arts"
+msgstr "Arts visuels"
+
+#: .\templates\core\home.html:141 .\templates\core\home.html:237
+#: .\templates\core\home.html:265
+msgid "Tambua Comics"
+msgstr "Tambua Comics"
+
+#: .\templates\core\home.html:142
+msgid "Graphic novels, sequential art, animation, and gaming rooted in African visual culture."
+msgstr "Romans graphiques, art séquentiel, animation et jeux vidéo ancrés dans la culture visuelle africaine."
+
+#: .\templates\core\home.html:143
+msgid "Explore Tambua Comics"
+msgstr "Explorer Tambua Comics"
+
+#: .\templates\core\home.html:144
+msgid "Explore Art"
+msgstr "Explorer l'art"
+
+#: .\templates\core\home.html:164
+msgid "Commerce"
+msgstr "Commerce"
+
+#: .\templates\core\home.html:165
+msgid "Sales &amp; Marketing"
+msgstr "Ventes et marketing"
+
+#: .\templates\core\home.html:166
+msgid "Merchandise, partnerships, ticket sales, and brand strategy — bringing African creativity to market."
+msgstr "Marchandises, partenariats, vente de billets et stratégie de marque — pour mettre la créativité africaine sur le marché."
+
+#: .\templates\core\home.html:167
+msgid "Visit the shop"
+msgstr "Visiter la boutique"
+
+#: .\templates\core\home.html:168
+msgid "Visit Shop"
+msgstr "Visiter la boutique"
+
+#: .\templates\core\home.html:191
+msgid "Portfolio"
+msgstr "Portfolio"
+
+#: .\templates\core\home.html:192
+msgid "Featured Works"
+msgstr "Œuvres en vedette"
+
+#: .\templates\core\home.html:194
+msgid "Previous work"
+msgstr "Œuvre précédente"
+
+#: .\templates\core\home.html:204
+msgid "Next work"
+msgstr "Œuvre suivante"
+
+#: .\templates\core\home.html:218
+msgid "Book"
+msgstr "Livre"
+
+#: .\templates\core\home.html:224
+msgid "Echoes of the Savanna"
+msgstr "Échos de la savane"
+
+#: .\templates\core\home.html:225
+msgid "by A. K. Mwangi · 2025"
+msgstr "par A. K. Mwangi · 2025"
+
+#: .\templates\core\home.html:233
+msgid "Comic"
+msgstr "Bande dessinée"
+
+#: .\templates\core\home.html:238
+msgid "The Golden Mask"
+msgstr "Le masque d'or"
+
+#: .\templates\core\home.html:239
+msgid "by S. O. Adebayo · 2025"
+msgstr "par S. O. Adebayo · 2025"
+
+#: .\templates\core\home.html:240
+msgid "Explore"
+msgstr "Explorer"
+
+#: .\templates\core\home.html:247
+msgid "Play"
+msgstr "Pièce"
+
+#: .\templates\core\home.html:252
+msgid "The Griot’s Daughter"
+msgstr "La fille du griot"
+
+#: .\templates\core\home.html:253
+msgid "by L. N. Okafor · 2025"
+msgstr "par L. N. Okafor · 2025"
+
+#: .\templates\core\home.html:254
+msgid "View"
+msgstr "Voir"
+
+#: .\templates\core\home.html:261
+msgid "Animation"
+msgstr "Animation"
+
+#: .\templates\core\home.html:266
+msgid "Spirit of the Baobab"
+msgstr "L'esprit du baobab"
+
+#: .\templates\core\home.html:267
+msgid "by K. D. Mensah · 2025"
+msgstr "par K. D. Mensah · 2025"
+
+#: .\templates\core\home.html:268
+msgid "Watch"
+msgstr "Regarder"
+
+#: .\templates\core\home.html:286
+msgid "Submissions"
+msgstr "Soumissions"
+
+#: .\templates\core\home.html:287
+msgid "Open Calls"
+msgstr "Appels à candidatures"
+
+#: .\templates\core\home.html:288
+msgid "Find your opportunity. Submit your work."
+msgstr "Trouvez votre opportunité. Soumettez votre travail."
+
+#: .\templates\core\home.html:296
+msgid "Open"
+msgstr "Ouvert"
+
+#: .\templates\core\home.html:298
+msgid "2026 Annual Anthology"
+msgstr "Anthologie annuelle 2026"
+
+#: .\templates\core\home.html:299
+msgid "Manuscripts, poetry collections, and short stories from African writers worldwide."
+msgstr "Manuscrits, recueils de poésie et nouvelles d'écrivains africains du monde entier."
+
+#: .\templates\core\home.html:306
+msgid "Closes 31 Dec 2026"
+msgstr "Clôture le 31 déc. 2026"
+
+#: .\templates\core\home.html:308
+msgid "Manuscripts · Poetry · Short Stories · Scripts"
+msgstr "Manuscrits · Poésie · Nouvelles · Scénarios"
+
+#: .\templates\core\home.html:311
+msgid "View Guidelines &amp; Submit"
+msgstr "Voir les directives et soumettre"
+
+#: .\templates\core\home.html:321
+msgid "Closing Soon"
+msgstr "Clôture prochaine"
+
+#: .\templates\core\home.html:323
+msgid "Stage Play Competition"
+msgstr "Concours de pièce de théâtre"
+
+#: .\templates\core\home.html:324
+msgid "Original one-act plays by African playwrights. Selected works will be produced in 2027."
+msgstr "Pièces originales en un acte par des dramaturges africains. Les œuvres sélectionnées seront produites en 2027."
+
+#: .\templates\core\home.html:331
+msgid "Closes 15 Oct 2026"
+msgstr "Clôture le 15 oct. 2026"
+
+#: .\templates\core\home.html:333
+msgid "Plays · Scripts"
+msgstr "Pièces · Scénarios"
+
+#: .\templates\core\home.html:336
+msgid "Submit Now"
+msgstr "Soumettre maintenant"
+
+#: .\templates\core\home.html:346
+msgid "Closed"
+msgstr "Fermé"
+
+#: .\templates\core\home.html:348
+msgid "Graphic Novel Fellowship"
+msgstr "Bourse de roman graphique"
+
+#: .\templates\core\home.html:349
+msgid "Emerging African comic artists. The next fellowship round opens early 2027."
+msgstr "Artistes de bande dessinée africains émergents. La prochaine session de bourses s'ouvre début 2027."
+
+#: .\templates\core\home.html:356
+msgid "Closed 30 Jun 2026"
+msgstr "Fermé le 30 juin 2026"
+
+#: .\templates\core\home.html:358
+msgid "Comics · Illustration"
+msgstr "BD · Illustration"
+
+#: .\templates\core\home.html:360
+msgid "Closed for submissions"
+msgstr "Fermé aux soumissions"
+
+#: .\templates\core\home.html:366
+msgid "All Open Calls"
+msgstr "Tous les appels à candidatures"
+
+#: .\templates\core\home.html:380
+msgid "Marketplace"
+msgstr "Marché"
+
+#: .\templates\core\home.html:381
+msgid "Shop Highlights"
+msgstr "Points forts de la boutique"
+
+#: .\templates\core\home.html:383
+msgid "Previous product"
+msgstr "Produit précédent"
+
+#: .\templates\core\home.html:393
+msgid "Next product"
+msgstr "Produit suivant"
+
+#: .\templates\core\home.html:409
+msgid "Best-Selling Books"
+msgstr "Livres les plus vendus"
+
+#: .\templates\core\home.html:410
+msgid "Novels, poetry, and literary journals"
+msgstr "Romans, poésie et revues littéraires"
+
+#: .\templates\core\home.html:411
+msgid "From $14.99"
+msgstr "À partir de 14,99 $"
+
+#: .\templates\core\home.html:412
+msgid "Browse"
+msgstr "Parcourir"
+
+#: .\templates\core\home.html:421
+msgid "Merchandise"
+msgstr "Marchandises"
+
+#: .\templates\core\home.html:422
+msgid "Apparel, accessories, and collectibles"
+msgstr "Vêtements, accessoires et objets de collection"
+
+#: .\templates\core\home.html:423
+msgid "From $24.99"
+msgstr "À partir de 24,99 $"
+
+#: .\templates\core\home.html:424
+msgid "Shop Now"
+msgstr "Acheter maintenant"
+
+#: .\templates\core\home.html:433
+msgid "Tickets"
+msgstr "Billets"
+
+#: .\templates\core\home.html:434
+msgid "Live performances, readings, and events"
+msgstr "Spectacles en direct, lectures et événements"
+
+#: .\templates\core\home.html:435
+msgid "From $12.00"
+msgstr "À partir de 12,00 $"
+
+#: .\templates\core\home.html:454
+msgid "Trusted by cultural institutions across Africa"
+msgstr "Approuvé par les institutions culturelles à travers l'Afrique"
+
+#: .\templates\core\home.html:460 .\templates\core\home.html:466
+msgid "African Arts Council"
+msgstr "Conseil des arts africains"
+
+#: .\templates\core\home.html:461 .\templates\core\home.html:467
+msgid "Pan-African Writers"
+msgstr "Écrivains panafricains"
+
+#: .\templates\core\home.html:462 .\templates\core\home.html:468
+msgid "Cultural Heritage Fund"
+msgstr "Fonds du patrimoine culturel"
+
+#: .\templates\core\home.html:463 .\templates\core\home.html:469
+msgid "African University Network"
+msgstr "Réseau des universités africaines"
+
+#: .\templates\core\home.html:464 .\templates\core\home.html:470
+msgid "Creative Africa Exchange"
+msgstr "Échange Afrique créative"
+
+#: .\templates\core\home.html:475
+msgid "Impact statistics"
+msgstr "Statistiques d'impact"
+
+#: .\templates\core\home.html:478
+msgid "Creators supported"
+msgstr "Créateurs soutenus"
+
+#: .\templates\core\home.html:483
+msgid "African countries"
+msgstr "Pays africains"
+
+#: .\templates\core\home.html:488
+msgid "Published works"
+msgstr "Œuvres publiées"
+
+#: .\templates\core\home.html:493
+msgid "Creative disciplines"
+msgstr "Disciplines créatives"
+
+#: .\templates\core\home.html:498
+msgid "Schools"
+msgstr "Écoles"
+
+#: .\templates\core\home.html:499
+msgid "Cultural Institutions"
+msgstr "Institutions culturelles"
+
+#: .\templates\core\home.html:500
+msgid "Grants"
+msgstr "Subventions"
+
+#: .\templates\core\home.html:501
+msgid "Diaspora Programs"
+msgstr "Programmes de la diaspora"

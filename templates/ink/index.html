@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body_class %}theme-ink{% endblock %}
+ 
+{% block content %}
+ 
+<!-- ═══════════════════════════════════
+     HERO
+════════════════════════════════════ -->
+<section class="ink-hero" aria-labelledby="ink-hero-heading">
+    <div class="ink-hero-bg" aria-hidden="true">
+        <div class="ink-hero-lines"></div>
+    </div>
+    <div class="container position-relative" style="z-index: 2;">
+        <div class="ink-hero-inner">
+            <div class="ink-hero-eyebrow">
+                <span class="ink-tag">
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                        <path d="M7 1L2 6l-.5 2.5L4 8l5-5a1.41 1.41 0 00-2-2z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/>
+                    </svg>
+                    Publishing
+                </span>
+            </div>
+            <h1 class="ink-hero-title" id="ink-hero-heading">
+                Tambua Afrika<br>
+                <em class="ink-hero-title-accent">Ink</em>
+            </h1>
+            <p class="ink-hero-subtitle">
+                Publishing the next generation of African literature — books, poetry, anthologies, and literary journals.
+            </p>
+            <div class="ink-hero-actions">
+                <a href="{% url 'submission_dashboard' %}" class="ink-btn-primary">
+                    Submit Your Manuscript
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                        <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+                <a href="{% url 'shop_home' %}" class="ink-btn-ghost">Browse Books</a>
+            </div>
+        </div>
+    </div>
+</section>
+ 
+ 
+<!-- ═══════════════════════════════════
+     WHAT WE PUBLISH
+════════════════════════════════════ -->
+<section class="ink-types-section" aria-label="What we publish">
+    <div class="container">
+        <div class="ink-types-grid" role="list">
+            <div class="ink-type-item" role="listitem">
+                <div class="ink-type-icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="2" width="14" height="16" rx="2" stroke="currentColor" stroke-width="1.3"/><line x1="7" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="7" y1="10" x2="13" y2="10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="7" y1="13" x2="11" y2="13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                </div>
+                <span>Novels &amp; Fiction</span>
+            </div>
+            <div class="ink-type-item" role="listitem">
+                <div class="ink-type-icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2L3 7v11h14V7L10 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M7 18v-7h6v7" stroke="currentColor" stroke-width="1.3"/></svg>
+                </div>
+                <span>Poetry Collections</span>
+            </div>
+            <div class="ink-type-item" role="listitem">
+                <div class="ink-type-icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="3" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M6 3v14M2 8h4M2 13h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                </div>
+                <span>Literary Journals</span>
+            </div>
+            <div class="ink-type-item" role="listitem">
+                <div class="ink-type-icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 4h12v12H4zM4 9h12M4 14h12M9 4v10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <span>Anthologies</span>
+            </div>
+            <div class="ink-type-item" role="listitem">
+                <div class="ink-type-icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2l1.8 5.4H18l-4.9 3.6 1.8 5.4L10 13l-4.9 3.4 1.8-5.4L2 7.4h6.2L10 2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+                </div>
+                <span>Non-Fiction</span>
+            </div>
+            <div class="ink-type-item" role="listitem">
+                <div class="ink-type-icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 3h10a2 2 0 012 2v12l-4-2-4 2-4-2V5a2 2 0 012-2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+                </div>
+                <span>Children's Books</span>
+            </div>
+        </div>
+    </div>
+</section>
+ 
+ 
+<!-- ═══════════════════════════════════
+     CATALOGUE SECTION
+════════════════════════════════════ -->
+<section class="ink-catalogue-section" aria-labelledby="ink-catalogue-heading">
+    <div class="container">
+ 
+        <div class="ink-section-header">
+            <div>
+                <p class="ink-section-eyebrow">The Collection</p>
+                <h2 class="ink-section-title" id="ink-catalogue-heading">New Releases</h2>
+            </div>
+            <a href="{% url 'submission_dashboard' %}" class="ink-guidelines-link">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <path d="M7 2L2 6l-.5 2.5L4 8l5-5a2 2 0 00-2-2z" stroke="currentColor" stroke-width="1.3"/>
+                </svg>
+                Submission Guidelines
+            </a>
+        </div>
+ 
+        <!-- Book catalogue grid — fed by Django context: {{ books }} -->
+        {% if books %}
+        <div class="ink-books-grid" role="list">
+            {% for book in books %}
+            <article class="ink-book-card" role="listitem">
+                <div class="ink-book-cover-wrap">
+                    {% if book.image %}
+                    <img src="{{ book.image.url }}" alt="{{ book.name }} cover" class="ink-book-cover-img" loading="lazy">
+                    {% else %}
+                    <div class="ink-book-cover-placeholder" aria-label="{{ book.name }} cover placeholder">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                            <rect x="4" y="3" width="22" height="26" rx="2" stroke="currentColor" stroke-width="1.4"/>
+                            <line x1="9" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                            <line x1="9" y1="14" x2="21" y2="14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                            <line x1="9" y1="18" x2="17" y2="18" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    {% endif %}
+                    {% if book.is_digital %}
+                    <span class="ink-book-badge ink-book-badge--digital">Digital</span>
+                    {% endif %}
+                </div>
+                <div class="ink-book-body">
+                    <p class="ink-book-category">{{ book.category|title }}</p>
+                    <h3 class="ink-book-title">{{ book.name }}</h3>
+                    <p class="ink-book-excerpt">{{ book.description|truncatechars:80 }}</p>
+                    <div class="ink-book-footer">
+                        <span class="ink-book-price">${{ book.price }}</span>
+                        <a href="{% url 'add_to_cart' book.pk %}" class="ink-book-add-btn" aria-label="Add {{ book.name }} to cart">
+                            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+                                <path d="M1 1h2l1.5 6.5h5.5l1-4H4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="6.5" cy="11" r="1" fill="currentColor"/>
+                                <circle cx="10.5" cy="11" r="1" fill="currentColor"/>
+                            </svg>
+                            Add to Cart
+                        </a>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+ 
+        {% else %}
+        <!-- Loading state / empty catalogue -->
+        <div class="ink-catalogue-empty" role="status">
+            <div class="ink-catalogue-shelf" aria-hidden="true">
+                {% for i in "12345" %}
+                <div class="ink-shelf-book ink-shelf-book--{{ forloop.counter }}"></div>
+                {% endfor %}
+            </div>
+            <h3 class="ink-empty-title">Books loading soon</h3>
+            <p class="ink-empty-body">The catalogue is being curated. In the meantime, submit your manuscript to be among the first published.</p>
+            <a href="{% url 'submission_dashboard' %}" class="ink-btn-primary" style="display: inline-flex; margin-top: 0.5rem;">
+                Submit Your Work
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+        </div>
+        {% endif %}
+ 
+    </div>
+</section>
+ 
+ 
+<!-- ═══════════════════════════════════
+     SUBMISSION CTA
+════════════════════════════════════ -->
+<section class="ink-submit-section" aria-label="Submit your work">
+    <div class="container">
+        <div class="ink-submit-inner">
+            <div class="ink-submit-text">
+                <p class="ink-submit-eyebrow">Open to All African Writers</p>
+                <h2 class="ink-submit-title">Your story deserves a structured platform.</h2>
+                <p class="ink-submit-body">
+                    Tambua Afrika Ink offers professional editorial support, publishing contracts, physical &amp; digital distribution, and royalty management for African writers at every stage of their career.
+                </p>
+            </div>
+            <div class="ink-submit-steps">
+                <div class="ink-submit-step">
+                    <span class="ink-submit-step-num">01</span>
+                    <div>
+                        <p class="ink-submit-step-title">Create account</p>
+                        <p class="ink-submit-step-body">Sign up for a free creator account on the platform.</p>
+                    </div>
+                </div>
+                <div class="ink-submit-step">
+                    <span class="ink-submit-step-num">02</span>
+                    <div>
+                        <p class="ink-submit-step-title">Upload manuscript</p>
+                        <p class="ink-submit-step-body">Submit your full or partial manuscript with a synopsis.</p>
+                    </div>
+                </div>
+                <div class="ink-submit-step">
+                    <span class="ink-submit-step-num">03</span>
+                    <div>
+                        <p class="ink-submit-step-title">Track review</p>
+                        <p class="ink-submit-step-body">Monitor status in real time: Received → Review → Decision.</p>
+                    </div>
+                </div>
+                <a href="{% url 'submission_dashboard' %}" class="ink-btn-primary" style="margin-top: 0.5rem; display: inline-flex;">
+                    Start Submission
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                        <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+ 
+{% endblock %}
+ 
+ 

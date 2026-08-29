@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block body_class %}theme-default{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-3 mb-4">
+            <div class="list-group">
+                <a href="#" class="list-group-item list-group-item-action active bg-dark border-dark">Dashboard</a>
+                <a href="{% url 'new_submission' %}" class="list-group-item list-group-item-action">New Submission</a>
+                <a href="#" class="list-group-item list-group-item-action">Profile Settings</a>
+            </div>
+        </div>
+        
+        <div class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>My Submissions</h2>
+                <a href="{% url 'new_submission' %}" class="btn btn-dark">Create New</a>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="p-3">Title</th>
+                                <th class="p-3">Category</th>
+                                <th class="p-3">Date</th>
+                                <th class="p-3">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sub in submissions %}
+                            <tr>
+                                <td class="p-3 fw-bold">{{ sub.title }}</td>
+                                <td class="p-3">{{ sub.get_category_display }}</td>
+                                <td class="p-3">{{ sub.created_at|date:"M d, Y" }}</td>
+                                <td class="p-3">
+                                    {% if sub.status == 'accepted' %}
+                                        <span class="badge bg-success rounded-pill">Accepted</span>
+                                    {% elif sub.status == 'rejected' %}
+                                        <span class="badge bg-danger rounded-pill">Rejected</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark rounded-pill">In Review</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center p-5 text-muted">
+                                    You haven't submitted any work yet.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

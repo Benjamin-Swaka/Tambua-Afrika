@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body_class %}theme-shop{% endblock %}
+ 
+{% block content %}
+ 
+<!-- ═══════════════════════════════════
+     SHOP HERO
+════════════════════════════════════ -->
+<section class="shop-hero" aria-labelledby="shop-hero-heading">
+    <div class="container">
+        <div class="shop-hero-inner">
+            <div class="shop-hero-text">
+                <p class="shop-hero-eyebrow">Tambua Market</p>
+                <h1 class="shop-hero-title" id="shop-hero-heading">
+                    Books, Art &amp;<br>Merchandise
+                </h1>
+                <p class="shop-hero-subtitle">
+                    Official publications, prints, merchandise, and digital content — all proceeds support African creators.
+                </p>
+            </div>
+            <div class="shop-hero-actions">
+                <a href="{% url 'cart_view' %}" class="shop-cart-btn" aria-label="View shopping cart">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                        <path d="M1 1h3l1.8 8.5h8.5l1.5-5H5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="8" cy="15" r="1.2" fill="currentColor"/>
+                        <circle cx="13" cy="15" r="1.2" fill="currentColor"/>
+                    </svg>
+                    View Cart
+                    {% if request.session.cart %}
+                    <span class="shop-cart-count">{{ request.session.cart|length }}</span>
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="shop-hero-accent-bar" aria-hidden="true"></div>
+</section>
+ 
+<!-- Category filter tabs -->
+<div class="shop-filter-bar" role="navigation" aria-label="Filter by category">
+    <div class="container">
+        <div class="shop-filter-tabs" role="list">
+            <a href="?" class="shop-filter-tab {% if not request.GET.category %}shop-filter-tab--active{% endif %}" role="listitem">All</a>
+            <a href="?category=book"  class="shop-filter-tab {% if request.GET.category == 'book' %}shop-filter-tab--active{% endif %}" role="listitem">Books</a>
+            <a href="?category=comic" class="shop-filter-tab {% if request.GET.category == 'comic' %}shop-filter-tab--active{% endif %}" role="listitem">Comics</a>
+            <a href="?category=merch" class="shop-filter-tab {% if request.GET.category == 'merch' %}shop-filter-tab--active{% endif %}" role="listitem">Merchandise</a>
+            <a href="?category=ticket" class="shop-filter-tab {% if request.GET.category == 'ticket' %}shop-filter-tab--active{% endif %}" role="listitem">Tickets</a>
+        </div>
+    </div>
+</div>
+ 
+ 
+<!-- ═══════════════════════════════════
+     PRODUCTS GRID
+════════════════════════════════════ -->
+<section class="shop-products-section" aria-label="Product catalogue">
+    <div class="container">
+ 
+        {% if products %}
+        <div class="shop-products-grid" role="list">
+            {% for product in products %}
+            <article class="shop-product-card" role="listitem">
+ 
+                <!-- Image -->
+                <div class="shop-product-img-wrap">
+                    {% if product.image %}
+                    <img
+                        src="{{ product.image.url }}"
+                        alt="{{ product.name }}"
+                        class="shop-product-img"
+                        loading="lazy"
+                    >
+                    {% else %}
+                    <div class="shop-product-img-placeholder" aria-hidden="true">
+                        <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+                            <rect x="4" y="4" width="28" height="28" rx="3" stroke="currentColor" stroke-width="1.4"/>
+                            <circle cx="13" cy="13" r="3" stroke="currentColor" stroke-width="1.2"/>
+                            <path d="M4 24l8-6 6 5 5-4 9 8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    {% endif %}
+ 
+                    <!-- Badges -->
+                    <div class="shop-product-badges">
+                        <span class="shop-product-cat-badge">{{ product.category|title }}</span>
+                        {% if product.is_digital %}
+                        <span class="shop-product-digital-badge">Digital</span>
+                        {% endif %}
+                    </div>
+ 
+                    <!-- Quick-add overlay -->
+                    <div class="shop-product-overlay" aria-hidden="true">
+                        <a href="{% url 'add_to_cart' product.pk %}" class="shop-product-overlay-btn" tabindex="-1">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                <path d="M1 1h2l1.5 5.5h5.5l1-3.5H4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="6" cy="11.5" r="1" fill="currentColor"/>
+                                <circle cx="10" cy="11.5" r="1" fill="currentColor"/>
+                            </svg>
+                            Quick Add
+                        </a>
+                    </div>
+                </div>
+ 
+                <!-- Body -->
+                <div class="shop-product-body">
+                    <h2 class="shop-product-name">{{ product.name }}</h2>
+                    <p class="shop-product-desc">{{ product.description|truncatechars:65 }}</p>
+                    <div class="shop-product-footer">
+                        <span class="shop-product-price">KES {{ product.price }}</span>
+                        <a href="{% url 'add_to_cart' product.pk %}" class="shop-add-btn" aria-label="Add {{ product.name }} to cart">
+                            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+                                <path d="M6.5 2v9M2 6.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                            Add to Cart
+                        </a>
+                    </div>
+                </div>
+ 
+            </article>
+            {% endfor %}
+        </div>
+ 
+        {% else %}
+        <!-- Empty -->
+        <div class="shop-empty-state" role="status">
+            <div class="shop-empty-icon" aria-hidden="true">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                    <path d="M6 6h6l4.5 18h18l4-13H16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="21" cy="40" r="3" stroke="currentColor" stroke-width="1.6"/>
+                    <circle cx="35" cy="40" r="3" stroke="currentColor" stroke-width="1.6"/>
+                </svg>
+            </div>
+            <h3>Shop coming soon</h3>
+            <p>Products are being added. Check back shortly.</p>
+        </div>
+        {% endif %}
+ 
+    </div>
+</section>
+ 
+{% endblock %}

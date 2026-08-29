@@ -1,0 +1,60 @@
+{% extends "base_minimal.html" %}
+{% load static %}
+
+{% block title %}Cookie Settings{% endblock %}
+
+{% block content %}
+<div class="cookie-settings-wrapper">
+    <div class="minimal-card">
+        <h1 class="mb-4">Cookie Settings</h1>
+        <p class="lead mb-5">Manage your cookie preferences. Essential cookies are always enabled.</p>
+
+        <form id="cookie-settings-form" method="post" action="{% url 'cookie_settings' %}">
+            {% csrf_token %}
+            <div class="cookie-setting-group">
+                <div class="cookie-setting-header">
+                    <div>
+                        <h3 class="cookie-setting-name">Essential Cookies</h3>
+                        <p class="cookie-setting-desc">Required for the website to function properly. These cannot be disabled.</p>
+                    </div>
+                    <label class="cookie-toggle cookie-toggle--disabled">
+                        <input type="checkbox" checked disabled>
+                        <span class="cookie-toggle__slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="cookie-setting-group">
+                <div class="cookie-setting-header">
+                    <div>
+                        <h3 class="cookie-setting-name">Analytics Cookies</h3>
+                        <p class="cookie-setting-desc">Help us understand how visitors interact with the site.</p>
+                    </div>
+                    <label class="cookie-toggle">
+                        <input type="checkbox" name="analytics" id="cookie-analytics">
+                        <span class="cookie-toggle__slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="cookie-setting-group">
+                <div class="cookie-setting-header">
+                    <div>
+                        <h3 class="cookie-setting-name">Marketing Cookies</h3>
+                        <p class="cookie-setting-desc">Used to deliver relevant advertisements.</p>
+                    </div>
+                    <label class="cookie-toggle">
+                        <input type="checkbox" name="marketing" id="cookie-marketing">
+                        <span class="cookie-toggle__slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="cookie-settings-actions">
+                <button type="submit" class="cookie-btn cookie-btn--primary">Save Preferences</button>
+                <a href="{% url 'home' %}" class="cookie-btn cookie-btn--ghost">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

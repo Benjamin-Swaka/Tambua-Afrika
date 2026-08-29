@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block body_class %}theme-stage{% endblock %}
+
+{% block content %}
+<div class="legal-header">
+    <div class="container">
+        <h1>Complete Your Payment</h1>
+        <p class="lead mb-0">Reservation {{ ticket.ticket_code }}</p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+
+            <div class="card border-0 shadow-sm p-4 mb-4">
+                <h5 class="mb-3">Order Summary</h5>
+                <div class="d-flex justify-content-between mb-1">
+                    <span>{{ ticket.show.title }}</span>
+                    <span>{{ ticket.quantity }} &times; KES {{ ticket.unit_price }}</span>
+                </div>
+                <div class="d-flex justify-content-between text-muted small mb-3">
+                    <span>{{ ticket.show.venue }}</span>
+                    <span>{{ ticket.show.date|date:"D, d M Y" }} &middot; {{ ticket.show.time|time:"g:i A" }}</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between fw-bold">
+                    <span>Total Due</span>
+                    <span>KES {{ ticket.total_amount }}</span>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm p-4">
+                <h5 class="mb-3">Pay via M-Pesa / Bank Transfer</h5>
+                <p class="text-muted">
+                    Send <strong>KES {{ ticket.total_amount }}</strong> to Till/Paybill
+                    <strong>000000</strong> (Tambua Afrika Studios), using reference
+                    <strong>{{ ticket.ticket_code }}</strong>. Once paid, enter the
+                    M-Pesa/transaction code you received below to confirm your ticket.
+                </p>
+                <p class="text-muted small">
+                    <em>This is a manual confirmation step for now — automatic checkout
+                    (instant payment) is coming soon.</em>
+                </p>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="payment_reference" class="form-label small text-muted text-uppercase fw-bold">
+                            Payment Reference / Transaction Code
+                        </label>
+                        <input type="text" id="payment_reference" name="payment_reference"
+                               class="form-control rounded-0" placeholder="e.g. QK7X8Y9Z12" required>
+                    </div>
+                    <button type="submit" class="btn btn-custom w-100">I've Paid — Confirm Ticket</button>
+                </form>
+
+                <form method="POST" action="{% url 'cancel_ticket' ticket.ticket_code %}" class="mt-2">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-dark w-100 btn-sm">Cancel Reservation</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

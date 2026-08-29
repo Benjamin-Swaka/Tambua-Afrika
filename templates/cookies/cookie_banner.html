@@ -1,0 +1,16 @@
+{% load static %}
+<div id="cookie-banner" class="cookie-banner" role="dialog" aria-label="Cookie consent" style="display: none;">
+    <div class="cookie-banner__content">
+        <div class="cookie-banner__text">
+            <h2 class="cookie-banner__title">We value your privacy</h2>
+            <p class="cookie-banner__body">
+                We use cookies to enhance your browsing experience, analyse site traffic, and serve personalised content.
+            </p>
+        </div>
+        <div class="cookie-banner__actions">
+            <button id="cookie-accept-all" class="cookie-btn cookie-btn--primary">Accept All</button>
+            <button id="cookie-reject-all" class="cookie-btn cookie-btn--ghost">Reject All</button>
+            <a href="{% url 'cookie_settings' %}" class="cookie-btn cookie-btn--link">Cookie Settings</a>
+        </div>
+    </div>
+</div>

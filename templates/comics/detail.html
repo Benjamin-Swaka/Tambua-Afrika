@@ -1,0 +1,224 @@
+ 
+{% extends 'base.html' %}
+{% load static %}
+{% block body_class %}theme-comics{% endblock %}
+ 
+{% block content %}
+ 
+<!-- Breadcrumb nav -->
+<div class="comics-detail-breadcrumb">
+    <div class="container">
+        <nav aria-label="Breadcrumb">
+            <ol class="comics-breadcrumb-list">
+                <li><a href="{% url 'home' %}">Studios</a></li>
+                <li aria-hidden="true">
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                        <path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </li>
+                <li><a href="{% url 'comics_home' %}">Comics</a></li>
+                <li aria-hidden="true">
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                        <path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </li>
+                <li aria-current="page">{{ comic.title }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+ 
+<!-- ═══════════════════════════════════════════════
+     MAIN DETAIL LAYOUT
+════════════════════════════════════════════════ -->
+<div class="comics-detail-section">
+    <div class="container">
+        <div class="comics-detail-layout">
+ 
+            <!-- ── LEFT: Cover ── -->
+            <aside class="comics-detail-cover-col" aria-label="Cover art">
+                <div class="comics-detail-cover-frame">
+                    <!-- Decorative dot corner -->
+                    <div class="comics-detail-cover-dot comics-detail-cover-dot--tl" aria-hidden="true"></div>
+                    <div class="comics-detail-cover-dot comics-detail-cover-dot--br" aria-hidden="true"></div>
+                    <img
+                        src="{{ comic.cover_image.url }}"
+                        alt="{{ comic.title }} cover"
+                        class="comics-detail-cover-img"
+                    >
+                </div>
+ 
+                <!-- Action buttons below cover -->
+                <div class="comics-detail-cover-actions">
+                    {% if comic.sample_pdf %}
+                    <a href="{{ comic.sample_pdf.url }}" target="_blank" rel="noopener noreferrer" class="comics-detail-btn-primary">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                            <path d="M7 2v7M3 6l4 4 4-4M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Read Preview
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'shop_home' %}" class="comics-detail-btn-secondary">
+                        Get this title
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                            <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </a>
+                    <a href="{% url 'comics_home' %}" class="comics-detail-back-link">
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                            <path d="M10 6H2M6 2L2 6l4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Back to Gallery
+                    </a>
+                </div>
+            </aside>
+ 
+            <!-- ── RIGHT: Details ── -->
+            <div class="comics-detail-info">
+ 
+                <!-- Label tag -->
+                <div class="comics-detail-tag-row">
+                    <span class="comics-detail-genre-tag">Graphic Novel</span>
+                    {% if comic.sample_pdf %}
+                    <span class="comics-detail-preview-badge">
+                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                            <path d="M1 5C1 5 2.5 2 5 2s4 3 4 3-1.5 3-4 3-4-3-4-3Z" stroke="currentColor" stroke-width="1.1"/>
+                            <circle cx="5" cy="5" r="1.2" stroke="currentColor" stroke-width="1.1"/>
+                        </svg>
+                        Preview Available
+                    </span>
+                    {% endif %}
+                </div>
+ 
+                <!-- Title + artist -->
+                <h1 class="comics-detail-title">{{ comic.title }}</h1>
+                <div class="comics-detail-artist-row">
+                    <div class="comics-detail-artist-avatar" aria-hidden="true">
+                        {{ comic.artist|slice:":2"|upper }}
+                    </div>
+                    <div>
+                        <p class="comics-detail-artist-label">Illustrated by</p>
+                        <p class="comics-detail-artist-name">{{ comic.artist }}</p>
+                    </div>
+                </div>
+ 
+                <!-- Description -->
+                <div class="comics-detail-divider" aria-hidden="true"></div>
+                <div class="comics-detail-description" role="region" aria-label="About this comic">
+                    <h2 class="comics-detail-description-heading">About this title</h2>
+                    <p class="comics-detail-description-body">{{ comic.description }}</p>
+                </div>
+ 
+                <!-- Metadata grid -->
+                <div class="comics-detail-divider" aria-hidden="true"></div>
+                <dl class="comics-detail-meta-grid">
+                    <div class="comics-detail-meta-item">
+                        <dt class="comics-detail-meta-label">Published</dt>
+                        <dd class="comics-detail-meta-value">{{ comic.created_at|date:"F Y" }}</dd>
+                    </div>
+                    <div class="comics-detail-meta-item">
+                        <dt class="comics-detail-meta-label">Format</dt>
+                        <dd class="comics-detail-meta-value">Digital &amp; Print</dd>
+                    </div>
+                    <div class="comics-detail-meta-item">
+                        <dt class="comics-detail-meta-label">Publisher</dt>
+                        <dd class="comics-detail-meta-value">Tambua Afrika Comics</dd>
+                    </div>
+                    <div class="comics-detail-meta-item">
+                        <dt class="comics-detail-meta-label">Rights</dt>
+                        <dd class="comics-detail-meta-value">All rights reserved</dd>
+                    </div>
+                </dl>
+ 
+                <!-- Share strip -->
+                <div class="comics-detail-share" role="region" aria-label="Share this title">
+                    <span class="comics-detail-share-label">Share:</span>
+                    <div class="comics-detail-share-actions">
+                        <a href="https://twitter.com/intent/tweet?text={{ comic.title|urlencode }}&url={{ request.build_absolute_uri }}" target="_blank" rel="noopener noreferrer" class="comics-detail-share-btn" aria-label="Share on Twitter">
+                            <i class="fab fa-x-twitter" aria-hidden="true"></i>
+                        </a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" rel="noopener noreferrer" class="comics-detail-share-btn" aria-label="Share on Facebook">
+                            <i class="fab fa-facebook-f" aria-hidden="true"></i>
+                        </a>
+                        <button
+                            class="comics-detail-share-btn"
+                            aria-label="Copy link"
+                            onclick="navigator.clipboard.writeText(window.location.href).then(function(){ this.classList.add('copied'); setTimeout(function(){ document.querySelectorAll('.comics-detail-share-btn.copied').forEach(function(b){ b.classList.remove('copied'); }); }, 2000); }.bind(this));"
+                        >
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                                <path d="M5 3H3a1 1 0 00-1 1v5a1 1 0 001 1h5a1 1 0 001-1V7M7 1h4m0 0v4m0-4L5.5 6.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+ 
+            </div>
+        </div>
+    </div>
+</div>
+ 
+ 
+<!-- ═══════════════════════════════════════════════
+     COMIC PAGES PREVIEW (if pages exist)
+════════════════════════════════════════════════ -->
+{% if comic.pages.all %}
+<section class="comics-pages-section" aria-label="Preview pages">
+    <div class="container">
+        <div class="comics-pages-header">
+            <h2 class="comics-pages-title">Preview Pages</h2>
+            <p class="comics-pages-sub">{{ comic.pages.count }} page{{ comic.pages.count|pluralize }} available</p>
+        </div>
+        <div class="comics-pages-strip" role="list" aria-label="Comic pages">
+            {% for page in comic.pages.all|slice:":6" %}
+            <div class="comics-page-thumb" role="listitem">
+                <a href="{{ page.image.url }}" class="comics-page-thumb-link" aria-label="Page {{ page.page_number }}" data-lightbox="comics-pages" data-title="Page {{ page.page_number }}">
+                    <img src="{{ page.image.url }}" alt="Page {{ page.page_number }}" class="comics-page-thumb-img" loading="lazy">
+                    <span class="comics-page-thumb-number" aria-hidden="true">{{ page.page_number }}</span>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+ 
+ 
+<!-- ═══════════════════════════════════════════════
+     MORE COMICS ROW (placeholder for related works)
+════════════════════════════════════════════════ -->
+<section class="comics-more-section" aria-label="More from Tambua Comics">
+    <div class="container">
+        <div class="comics-more-header">
+            <h2 class="comics-more-title">More from Tambua Comics</h2>
+            <a href="{% url 'comics_home' %}" class="comics-more-viewall">
+                View all
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                    <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+        </div>
+        <div class="comics-more-link-group">
+            <a href="{% url 'comics_home' %}" class="comics-more-cta-block">
+                <div>
+                    <p class="comics-more-cta-label">Browse gallery</p>
+                    <p class="comics-more-cta-body">Discover all published comics and graphic novels in the Tambua Afrika collection.</p>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="M4 10h12M10 4l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+            <a href="{% url 'submission_dashboard' %}" class="comics-more-cta-block">
+                <div>
+                    <p class="comics-more-cta-label">Submit your artwork</p>
+                    <p class="comics-more-cta-body">Artists and illustrators are invited to submit original works for review and publication.</p>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="M4 10h12M10 4l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+</section>
+ 
+{% endblock %}
+ 

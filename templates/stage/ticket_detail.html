@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block body_class %}theme-stage{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm text-center p-5">
+                {% if ticket.is_paid %}
+                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                    <h3>Ticket Confirmed</h3>
+                {% else %}
+                    <i class="fas fa-times-circle fa-3x text-secondary mb-3"></i>
+                    <h3>Reservation Cancelled</h3>
+                {% endif %}
+
+                <p class="text-muted mb-4">{{ ticket.show.title }}</p>
+
+                <div class="border-top border-bottom py-3 mb-4">
+                    <p class="mb-1"><strong>Ticket Code:</strong> {{ ticket.ticket_code }}</p>
+                    <p class="mb-1"><strong>Venue:</strong> {{ ticket.show.venue }}</p>
+                    <p class="mb-1"><strong>Date:</strong> {{ ticket.show.date|date:"D, d M Y" }} &middot; {{ ticket.show.time|time:"g:i A" }}</p>
+                    <p class="mb-1"><strong>Quantity:</strong> {{ ticket.quantity }}</p>
+                    <p class="mb-0"><strong>Amount Paid:</strong> KES {{ ticket.total_amount }}</p>
+                </div>
+
+                <p class="text-muted small">
+                    Show this ticket code at the door on the day of the event.
+                </p>
+
+                <a href="{% url 'my_tickets' %}" class="btn btn-custom mt-2">View My Tickets</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

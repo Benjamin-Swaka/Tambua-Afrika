@@ -1,0 +1,82 @@
+{% load static %}
+{% load mask_email %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambua Afrika ID</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+</head>
+<body class="theme-default">
+
+    <div class="auth-wrapper">
+        
+        <!-- LEFT: Brand Visual (White with subtle divider) -->
+        <div class="auth-brand-side">
+            <!-- Optional decorative pattern, now very subtle -->
+            <div class="african-pattern"></div>
+            
+            <div class="auth-brand-content">
+                <h2 class="auth-brand-title">Tambua Afrika</h2>
+                <p class="auth-brand-subtitle">The Ecosystem for African Creativity.</p>
+                <div class="auth-brand-accents">
+                    <span style="width: 40px; height: 4px; background: var(--col-ink-blue);"></span>
+                    <span style="width: 40px; height: 4px; background: var(--col-stage-brown);"></span>
+                    <span style="width: 40px; height: 4px; background: var(--col-comic-grey);"></span>
+                    <span style="width: 40px; height: 4px; background: var(--col-shop-beige);"></span>
+                </div>
+            </div>
+        </div>
+        <div class="auth-form-side">
+    <div class="auth-form-container">
+        <a href="{% url 'home' %}" class="auth-back-link">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Back to Studio
+        </a>
+        <div class="text-center">
+            <img src="{% static 'images/logo.png' %}" alt="Tambua Afrika" class="auth-logo">
+            <h4 class="mb-4 fw-bold font-serif">{% block auth_heading %}Welcome{% endblock %}</h4>
+        </div>
+        {% block auth_content %}{% endblock %}
+    </div>
+    <div class="mt-5 text-center text-muted small">
+        &copy; 2026 Tambua Afrika Studios. <a href="{% url 'privacy' %}" class="text-dark">Privacy</a> & <a href="{% url 'terms' %}" class="text-dark">Terms</a>.
+    </div>
+</div>
+
+    </div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Find all forms inside the auth page
+    document.querySelectorAll('form').forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            // Find the submit button(s) inside this form
+            var submitButtons = form.querySelectorAll('button[type="submit"], input[type="submit"]');
+            submitButtons.forEach(function (btn) {
+                // Only if not already disabled
+                if (!btn.disabled) {
+                    btn.disabled = true;
+                    // Add spinner if not present
+                    if (!btn.querySelector('.spinner-border')) {
+                        var spinner = document.createElement('span');
+                        spinner.className = 'spinner-border spinner-border-sm ms-2';
+                        spinner.setAttribute('role', 'status');
+                        spinner.setAttribute('aria-hidden', 'true');
+                        btn.appendChild(spinner);
+                    }
+                }
+            });
+        });
+    });
+});
+</script>
+</body>
+</html>

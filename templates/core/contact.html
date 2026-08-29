@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block body_class %}theme-default{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Info Side -->
+        <div class="col-lg-5 mb-5">
+            <h1 class="display-4 mb-4">Get in Touch</h1>
+            <p class="lead mb-5">Have a project, submission, or partnership inquiry? We’d love to hear from you.</p>
+            
+            <div class="mb-4">
+                <h5 class="fw-bold">General Inquiries</h5>
+                <p class="text-muted"><a href="mailto:info@tambuaafrika.com" class="text-decoration-none text-dark">info@tambuaafrika.com</a></p>
+            </div>
+            <div class="mb-4">
+                <h5 class="fw-bold">Submissions</h5>
+                <p class="text-muted">Please use our <a href="{% url 'submission_dashboard' %}">Submission Portal</a> for all creative work.</p>
+            </div>
+            <div class="mb-4">
+                <h5 class="fw-bold">Visit Us</h5>
+                <p class="text-muted">The Creative Hub, Westlands<br>Nairobi, Kenya</p>
+            </div>
+        </div>
+
+        <!-- Map/Form Side -->
+        <div class="col-lg-7">
+            <div class="bg-light p-5 h-100">
+                <h3 class="mb-4">Send a Message</h3>
+                <form>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control rounded-0 p-3" placeholder="Your Name">
+                        </div>
+                        <div class="col-md-6">
+                            <input type="email" class="form-control rounded-0 p-3" placeholder="Your Email">
+                        </div>
+                        <div class="col-12">
+                            <select class="form-select rounded-0 p-3">
+                                <option selected>Subject / Department</option>
+                                <option value="1">General Inquiry</option>
+                                <option value="2">Tambua Ink</option>
+                                <option value="3">Tambua Stage</option>
+                                <option value="4">Shop Support</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <textarea class="form-control rounded-0 p-3" rows="5" placeholder="Your Message"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-dark w-100 py-3 rounded-0 text-uppercase fw-bold ls-1">Send Message</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

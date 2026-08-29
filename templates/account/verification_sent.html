@@ -1,0 +1,23 @@
+{% extends "account/auth_base.html" %}
+
+{% block auth_heading %}Check Your Email{% endblock %}
+
+{% block auth_content %}
+<div class="text-center">
+    <div class="mb-4">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: #0d0d0d;">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+            <polyline points="22,6 12,13 2,6"></polyline>
+        </svg>
+    </div>
+    <h4 class="fw-bold">Verify Your Email Address</h4>
+    <p class="text-muted mb-4">
+        We have sent an email to <strong>{{ email }}</strong>.<br>
+        Follow the link provided to finalize the signup process.
+    </p>
+    <p class="small text-muted">
+        If you do not see the verification email in your main inbox, check your spam folder.
+        <br>Please contact us if you do not receive the verification email within a few minutes.
+    </p>
+</div>
+{% endblock %}

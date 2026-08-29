@@ -1,0 +1,51 @@
+{% extends "base_minimal.html" %}
+{% load static %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/crowdfunding.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="crowdfunding crowdfunding-list-page">
+  <header class="cf-page-header">
+    <h1>Support a Project</h1>
+    <p class="cf-subtitle">Back the books, plays, and comics being made across Tambua Afrika.</p>
+    {% if user.is_authenticated %}
+      <a href="{% url 'campaign_create' %}" class="btn-custom cf-start-btn">Start a Campaign</a>
+    {% endif %}
+  </header>
+
+  {% if not grouped_campaigns %}
+    <p class="cf-empty-state">No live campaigns right now — check back soon.</p>
+  {% endif %}
+
+  {% for group in grouped_campaigns %}
+    <section class="cf-department-group">
+      <h2 class="cf-department-heading"
+          {% if group.department %}style="border-color: var(--col-{{ group.department.slug|default:'ink-blue' }});"{% endif %}>
+        {{ group.department.name|default:"General" }}
+      </h2>
+
+      <div class="cf-campaign-grid">
+        {% for campaign in group.campaigns %}
+          <article class="cf-card">
+            <a href="{% url 'campaign_detail' campaign.slug %}" class="cf-card-link">
+              <div class="cf-card-tag">{{ campaign.department.name|default:"General" }}</div>
+              <h3 class="cf-card-title">{{ campaign.title }}</h3>
+              <p class="cf-card-excerpt">{{ campaign.description|truncatewords:20 }}</p>
+
+              <div class="cf-progress-track">
+                <div class="cf-progress-fill" style="width: {{ campaign.progress_percent }}%;"></div>
+              </div>
+              <div class="cf-card-meta">
+                <span>{{ campaign.progress_percent }}% funded</span>
+                <span>{{ campaign.days_remaining }} days left</span>
+              </div>
+            </a>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+  {% endfor %}
+</div>
+{% endblock %}

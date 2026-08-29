@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block body_class %}theme-stage{% endblock %}
+
+{% block content %}
+<div class="legal-header">
+    <div class="container">
+        <h1>My Tickets</h1>
+    </div>
+</div>
+
+<div class="container py-5">
+    {% if tickets %}
+        {% for ticket in tickets %}
+        <div class="card mb-3 border-0 shadow-sm">
+            <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <h5 class="mb-1">{{ ticket.show.title }}</h5>
+                    <p class="text-muted small mb-1">
+                        {{ ticket.show.venue }} &middot; {{ ticket.show.date|date:"D, d M Y" }} &middot; {{ ticket.show.time|time:"g:i A" }}
+                    </p>
+                    <p class="text-muted small mb-0">
+                        {{ ticket.ticket_code }} &middot; {{ ticket.quantity }} ticket{{ ticket.quantity|pluralize }} &middot; KES {{ ticket.total_amount }}
+                    </p>
+                </div>
+                <div class="text-end">
+                    {% if ticket.status == 'paid' %}
+                        <span class="badge bg-success mb-2">Paid</span><br>
+                        <a href="{% url 'ticket_detail' ticket.ticket_code %}" class="btn btn-custom btn-sm">View Ticket</a>
+                    {% elif ticket.status == 'pending_payment' %}
+                        <span class="badge bg-warning text-dark mb-2">Awaiting Payment</span><br>
+                        <a href="{% url 'ticket_payment' ticket.ticket_code %}" class="btn btn-custom btn-sm">Complete Payment</a>
+                    {% else %}
+                        <span class="badge bg-secondary mb-2">Cancelled</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="fas fa-ticket-alt fa-2x mb-3 opacity-50"></i>
+            <p>You haven't reserved any tickets yet.</p>
+            <a href="{% url 'stage_home' %}" class="btn btn-custom">Browse Shows</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

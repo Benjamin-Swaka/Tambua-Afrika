@@ -1,0 +1,440 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-28 16:20+0300\n"
+"PO-Revision-Date: 2026-08-28 17:00+0300\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: sw\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: .\templates\core\home.html:14
+msgid "African Stories. African Talent."
+msgstr "Hadithi za Kiafrika. Talanta za Kiafrika."
+
+#: .\templates\core\home.html:14
+msgid "Let's Recognise Africa."
+msgstr "Tutambue Afrika."
+
+#: .\templates\core\home.html:15
+msgid "Bridging the gap between raw talent and global audiences."
+msgstr "Kuunganisha pengo kati ya talanta ghafi na hadhira ya kimataifa."
+
+#: .\templates\core\home.html:17
+msgid "Submit Your Work"
+msgstr "Wasilisha Kazi Yako"
+
+#: .\templates\core\home.html:18
+msgid "Visit Our Shop"
+msgstr "Tembelea Duka Letu"
+
+#: .\templates\core\home.html:30
+msgid "Our Ecosystem"
+msgstr "Mfumo Wetu"
+
+#: .\templates\core\home.html:31
+msgid "Departments &amp; Divisions"
+msgstr "Idara na Vitengo"
+
+#: .\templates\core\home.html:34
+msgid "Previous slide"
+msgstr "Slaidi Iliyotangulia"
+
+#: .\templates\core\home.html:44
+msgid "Next slide"
+msgstr "Slaidi Inayofuata"
+
+#: .\templates\core\home.html:68
+msgid "Core"
+msgstr "Msingi"
+
+#: .\templates\core\home.html:69
+msgid "Studios"
+msgstr "Studio"
+
+#: .\templates\core\home.html:70
+msgid "Corporate identity, IP management, and the operational backbone of the Tambua Afrika ecosystem."
+msgstr "Utambulisho wa shirika, usimamizi wa IP, na mgongo wa uendeshaji wa mfumo wa Tambua Afrika."
+
+#: .\templates\core\home.html:71
+msgid "Learn more about Studios"
+msgstr "Jifunze zaidi kuhusu Studio"
+
+#: .\templates\core\home.html:72
+msgid "Learn More"
+msgstr "Jifunze Zaidi"
+
+#: .\templates\core\home.html:91
+msgid "Publishing"
+msgstr "Uchapishaji"
+
+#: .\templates\core\home.html:92 .\templates\core\home.html:223
+msgid "Tambua Ink"
+msgstr "Tambua Ink"
+
+#: .\templates\core\home.html:93
+msgid "Books, poetry, and literary journals that give African writers a professional publishing pathway."
+msgstr "Vitabu, mashairi, na majarida ya fasihi ambayo yanawapa waandishi wa Kiafrika njia ya kitaalamu ya kuchapisha."
+
+#: .\templates\core\home.html:94
+msgid "Explore Tambua Ink"
+msgstr "Gundua Tambua Ink"
+
+#: .\templates\core\home.html:95 .\templates\core\home.html:226
+msgid "Read More"
+msgstr "Soma Zaidi"
+
+#: .\templates\core\home.html:115
+msgid "Theatre"
+msgstr "Tamthilia"
+
+#: .\templates\core\home.html:116 .\templates\core\home.html:251
+msgid "Tambua Stage"
+msgstr "Tambua Stage"
+
+#: .\templates\core\home.html:117
+msgid "Live theatre, voice acting, and performance arts — where stories become embodied experiences."
+msgstr "Tamthilia za moja kwa moja, uigizaji wa sauti, na sanaa za maonyesho — ambapo hadithi zinakuwa uzoefu wa mwili."
+
+#: .\templates\core\home.html:118
+msgid "Get tickets for Tambua Stage"
+msgstr "Pata tikiti za Tambua Stage"
+
+#: .\templates\core\home.html:119 .\templates\core\home.html:436
+msgid "Get Tickets"
+msgstr "Pata Tikiti"
+
+#: .\templates\core\home.html:140
+msgid "Visual Arts"
+msgstr "Sanaa za Kuona"
+
+#: .\templates\core\home.html:141 .\templates\core\home.html:237
+#: .\templates\core\home.html:265
+msgid "Tambua Comics"
+msgstr "Tambua Comics"
+
+#: .\templates\core\home.html:142
+msgid "Graphic novels, sequential art, animation, and gaming rooted in African visual culture."
+msgstr "Riwaya za picha, sanaa ya mfululizo, uhuishaji, na michezo ya video iliyokita mizizi katika utamaduni wa kuona wa Kiafrika."
+
+#: .\templates\core\home.html:143
+msgid "Explore Tambua Comics"
+msgstr "Gundua Tambua Comics"
+
+#: .\templates\core\home.html:144
+msgid "Explore Art"
+msgstr "Gundua Sanaa"
+
+#: .\templates\core\home.html:164
+msgid "Commerce"
+msgstr "Biashara"
+
+#: .\templates\core\home.html:165
+msgid "Sales &amp; Marketing"
+msgstr "Mauzo na Uuzaji"
+
+#: .\templates\core\home.html:166
+msgid "Merchandise, partnerships, ticket sales, and brand strategy — bringing African creativity to market."
+msgstr "Bidhaa, ushirikiano, mauzo ya tikiti, na mkakati wa chapa — kuleta ubunifu wa Kiafrika sokoni."
+
+#: .\templates\core\home.html:167
+msgid "Visit the shop"
+msgstr "Tembelea duka"
+
+#: .\templates\core\home.html:168
+msgid "Visit Shop"
+msgstr "Tembelea Duka"
+
+#: .\templates\core\home.html:191
+msgid "Portfolio"
+msgstr "Kwingineko"
+
+#: .\templates\core\home.html:192
+msgid "Featured Works"
+msgstr "Kazi Zilizoangaziwa"
+
+#: .\templates\core\home.html:194
+msgid "Previous work"
+msgstr "Kazi Iliyotangulia"
+
+#: .\templates\core\home.html:204
+msgid "Next work"
+msgstr "Kazi Inayofuata"
+
+#: .\templates\core\home.html:218
+msgid "Book"
+msgstr "Kitabu"
+
+#: .\templates\core\home.html:224
+msgid "Echoes of the Savanna"
+msgstr "Mwangwi wa Savana"
+
+#: .\templates\core\home.html:225
+msgid "by A. K. Mwangi · 2025"
+msgstr "na A. K. Mwangi · 2025"
+
+#: .\templates\core\home.html:233
+msgid "Comic"
+msgstr "Katuni"
+
+#: .\templates\core\home.html:238
+msgid "The Golden Mask"
+msgstr "Kinyago cha Dhahabu"
+
+#: .\templates\core\home.html:239
+msgid "by S. O. Adebayo · 2025"
+msgstr "na S. O. Adebayo · 2025"
+
+#: .\templates\core\home.html:240
+msgid "Explore"
+msgstr "Gundua"
+
+#: .\templates\core\home.html:247
+msgid "Play"
+msgstr "Tamthilia"
+
+#: .\templates\core\home.html:252
+msgid "The Griot’s Daughter"
+msgstr "Binti wa Griot"
+
+#: .\templates\core\home.html:253
+msgid "by L. N. Okafor · 2025"
+msgstr "na L. N. Okafor · 2025"
+
+#: .\templates\core\home.html:254
+msgid "View"
+msgstr "Tazama"
+
+#: .\templates\core\home.html:261
+msgid "Animation"
+msgstr "Uhuishaji"
+
+#: .\templates\core\home.html:266
+msgid "Spirit of the Baobab"
+msgstr "Roho wa Mbuyu"
+
+#: .\templates\core\home.html:267
+msgid "by K. D. Mensah · 2025"
+msgstr "na K. D. Mensah · 2025"
+
+#: .\templates\core\home.html:268
+msgid "Watch"
+msgstr "Tazama"
+
+#: .\templates\core\home.html:286
+msgid "Submissions"
+msgstr "Mawasilisho"
+
+#: .\templates\core\home.html:287
+msgid "Open Calls"
+msgstr "Wito Wazi"
+
+#: .\templates\core\home.html:288
+msgid "Find your opportunity. Submit your work."
+msgstr "Tafuta fursa yako. Wasilisha kazi yako."
+
+#: .\templates\core\home.html:296
+msgid "Open"
+msgstr "Wazi"
+
+#: .\templates\core\home.html:298
+msgid "2026 Annual Anthology"
+msgstr "Antolojia ya Mwaka 2026"
+
+#: .\templates\core\home.html:299
+msgid "Manuscripts, poetry collections, and short stories from African writers worldwide."
+msgstr "Hati za mkono, makusanyo ya mashairi, na hadithi fupi kutoka kwa waandishi wa Kiafrika duniani kote."
+
+#: .\templates\core\home.html:306
+msgid "Closes 31 Dec 2026"
+msgstr "Inafungwa 31 Des 2026"
+
+#: .\templates\core\home.html:308
+msgid "Manuscripts · Poetry · Short Stories · Scripts"
+msgstr "Hati za mkono · Mashairi · Hadithi Fupi · Miongozo"
+
+#: .\templates\core\home.html:311
+msgid "View Guidelines &amp; Submit"
+msgstr "Tazama Mwongozo na Wasilisha"
+
+#: .\templates\core\home.html:321
+msgid "Closing Soon"
+msgstr "Inafungwa Karibuni"
+
+#: .\templates\core\home.html:323
+msgid "Stage Play Competition"
+msgstr "Shindano la Tamthilia ya Jukwaani"
+
+#: .\templates\core\home.html:324
+msgid "Original one-act plays by African playwrights. Selected works will be produced in 2027."
+msgstr "Tamthilia asili za kitendo kimoja na waandishi wa tamthilia wa Kiafrika. Kazi zilizochaguliwa zitazalishwa mwaka 2027."
+
+#: .\templates\core\home.html:331
+msgid "Closes 15 Oct 2026"
+msgstr "Inafungwa 15 Okt 2026"
+
+#: .\templates\core\home.html:333
+msgid "Plays · Scripts"
+msgstr "Tamthilia · Miongozo"
+
+#: .\templates\core\home.html:336
+msgid "Submit Now"
+msgstr "Wasilisha Sasa"
+
+#: .\templates\core\home.html:346
+msgid "Closed"
+msgstr "Imefungwa"
+
+#: .\templates\core\home.html:348
+msgid "Graphic Novel Fellowship"
+msgstr "Ushirika wa Riwaya za Picha"
+
+#: .\templates\core\home.html:349
+msgid "Emerging African comic artists. The next fellowship round opens early 2027."
+msgstr "Wasanii chipukizi wa katuni wa Kiafrika. Awamu ijayo ya ushirika itafunguliwa mapema 2027."
+
+#: .\templates\core\home.html:356
+msgid "Closed 30 Jun 2026"
+msgstr "Imefungwa 30 Jun 2026"
+
+#: .\templates\core\home.html:358
+msgid "Comics · Illustration"
+msgstr "Katuni · Mchoro"
+
+#: .\templates\core\home.html:360
+msgid "Closed for submissions"
+msgstr "Imefungwa kwa mawasilisho"
+
+#: .\templates\core\home.html:366
+msgid "All Open Calls"
+msgstr "Wito Wazi Zote"
+
+#: .\templates\core\home.html:380
+msgid "Marketplace"
+msgstr "Soko"
+
+#: .\templates\core\home.html:381
+msgid "Shop Highlights"
+msgstr "Vivutio vya Duka"
+
+#: .\templates\core\home.html:383
+msgid "Previous product"
+msgstr "Bidhaa Iliyotangulia"
+
+#: .\templates\core\home.html:393
+msgid "Next product"
+msgstr "Bidhaa Inayofuata"
+
+#: .\templates\core\home.html:409
+msgid "Best-Selling Books"
+msgstr "Vitabu Vinavyouzwa Sana"
+
+#: .\templates\core\home.html:410
+msgid "Novels, poetry, and literary journals"
+msgstr "Riwaya, mashairi, na majarida ya fasihi"
+
+#: .\templates\core\home.html:411
+msgid "From $14.99"
+msgstr "Kuanzia $14.99"
+
+#: .\templates\core\home.html:412
+msgid "Browse"
+msgstr "Vinjari"
+
+#: .\templates\core\home.html:421
+msgid "Merchandise"
+msgstr "Bidhaa"
+
+#: .\templates\core\home.html:422
+msgid "Apparel, accessories, and collectibles"
+msgstr "Mavazi, vifaa, na vitu vya kukusanya"
+
+#: .\templates\core\home.html:423
+msgid "From $24.99"
+msgstr "Kuanzia $24.99"
+
+#: .\templates\core\home.html:424
+msgid "Shop Now"
+msgstr "Nunua Sasa"
+
+#: .\templates\core\home.html:433
+msgid "Tickets"
+msgstr "Tikiti"
+
+#: .\templates\core\home.html:434
+msgid "Live performances, readings, and events"
+msgstr "Maonyesho ya moja kwa moja, usomaji, na matukio"
+
+#: .\templates\core\home.html:435
+msgid "From $12.00"
+msgstr "Kuanzia $12.00"
+
+#: .\templates\core\home.html:454
+msgid "Trusted by cultural institutions across Africa"
+msgstr "Inaaminika na taasisi za kitamaduni kote Afrika"
+
+#: .\templates\core\home.html:460 .\templates\core\home.html:466
+msgid "African Arts Council"
+msgstr "Baraza la Sanaa la Afrika"
+
+#: .\templates\core\home.html:461 .\templates\core\home.html:467
+msgid "Pan-African Writers"
+msgstr "Waandishi wa Pan-Afrika"
+
+#: .\templates\core\home.html:462 .\templates\core\home.html:468
+msgid "Cultural Heritage Fund"
+msgstr "Mfuko wa Urithi wa Kitamaduni"
+
+#: .\templates\core\home.html:463 .\templates\core\home.html:469
+msgid "African University Network"
+msgstr "Mtandao wa Vyuo Vikuu vya Afrika"
+
+#: .\templates\core\home.html:464 .\templates\core\home.html:470
+msgid "Creative Africa Exchange"
+msgstr "Mabadilishano ya Ubunifu wa Afrika"
+
+#: .\templates\core\home.html:475
+msgid "Impact statistics"
+msgstr "Takwimu za Athari"
+
+#: .\templates\core\home.html:478
+msgid "Creators supported"
+msgstr "Waundaji wanaoungwa mkono"
+
+#: .\templates\core\home.html:483
+msgid "African countries"
+msgstr "Nchi za Afrika"
+
+#: .\templates\core\home.html:488
+msgid "Published works"
+msgstr "Kazi zilizochapishwa"
+
+#: .\templates\core\home.html:493
+msgid "Creative disciplines"
+msgstr "Nidhamu za ubunifu"
+
+#: .\templates\core\home.html:498
+msgid "Schools"
+msgstr "Shule"
+
+#: .\templates\core\home.html:499
+msgid "Cultural Institutions"
+msgstr "Taasisi za Kitamaduni"
+
+#: .\templates\core\home.html:500
+msgid "Grants"
+msgstr "Ruzuku"
+
+#: .\templates\core\home.html:501
+msgid "Diaspora Programs"
+msgstr "Mipango ya Diaspora"

@@ -1,0 +1,78 @@
+{% extends "base_minimal.html" %}
+{% load static %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/crowdfunding.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="crowdfunding crowdfunding-dashboard-page">
+  <h1>Your Crowdfunding Dashboard</h1>
+
+  <section class="cf-dashboard-section">
+    <div class="cf-dashboard-section-header">
+      <h2 class="cf-section-heading">Your Campaigns</h2>
+      <a href="{% url 'campaign_create' %}" class="btn-custom cf-start-btn">Start a Campaign</a>
+    </div>
+
+    {% if my_campaigns %}
+      <table class="cf-dashboard-table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Raised</th>
+            <th>Goal</th>
+            <th>Deadline</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for campaign in my_campaigns %}
+            <tr>
+              <td><a href="{% url 'campaign_detail' campaign.slug %}">{{ campaign.title }}</a></td>
+              <td><span class="cf-status-pill cf-status-{{ campaign.status }}">{{ campaign.get_status_display }}</span></td>
+              <td>{{ campaign.raised_amount }}</td>
+              <td>{{ campaign.goal_amount }}</td>
+              <td>{{ campaign.deadline|date:"d M Y" }}</td>
+              <td><a href="{% url 'campaign_edit' campaign.slug %}">Edit</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="cf-empty-state">You haven't started a campaign yet.</p>
+    {% endif %}
+  </section>
+
+  <section class="cf-dashboard-section">
+    <h2 class="cf-section-heading">Your Pledges</h2>
+    {% if my_pledges %}
+      <table class="cf-dashboard-table">
+        <thead>
+          <tr>
+            <th>Campaign</th>
+            <th>Reward</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pledge in my_pledges %}
+            <tr>
+              <td><a href="{% url 'campaign_detail' pledge.campaign.slug %}">{{ pledge.campaign.title }}</a></td>
+              <td>{{ pledge.reward.title|default:"—" }}</td>
+              <td>{{ pledge.amount }}</td>
+              <td><span class="cf-status-pill cf-status-{{ pledge.status }}">{{ pledge.get_status_display }}</span></td>
+              <td>{{ pledge.created_at|date:"d M Y" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="cf-empty-state">You haven't backed a project yet.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "account/auth_base.html" %}
+
+{% block auth_heading %}Enter Sign‑In Code{% endblock %}
+
+{% block auth_content %}
+<p class="text-muted mb-4">
+    We’ve sent a code to <strong>{{ email }}</strong>. The code expires shortly, so please enter it soon.
+</p>
+
+<form method="post" action="{% url 'account_confirm_login_code' %}">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="code" class="form-label small text-muted text-uppercase fw-bold">Code</label>
+        <input type="text" name="code" id="code" class="form-control auth-input rounded-0" maxlength="6" required autofocus>
+    </div>
+    <button type="submit" class="btn btn-dark w-100 py-3 rounded-0 text-uppercase fw-bold auth-submit-btn">
+        Confirm
+        <span class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+    </button>
+    <a href="{% url 'account_login' %}" class="btn btn-link w-100 mt-2 text-muted">Cancel</a>
+</form>
+{% endblock %}

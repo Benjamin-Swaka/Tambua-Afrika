@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block body_class %}theme-default{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-5 text-center">
+        <div class="col-12">
+            <span class="text-uppercase text-muted small ls-1">The Voice</span>
+            <h1 class="display-4">Tambua Journal</h1>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for article in articles %}
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="position-relative">
+                    <img src="{{ article.image.url }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                    <span class="badge bg-black position-absolute top-0 start-0 m-3 rounded-0 text-uppercase">{{ article.tag }}</span>
+                </div>
+                <div class="card-body">
+                    <small class="text-muted">{{ article.created_at|date:"M d, Y" }}</small>
+                    <h4 class="card-title mt-2"><a href="{% url 'article_detail' article.slug %}" class="text-dark text-decoration-none">{{ article.title }}</a></h4>
+                    <p class="card-text text-muted">{{ article.content|truncatewords:20 }}</p>
+                </div>
+                <div class="card-footer bg-white border-0 pb-3">
+                    <a href="{% url 'article_detail' article.slug %}" class="btn-link text-dark fw-bold text-uppercase small">Read Article</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

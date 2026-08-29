@@ -1,0 +1,50 @@
+{% extends "account/auth_base.html" %}
+
+{% block auth_heading %}Join the Ecosystem{% endblock %}
+
+{% block auth_content %}
+<form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <div class="alert alert-danger rounded-0 small mb-4 border-0 bg-danger bg-opacity-10 text-danger">
+        Please correct the errors below.
+    </div>
+    {% endif %}
+
+    {% for field in form %}
+    <div class="mb-3">
+        <!-- 1. The Label -->
+        <label class="form-label small text-muted text-uppercase fw-bold">{{ field.label }}</label>
+        
+        <!-- 2. The Input -->
+        <!-- We removed help_text from the placeholder attribute -->
+        <input type="{{ field.field.widget.input_type }}" 
+               name="{{ field.name }}" 
+               class="form-control auth-input rounded-0" 
+               placeholder="{{ field.label }}" 
+               {% if field.field.required %}required{% endif %}>
+        
+        <!-- 3. The Help Text (Password Rules) - Placed BELOW the input -->
+        {% if field.help_text %}
+            <div class="form-text text-muted small mt-1" style="font-size: 0.75rem;">
+                {{ field.help_text|safe }}
+            </div>
+        {% endif %}
+
+        <!-- 4. Error Messages -->
+        {% for error in field.errors %}
+            <div class="text-danger small mt-1">{{ error }}</div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-dark w-100 py-3 rounded-0 mt-3 text-uppercase fw-bold ls-1" style="background-color: var(--col-black);">
+        Create Account
+    </button>
+</form>
+
+<div class="text-center mt-4">
+    <p class="small text-muted">Already have an account? <a href="{% url 'account_login' %}" class="text-dark fw-bold">Sign In</a></p>
+</div>
+{% endblock %}

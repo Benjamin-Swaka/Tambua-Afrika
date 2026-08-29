@@ -1,0 +1,81 @@
+{% extends 'dashboard_base.html' %}
+{% block dashboard_content %}
+
+<div class="row g-4 mb-5">
+    <!-- Stat 1 -->
+    <div class="col-md-4">
+        <div class="stat-card blue h-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-number">{{ active_count }}</div>
+                    <div class="stat-label">Active Submissions</div>
+                </div>
+                <div class="bg-light p-2 rounded text-primary"><i class="fas fa-clock"></i></div>
+            </div>
+        </div>
+    </div>
+    <!-- Stat 2 -->
+    <div class="col-md-4">
+        <div class="stat-card brown h-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-number">{{ accepted_subs }}</div>
+                    <div class="stat-label">Published Works</div>
+                </div>
+                <div class="bg-light p-2 rounded text-warning"><i class="fas fa-book"></i></div>
+            </div>
+        </div>
+    </div>
+    <!-- Stat 3 -->
+    <div class="col-md-4">
+        <div class="stat-card gold h-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Orders Placed</div>
+                </div>
+                <div class="bg-light p-2 rounded text-success"><i class="fas fa-shopping-cart"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h5 class="mb-3 fw-bold">Recent Activity</h5>
+<div class="table-responsive table-saas">
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sub in submissions %}
+            <tr>
+                <td class="fw-bold">{{ sub.title }}</td>
+                <td>{{ sub.get_category_display }}</td>
+                <td>{{ sub.created_at|date:"M d, Y" }}</td>
+                <td>
+                    {% if sub.status == 'accepted' %}
+                        <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">Accepted</span>
+                    {% elif sub.status == 'rejected' %}
+                        <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill">Rejected</span>
+                    {% else %}
+                        <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2 rounded-pill">In Review</span>
+                    {% endif %}
+                </td>
+                <td><a href="#" class="btn btn-sm btn-light">View</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center py-5 text-muted">No activity found. <a href="{% url 'new_submission' %}">Start a submission</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
