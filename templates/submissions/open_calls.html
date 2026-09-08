@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block body_class %}theme-default{% endblock %}
+
+{% block content %}
+<section class="home-opencalls" aria-labelledby="opencalls-heading">
+    <div class="container">
+
+        <div class="home-opencalls-header">
+            <p class="home-opencalls-eyebrow">{% trans "Submissions" %}</p>
+            <h1 class="home-opencalls-title" id="opencalls-heading">{% trans "All Open Calls" %}</h1>
+            <p class="home-opencalls-subtitle">{% trans "Every current opportunity, in one place." %}</p>
+        </div>
+
+        <div class="home-opencalls-grid">
+            {% for call in open_calls %}
+            <div class="home-opencall-card">
+                <div class="home-opencall-status home-opencall-status--{% if call.status == 'closing_soon' %}closing{% else %}{{ call.status }}{% endif %}">
+                    <span class="home-opencall-dot"></span> {{ call.get_status_display }}
+                </div>
+                <h3 class="home-opencall-title">{{ call.title }}</h3>
+                <p class="home-opencall-desc">{{ call.description }}</p>
+                <div class="home-opencall-meta">
+                    <span class="home-opencall-deadline">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12,6 12,12 16,14" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {{ call.deadline_label }}
+                    </span>
+                    <span class="home-opencall-categories">{{ call.categories_label }}</span>
+                </div>
+                {% if call.status == 'closed' %}
+                <span class="home-opencall-action home-opencall-action--disabled">{% trans "Closed for submissions" %}</span>
+                {% else %}
+                <a href="{% if call.link_url %}{{ call.link_url }}{% else %}{% url 'submission_dashboard' %}{% endif %}" class="home-opencall-action">
+                    {% trans "View Guidelines &amp; Submit" %}
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 6h8M6 2l4 4-4 4"/>
+                    </svg>
+                </a>
+                {% endif %}
+            </div>
+            {% empty %}
+            <p class="text-muted">{% trans "No open calls right now — check back soon." %}</p>
+            {% endfor %}
+        </div>
+
+    </div>
+</section>
+{% endblock %}

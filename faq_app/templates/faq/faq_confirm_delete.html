@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Remove FAQ{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'faq/css/faq.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="faq-form-section">
+    <div class="faq-container faq-container-narrow">
+        <h1 class="faq-title">Remove this FAQ?</h1>
+        <p class="faq-subtitle">This action cannot be undone.</p>
+
+        <div class="faq-delete-preview">
+            <strong>{{ faq.question }}</strong>
+            <p>{{ faq.answer|truncatewords:30 }}</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="faq-form-actions">
+                <button type="submit" class="faq-delete-btn">Yes, Remove It</button>
+                <a href="{% url 'faq_list' %}" class="faq-cancel-link">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

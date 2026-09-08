@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% if mode == "edit" %}Edit FAQ{% else %}Add FAQ{% endif %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'faq/css/faq.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="faq-form-section">
+    <div class="faq-container faq-container-narrow">
+        <h1 class="faq-title">{% if mode == "edit" %}Edit FAQ{% else %}Add a New FAQ{% endif %}</h1>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="faq-alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" class="faq-form" novalidate>
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="faq-form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}<small class="faq-help-text">{{ field.help_text }}</small>{% endif %}
+                {% for error in field.errors %}<p class="faq-field-error">{{ error }}</p>{% endfor %}
+            </div>
+            {% endfor %}
+
+            <div class="faq-form-actions">
+                <button type="submit" class="faq-add-btn">{% if mode == "edit" %}Save Changes{% else %}Add FAQ{% endif %}</button>
+                <a href="{% url 'faq_list' %}" class="faq-cancel-link">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

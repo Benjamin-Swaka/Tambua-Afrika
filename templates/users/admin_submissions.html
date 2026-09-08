@@ -1,0 +1,84 @@
+{% extends 'dashboard_base.html' %}
+{% block dashboard_content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <h4 class="mb-0 fw-bold">Submissions</h4>
+    <form method="get" class="d-flex gap-2 flex-wrap">
+        <input type="text" name="q" value="{{ search }}" placeholder="Search title or email" class="form-control form-control-sm" style="width: 220px;">
+        <select name="status" class="form-select form-select-sm" style="width: 160px;">
+            <option value="">All statuses</option>
+            {% for value, label in status_choices %}
+            <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <select name="category" class="form-select form-select-sm" style="width: 170px;">
+            <option value="">All categories</option>
+            {% for value, label in category_choices %}
+            <option value="{{ value }}" {% if current_category == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-dark btn-sm px-3">Filter</button>
+    </form>
+</div>
+
+<div class="table-responsive table-saas">
+    <table class="table mb-0 align-middle">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Submitted</th>
+                <th>Status</th>
+                <th>File</th>
+                <th style="width: 260px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sub in submissions %}
+            <tr>
+                <td>
+                    <div class="fw-bold">{{ sub.user.get_full_name|default:sub.user.username }}</div>
+                    <div class="small text-muted">{{ sub.user.email }}</div>
+                </td>
+                <td class="fw-bold">{{ sub.title }}</td>
+                <td>{{ sub.get_category_display }}</td>
+                <td class="small text-muted">{{ sub.created_at|date:"M d, Y" }}</td>
+                <td>
+                    <span class="badge
+                        {% if sub.status == 'accepted' %}bg-success
+                        {% elif sub.status == 'rejected' %}bg-danger
+                        {% elif sub.status == 'review' %}bg-warning text-dark
+                        {% else %}bg-secondary{% endif %}">
+                        {{ sub.get_status_display }}
+                    </span>
+                </td>
+                <td>
+                    {% if sub.file %}
+                    <a href="{{ sub.file.url }}" target="_blank" class="small"><i class="fas fa-download"></i> View</a>
+                    {% else %}
+                    <span class="text-muted small">&mdash;</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <form method="POST" action="{% url 'admin_submission_update_status' sub.pk %}" class="d-flex gap-1">
+                        {% csrf_token %}
+                        {% if sub.status != 'accepted' %}
+                        <button type="submit" name="status" value="accepted" class="btn btn-sm btn-outline-success">Accept</button>
+                        {% endif %}
+                        {% if sub.status != 'rejected' %}
+                        <button type="submit" name="status" value="rejected" class="btn btn-sm btn-outline-danger">Reject</button>
+                        {% endif %}
+                        {% if sub.status != 'review' %}
+                        <button type="submit" name="status" value="review" class="btn btn-sm btn-outline-secondary">Review</button>
+                        {% endif %}
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="text-center text-muted py-5">No submissions match these filters.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

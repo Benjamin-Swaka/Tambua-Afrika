@@ -1,189 +1,313 @@
-/**
- * Tambua Afrika — Home page carousels
- * Drives the Departments, Featured Works, and Shop Highlights tracks:
- * prev/next buttons, the "01 — 05" progress readout, disabled-state at
- * each end, a focus effect (the centred item stays sharp, the rest
- * blur), and gentle autoplay that pauses on hover/touch/tab-hidden.
- *
- * Pure scroll-snap under the hood, so it degrades to a plain, fully
- * visible, swipeable row if JS fails to load — the blur only turns on
- * once this script confirms it's watching.
- */
-(function () {
-  "use strict";
+document.addEventListener('DOMContentLoaded', function() {
+    /* ─────────────────────────────────────────────
+       1. COOKIE CONSENT
+    ───────────────────────────────────────────── */
+    const COOKIE_NAME = 'cookie_consent';
+    const banner = document.getElementById('cookie-banner');
+    const acceptForm = document.getElementById('cookie-accept-all-form');
+    const rejectForm = document.getElementById('cookie-reject-all-form');
+    const acceptButton = document.getElementById('cookie-accept-all');
+    const rejectButton = document.getElementById('cookie-reject-all');
+    const settingsForm = document.getElementById('cookie-settings-form');
+    const analyticsCheckbox = document.getElementById('cookie-analytics');
+    const marketingCheckbox = document.getElementById('cookie-marketing');
 
-  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-  function initCarousel(config) {
-    var track = document.getElementById(config.trackId);
-    if (!track) return;
-
-    var root = document.querySelector(config.rootSelector);
-    if (!root) return;
-
-    var wrapper = track.parentElement;
-    var prevBtn = root.querySelector(config.prevSelector);
-    var nextBtn = root.querySelector(config.nextSelector);
-    var currentEl = root.querySelector(config.currentSelector);
-    var totalEl = root.querySelector(config.totalSelector);
-    var items = Array.prototype.slice.call(track.children);
-    if (!items.length) return;
-
-    var autoplayDelay = config.autoplayDelay || 5500;
-    var autoplayTimer = null;
-    var autoplayPaused = false;
-
-    if (totalEl) totalEl.textContent = pad(items.length);
-
-    function pad(n) {
-      return n < 10 ? "0" + n : String(n);
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
     }
 
-    function step() {
-      var card = items[0];
-      var style = window.getComputedStyle(track);
-      var gap = parseFloat(style.columnGap || style.gap || "0") || 0;
-      return card.getBoundingClientRect().width + gap;
+    function setCookie(name, value, days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        document.cookie = `${name}=${value}; expires=${date.toUTCString()}; path=/; SameSite=Lax`;
     }
 
-    function currentIndex() {
-      var s = step();
-      return s ? Math.round(track.scrollLeft / s) : 0;
-    }
-
-    function atEnd() {
-      return track.scrollLeft >= track.scrollWidth - track.clientWidth - 1;
-    }
-
-    function update() {
-      var idx = Math.min(currentIndex(), items.length - 1);
-      if (currentEl) currentEl.textContent = pad(idx + 1);
-      if (prevBtn) prevBtn.disabled = track.scrollLeft <= 0;
-      if (nextBtn) nextBtn.disabled = atEnd();
-    }
-
-    // ----- Navigation (also used by autoplay) -----
-    function goNext() {
-      if (atEnd()) {
-        track.scrollTo({ left: 0, behavior: reduceMotion.matches ? "auto" : "smooth" });
-      } else {
-        track.scrollBy({ left: step(), behavior: reduceMotion.matches ? "auto" : "smooth" });
-      }
-    }
-    function goPrev() {
-      track.scrollBy({ left: -step(), behavior: reduceMotion.matches ? "auto" : "smooth" });
-    }
-
-    if (prevBtn) prevBtn.addEventListener("click", function () { pauseAutoplay(true); goPrev(); });
-    if (nextBtn) nextBtn.addEventListener("click", function () { pauseAutoplay(true); goNext(); });
-
-    track.addEventListener("scroll", debounce(update, 60), { passive: true });
-    window.addEventListener("resize", debounce(update, 150));
-
-    // ----- Focus effect: sharp centre item, blurred rest -----
-    if ("IntersectionObserver" in window) {
-      var ratios = new Map();
-      var observer = new IntersectionObserver(
-        function (entries) {
-          entries.forEach(function (entry) {
-            ratios.set(entry.target, entry.intersectionRatio);
-          });
-          var best = null;
-          var bestRatio = 0;
-          ratios.forEach(function (ratio, el) {
-            if (ratio > bestRatio) {
-              bestRatio = ratio;
-              best = el;
+    function getConsent() {
+        const raw = getCookie(COOKIE_NAME);
+        if (raw) {
+            try {
+                return JSON.parse(decodeURIComponent(raw));
+            } catch (e) {
+                return null;
             }
-          });
-          items.forEach(function (el) {
-            el.classList.toggle("is-active", el === best);
-          });
-        },
-        { root: wrapper, threshold: [0, 0.25, 0.5, 0.75, 1] }
-      );
-      items.forEach(function (el) { observer.observe(el); });
-      track.classList.add("has-focus");
+        }
+        return null;
     }
 
-    // ----- Autoplay: gentle, pausable, respects reduced motion -----
-    function startAutoplay() {
-      stopAutoplay();
-      if (reduceMotion.matches || autoplayPaused) return;
-      autoplayTimer = setInterval(goNext, autoplayDelay);
-    }
-    function stopAutoplay() {
-      if (autoplayTimer) {
-        clearInterval(autoplayTimer);
-        autoplayTimer = null;
-      }
-    }
-    function pauseAutoplay(temporarily) {
-      stopAutoplay();
-      if (temporarily) {
-        clearTimeout(pauseAutoplay._resumeTimer);
-        pauseAutoplay._resumeTimer = setTimeout(startAutoplay, 4000);
-      }
+    function applyConsent(consent) {
+        if (consent.analytics) console.log('Analytics enabled');
+        if (consent.marketing) console.log('Marketing enabled');
     }
 
-    var section = root; // hovering/touching anywhere in the section pauses autoplay
-    section.addEventListener("mouseenter", function () { autoplayPaused = true; stopAutoplay(); });
-    section.addEventListener("mouseleave", function () { autoplayPaused = false; startAutoplay(); });
-    wrapper.addEventListener("touchstart", function () { pauseAutoplay(true); }, { passive: true });
-    wrapper.addEventListener("focusin", function () { autoplayPaused = true; stopAutoplay(); });
-    wrapper.addEventListener("focusout", function () { autoplayPaused = false; startAutoplay(); });
+    function hideBanner() {
+        if (banner) banner.style.display = 'none';
+    }
 
-    document.addEventListener("visibilitychange", function () {
-      if (document.hidden) stopAutoplay();
-      else if (!autoplayPaused) startAutoplay();
-    });
-    reduceMotion.addEventListener("change", function () {
-      if (reduceMotion.matches) stopAutoplay();
-      else startAutoplay();
-    });
+    function showBannerIfNeeded() {
+        const consent = getConsent();
+        if (!consent) {
+            if (banner) banner.style.display = 'flex';
+        } else {
+            hideBanner();
+            applyConsent(consent);
+        }
+    }
 
-    update();
-    setTimeout(startAutoplay, 1200);
-  }
+    // For form-based accept/reject (server audit), intercept submission
+    function submitConsentForm(form, consentValue) {
+        if (!form) return;
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Set cookie client-side first
+            setCookie(COOKIE_NAME, JSON.stringify(consentValue), 365);
+            hideBanner();
+            applyConsent(consentValue);
 
-  function debounce(fn, wait) {
-    var t;
-    return function () {
-      clearTimeout(t);
-      var args = arguments;
-      t = setTimeout(function () { fn.apply(null, args); }, wait);
-    };
-  }
+            // Then send to server via fetch for audit trail (optional)
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                credentials: 'same-origin',
+                redirect: 'follow',
+            }).catch(() => { /* ignore network errors */ });
+        });
+    }
 
-  document.addEventListener("DOMContentLoaded", function () {
-    initCarousel({
-      trackId: "deptsTrack",
-      rootSelector: ".home-depts-carousel",
-      prevSelector: ".home-depts-prev",
-      nextSelector: ".home-depts-next",
-      currentSelector: ".home-depts-progress .home-carousel-current",
-      totalSelector: ".home-depts-progress .home-carousel-total",
-      autoplayDelay: 5000
-    });
+    // If forms exist, wire them up
+    if (acceptForm) {
+        submitConsentForm(acceptForm, { essential: true, analytics: true, marketing: true });
+    }
+    if (rejectForm) {
+        submitConsentForm(rejectForm, { essential: true, analytics: false, marketing: false });
+    }
 
-    initCarousel({
-      trackId: "featuredTrack",
-      rootSelector: ".home-featured-carousel",
-      prevSelector: ".home-featured-prev",
-      nextSelector: ".home-featured-next",
-      currentSelector: ".home-featured-progress .home-carousel-current",
-      totalSelector: ".home-featured-progress .home-carousel-total",
-      autoplayDelay: 6000
-    });
+    // Button fallback (if no forms, use buttons)
+    if (acceptButton && !acceptForm) {
+        acceptButton.addEventListener('click', function() {
+            const consent = { essential: true, analytics: true, marketing: true };
+            setCookie(COOKIE_NAME, JSON.stringify(consent), 365);
+            hideBanner();
+            applyConsent(consent);
+        });
+    }
+    if (rejectButton && !rejectForm) {
+        rejectButton.addEventListener('click', function() {
+            const consent = { essential: true, analytics: false, marketing: false };
+            setCookie(COOKIE_NAME, JSON.stringify(consent), 365);
+            hideBanner();
+            applyConsent(consent);
+        });
+    }
 
-    initCarousel({
-      trackId: "shopTrack",
-      rootSelector: ".home-shop-carousel",
-      prevSelector: ".home-shop-prev",
-      nextSelector: ".home-shop-next",
-      currentSelector: ".home-shop-progress .home-carousel-current",
-      totalSelector: ".home-shop-progress .home-carousel-total",
-      autoplayDelay: 6500
-    });
-  });
-})();
+    // Settings page: prefill checkboxes and allow normal form POST
+    if (settingsForm && analyticsCheckbox && marketingCheckbox) {
+        const consent = getConsent();
+        if (consent) {
+            analyticsCheckbox.checked = !!consent.analytics;
+            marketingCheckbox.checked = !!consent.marketing;
+        }
+        // No preventDefault – let the form submit normally to Django view
+    }
+
+    // Initial banner check
+    showBannerIfNeeded();
+
+    /* ─────────────────────────────────────────────
+       2. NEWSLETTER SUBSCRIPTION (AJAX)
+    ───────────────────────────────────────────── */
+    const newsletterForm = document.getElementById('newsletter-form');
+    const responseContainer = document.getElementById('newsletter-response');
+    const consentCheckbox = document.getElementById('footer-consent');
+    const consentError = document.getElementById('consent-error');
+
+    // Helper: format field names
+    function formatFieldName(key) {
+        const map = { 'email': 'Email', 'consent': 'Consent' };
+        return map[key] || key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' ');
+    }
+
+    // Helper: build friendly error message
+    function buildErrorMessage(errors) {
+        const parts = Object.entries(errors).map(([field, messages]) => {
+            const label = formatFieldName(field);
+            const msg = messages.join(' ');
+            return `${label}: ${msg}`;
+        });
+        return parts.join(' • ');
+    }
+
+    if (newsletterForm && responseContainer) {
+        const submitBtn = newsletterForm.querySelector('button[type="submit"]');
+
+        newsletterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Reset messages
+            responseContainer.style.display = 'none';
+            responseContainer.className = 'ta-footer-response';
+            responseContainer.textContent = '';
+            if (consentError) consentError.style.display = 'none';
+
+            // Frontend validation
+            if (consentCheckbox && !consentCheckbox.checked) {
+                if (consentError) {
+                    consentError.style.display = 'block';
+                    consentError.textContent = 'You must agree to receive emails.';
+                }
+                return;
+            }
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Sending…';
+            }
+
+            const formData = new FormData(newsletterForm);
+            const url = newsletterForm.action;
+
+            fetch(url, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                return response.json().then(data => {
+                    if (!response.ok) {
+                        return Promise.reject({ status: response.status, data });
+                    }
+                    return data;
+                });
+            })
+            .then(data => {
+                responseContainer.style.display = 'block';
+
+                if (data.status === 'success') {
+                    responseContainer.className = 'ta-footer-response success';
+                    responseContainer.innerHTML = `<span style="margin-right:6px;">✅</span> ${data.message}`;
+                    newsletterForm.reset();
+                    setTimeout(() => {
+                        responseContainer.style.display = 'none';
+                    }, 5000);
+
+                } else if (data.status === 'info') {
+                    responseContainer.className = 'ta-footer-response info';
+                    responseContainer.innerHTML = `<span style="margin-right:6px;">ℹ️</span> ${data.message}`;
+
+                } else if (data.status === 'error') {
+                    responseContainer.className = 'ta-footer-response error';
+                    let msg = data.message || 'Please check your input.';
+                    if (data.errors) {
+                        msg = buildErrorMessage(data.errors);
+                    }
+                    responseContainer.innerHTML = `<span style="margin-right:6px;">⚠️</span> ${msg}`;
+                }
+
+            })
+            .catch(error => {
+                responseContainer.style.display = 'block';
+                responseContainer.className = 'ta-footer-response error';
+
+                let msg = 'Something went wrong. Please try again.';
+                if (error.data) {
+                    if (error.data.errors) {
+                        msg = buildErrorMessage(error.data.errors);
+                    } else if (error.data.message) {
+                        msg = error.data.message;
+                    }
+                }
+                responseContainer.innerHTML = `<span style="margin-right:6px;">⚠️</span> ${msg}`;
+
+            })
+            .finally(() => {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    // Restore arrow SVG
+                    submitBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                        <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>`;
+                }
+            });
+        });
+
+        // Hide consent error when checkbox is checked
+        if (consentCheckbox) {
+            consentCheckbox.addEventListener('change', function() {
+                if (this.checked && consentError) {
+                    consentError.style.display = 'none';
+                }
+            });
+        }
+
+        // Clear error when user types in email
+        const emailInput = document.getElementById('footer-email');
+        if (emailInput) {
+            emailInput.addEventListener('input', function() {
+                if (responseContainer.style.display === 'block' && 
+                    responseContainer.classList.contains('error')) {
+                    responseContainer.style.display = 'none';
+                }
+            });
+        }
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const userPill = document.querySelector('.nav-user-pill');
+    if (!userPill) return;
+
+    // Get the dashboard URL from the data attribute (fallback to home)
+    const dashboardUrl = userPill.dataset.dashboardUrl || '/';
+
+    function isMobile() {
+        return window.innerWidth <= 991;
+    }
+
+    function setupMobileBehavior() {
+        if (isMobile()) {
+            // 1. Remove all dropdown-related attributes
+            userPill.removeAttribute('data-bs-toggle');
+            userPill.removeAttribute('aria-expanded');
+            userPill.setAttribute('role', 'link');
+
+            // 2. Hide the dropdown menu
+            const dropdownMenu = userPill.nextElementSibling;
+            if (dropdownMenu && dropdownMenu.classList.contains('dropdown-menu')) {
+                dropdownMenu.style.display = 'none';
+            }
+
+            // 3. Replace click handler – redirect immediately
+            userPill.onclick = function (e) {
+                e.preventDefault();
+                e.stopPropagation();   // prevent any other handlers
+                window.location.href = dashboardUrl;
+            };
+
+            // 4. Remove the chevron (optional)
+            const chevron = userPill.querySelector('.nav-chevron');
+            if (chevron) chevron.style.display = 'none';
+
+        } else {
+            // Restore desktop behaviour
+            userPill.setAttribute('data-bs-toggle', 'dropdown');
+            userPill.setAttribute('aria-expanded', 'false');
+            userPill.removeAttribute('role');
+            const dropdownMenu = userPill.nextElementSibling;
+            if (dropdownMenu && dropdownMenu.classList.contains('dropdown-menu')) {
+                dropdownMenu.style.display = '';
+            }
+            userPill.onclick = null;
+            const chevron = userPill.querySelector('.nav-chevron');
+            if (chevron) chevron.style.display = '';
+        }
+    }
+
+    // Run on load and on resize
+    setupMobileBehavior();
+    window.addEventListener('resize', setupMobileBehavior);
+});

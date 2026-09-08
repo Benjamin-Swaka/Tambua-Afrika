@@ -1,9 +1,12 @@
 Hello{% if user.first_name %} {{ user.first_name }}{% endif %},
 
-Please confirm your email by clicking the link below:
+Your Tambua Afrika verification code is:
 
-{{ activate_url }}
+{{ code }}
 
-If you did not request this, you can ignore this email.
+Enter this code on the verification screen to confirm your email address.
+This code expires in 15 minutes.
+
+If you did not request this, you can safely ignore this email.
 
 © {% now "Y" %} Tambua Afrika Studios. All rights reserved.

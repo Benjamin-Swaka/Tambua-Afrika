@@ -9,4 +9,7 @@ urlpatterns = [
     path('ticket/<str:ticket_code>/pay/', views.ticket_payment, name='ticket_payment'),
     path('ticket/<str:ticket_code>/', views.ticket_detail, name='ticket_detail'),
     path('ticket/<str:ticket_code>/cancel/', views.cancel_ticket, name='cancel_ticket'),
+    path('ticket/<str:ticket_code>/pesapal/', views.pesapal_checkout, name='pesapal_checkout'),
+    path('pesapal/callback/', views.pesapal_callback, name='pesapal_callback'),
+    path('pesapal/ipn/', views.pesapal_ipn, name='pesapal_ipn'),
 ]

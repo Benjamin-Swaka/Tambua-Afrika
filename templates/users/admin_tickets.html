@@ -1,0 +1,94 @@
+{% extends 'dashboard_base.html' %}
+{% block dashboard_content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h4 class="mb-0 fw-bold">Tickets &amp; Shows</h4>
+        <p class="small text-muted mb-0">Total confirmed revenue: <strong>KES {{ total_revenue }}</strong></p>
+    </div>
+    <form method="get" class="d-flex gap-2 flex-wrap">
+        <select name="show" class="form-select form-select-sm" style="width: 200px;">
+            <option value="">All shows</option>
+            {% for show in shows %}
+            <option value="{{ show.id }}" {% if current_show == show.id|stringformat:"s" %}selected{% endif %}>{{ show.title }}</option>
+            {% endfor %}
+        </select>
+        <select name="status" class="form-select form-select-sm" style="width: 170px;">
+            <option value="">All statuses</option>
+            {% for value, label in status_choices %}
+            <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-dark btn-sm px-3">Filter</button>
+    </form>
+</div>
+
+<div class="table-responsive table-saas">
+    <table class="table mb-0 align-middle">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Show</th>
+                <th>Buyer</th>
+                <th>Qty</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Check-In</th>
+                <th style="width: 240px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in tickets %}
+            <tr>
+                <td class="small font-monospace">{{ t.ticket_code }}</td>
+                <td class="fw-bold">{{ t.show.title }}</td>
+                <td>
+                    <div class="fw-bold small">{{ t.user.get_full_name|default:t.user.username }}</div>
+                    <div class="small text-muted">{{ t.user.email }}</div>
+                </td>
+                <td>{{ t.quantity }}</td>
+                <td>KES {{ t.total_amount }}</td>
+                <td>
+                    <span class="badge
+                        {% if t.status == 'paid' %}bg-success
+                        {% elif t.status == 'cancelled' %}bg-secondary
+                        {% else %}bg-warning text-dark{% endif %}">
+                        {{ t.get_status_display }}
+                    </span>
+                </td>
+                <td>
+                    {% if t.checked_in %}
+                        <span class="badge bg-success bg-opacity-10 text-success" title="{{ t.checked_in_at }}">
+                            <i class="fas fa-check"></i> {{ t.checked_in_at|date:"d M, H:i" }}
+                        </span>
+                    {% elif t.status == 'paid' %}
+                        <span class="badge bg-secondary bg-opacity-10 text-secondary">Not yet</span>
+                    {% else %}
+                        <span class="text-muted small">&mdash;</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="d-flex gap-1 flex-wrap">
+                        {% if t.status == 'pending_payment' %}
+                        <form method="POST" action="{% url 'admin_ticket_update_status' t.ticket_code %}" class="d-flex gap-1">
+                            {% csrf_token %}
+                            <button type="submit" name="action" value="mark_paid" class="btn btn-sm btn-outline-success">Mark Paid</button>
+                            <button type="submit" name="action" value="cancel" class="btn btn-sm btn-outline-danger">Cancel</button>
+                        </form>
+                        {% endif %}
+                        {% if t.status == 'paid' %}
+                        <a href="{% url 'admin_ticket_verify_code' t.ticket_code %}" class="btn btn-sm btn-outline-dark">Verify</a>
+                        {% if t.qr_code %}
+                        <a href="{{ t.qr_code.url }}" download="{{ t.ticket_code }}-qr.png" class="btn btn-sm btn-outline-secondary" title="Download QR"><i class="fas fa-qrcode"></i></a>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8" class="text-center text-muted py-5">No tickets match these filters.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'dashboard_base.html' %}
+{% block dashboard_content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="h4 mb-0 fw-bold">Manage FAQs</h2>
+        <p class="text-muted small mb-0">Add, edit, or remove Frequently Asked Questions shown on the public site.</p>
+    </div>
+    <a href="{% url 'faq_add' %}" class="btn btn-dark btn-sm">
+        <i class="fas fa-plus me-1"></i> Add New FAQ
+    </a>
+</div>
+
+<div class="table-responsive table-saas">
+    <table class="table align-middle mb-0">
+        <thead>
+            <tr>
+                <th>Question</th>
+                <th>Category</th>
+                <th>Order</th>
+                <th>Status</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for faq in faqs %}
+            <tr>
+                <td class="fw-bold">{{ faq.question }}</td>
+                <td>{{ faq.category.name|default:"—" }}</td>
+                <td>{{ faq.order }}</td>
+                <td>
+                    {% if faq.is_active %}
+                        <span class="badge bg-success">Active</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Hidden</span>
+                    {% endif %}
+                </td>
+                <td class="text-end">
+                    <a href="{% url 'faq_edit' faq.pk %}" class="btn btn-outline-dark btn-sm">
+                        <i class="fas fa-pen"></i> Edit
+                    </a>
+                    <a href="{% url 'faq_delete' faq.pk %}" class="btn btn-outline-danger btn-sm">
+                        <i class="fas fa-trash"></i> Remove
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-muted text-center py-4">
+                    No FAQs yet. Click "Add New FAQ" to create the first one.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<p class="text-muted small mt-3">
+    Need to add or reorder categories? That's managed from
+    <a href="/admin/faq_app/faqcategory/" target="_blank">Django Admin → FAQ Categories</a>.
+</p>
+
+{% endblock %}

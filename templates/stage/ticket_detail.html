@@ -24,9 +24,25 @@
                     <p class="mb-0"><strong>Amount Paid:</strong> KES {{ ticket.total_amount }}</p>
                 </div>
 
+                {% if ticket.is_paid and ticket.qr_code %}
+                <div class="mb-4">
+                    <img src="{{ ticket.qr_code.url }}" alt="Ticket QR code" style="width:200px; height:200px; border:1px solid #eee; border-radius:8px;">
+                    <p class="text-muted small mt-2 mb-2">
+                        {% if ticket.checked_in %}
+                            <span class="badge bg-success">Checked in {{ ticket.checked_in_at|date:"D, d M Y H:i" }}</span>
+                        {% else %}
+                            Show this QR code at the door — it'll be scanned to check you in.
+                        {% endif %}
+                    </p>
+                    <a href="{{ ticket.qr_code.url }}" download="{{ ticket.ticket_code }}-qr.png" class="btn btn-outline-dark btn-sm">
+                        <i class="fas fa-download me-1"></i> Download QR Code
+                    </a>
+                </div>
+                {% elif ticket.is_paid %}
                 <p class="text-muted small">
                     Show this ticket code at the door on the day of the event.
                 </p>
+                {% endif %}
 
                 <a href="{% url 'my_tickets' %}" class="btn btn-custom mt-2">View My Tickets</a>
             </div>

@@ -1,0 +1,121 @@
+{% extends 'dashboard_base.html' %}
+{% block dashboard_content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="h4 fw-bold mb-1">Contact Messages</h2>
+        <p class="text-muted small mb-0">Everything submitted through the public contact form.</p>
+    </div>
+    <a href="{% url 'contact' %}" class="small text-dark fw-bold" target="_blank">View Public Form &rarr;</a>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_count }}</div>
+            <div class="stat-label">Total Messages</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card blue">
+            <div class="stat-number">{{ unread_count }}</div>
+            <div class="stat-label">Unread</div>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive table-saas tmb-messages">
+    <table class="table mb-0 align-middle">
+        <thead>
+            <tr>
+                <th style="width:24px;"></th>
+                <th>From</th>
+                <th>Subject</th>
+                <th>Received</th>
+                <th>Status</th>
+                <th class="text-end">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for msg in messages_list %}
+            <tr class="{% if not msg.is_read %}fw-bold{% endif %}">
+                <td>{% if not msg.is_read %}<span class="tmb-unread-dot" title="Unread"></span>{% endif %}</td>
+                <td>
+                    {{ msg.name }}<br>
+                    <span class="small text-muted fw-normal">
+                        <a href="mailto:{{ msg.email }}" class="text-muted text-decoration-none">{{ msg.email }}</a>
+                    </span>
+                </td>
+                <td class="fw-normal">{{ msg.get_subject_display }}</td>
+                <td class="fw-normal small text-muted">{{ msg.created_at|date:"d M Y, H:i" }}</td>
+                <td>
+                    {% if msg.is_read %}
+                        <span class="badge bg-secondary">Read</span>
+                    {% else %}
+                        <span class="badge bg-dark">New</span>
+                    {% endif %}
+                </td>
+                <td class="text-end">
+                    <button type="button" class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" data-bs-target="#tmbMsgModal{{ msg.id }}">
+                        View
+                    </button>
+                </td>
+            </tr>
+
+            <div class="modal fade" id="tmbMsgModal{{ msg.id }}" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content rounded-0">
+                  <div class="modal-header">
+                    <h5 class="modal-title">{{ msg.name }} &mdash; {{ msg.get_subject_display }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <p class="text-muted small mb-3">
+                        <a href="mailto:{{ msg.email }}">{{ msg.email }}</a> &middot; {{ msg.created_at|date:"d M Y, H:i" }}
+                    </p>
+                    <p style="white-space: pre-wrap;">{{ msg.message }}</p>
+                  </div>
+                  <div class="modal-footer">
+                    <a href="mailto:{{ msg.email }}?subject=Re:%20{{ msg.get_subject_display|urlencode }}" class="btn btn-dark rounded-0">Reply by Email</a>
+                    {% if not msg.is_read %}
+                    <form method="post" action="{% url 'admin_message_mark_read' msg.id %}" class="m-0">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-dark rounded-0">Mark as Read</button>
+                    </form>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% empty %}
+            <tr><td colspan="6" class="text-muted text-center py-4">No messages yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if is_paginated %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+        {% endif %}
+        <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+<style>
+    /* Scoped to this page only */
+    .tmb-messages .tmb-unread-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #111111;
+    }
+</style>
+{% endblock %}

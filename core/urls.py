@@ -14,6 +14,15 @@ urlpatterns = [
     path('search/', views.global_search, name='global_search'),
     path('select-department/', views.select_department, name='select_department'),
     path('cookies/', views.cookie_settings, name='cookie_settings'),
+    path('submission-guidelines/', views.submission_guidelines, name='submission_guidelines'),
+    path('publishing-packages/', views.publishing_packages, name='publishing_packages'),
+    path('partnerships/', views.partnerships, name='partnerships'),
+ 
+
+
+    path('dashboard/messages/', views.admin_messages, name='admin_messages'),
+    path('dashboard/messages/<int:pk>/mark-read/', views.admin_message_mark_read, name='admin_message_mark_read'),
+    
 
     # Campaigns
     path('campaigns/', views.campaign_list, name='campaign_list'),

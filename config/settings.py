@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     "submissions",
     "journal",
     "users",
+    "faq_app",
 ]
 
 
@@ -275,12 +276,21 @@ ACCOUNT_SIGNUP_FIELDS = [
 # ==============================================
 # EMAIL VERIFICATION
 # ==============================================
-
-# We are using mandatory verification because
-# users must verify their email before continuing.
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_VERIFICATION_BY_CODE_ENABLED = True
+ACCOUNT_EMAIL_VERIFICATION_BY_CODE_FORMAT = {
+    "numeric": True,
+    "length": 6,
+    "dashed": False,
+}
+
+ACCOUNT_EMAIL_VERIFICATION_BY_CODE_TIMEOUT = 900  # 15 minutes
+ACCOUNT_EMAIL_VERIFICATION_BY_CODE_MAX_ATTEMPTS = 5
+
+ACCOUNT_EMAIL_VERIFICATION_SUPPORTS_RESEND = True
 
 ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_PREVENT_ENUMERATION = True
 
 
 # ==============================================
@@ -310,6 +320,17 @@ ACCOUNT_LOGIN_ON_CODE_CONFIRM = True
 ACCOUNT_EMAIL_SUBJECT_PREFIX = "Tambua Afrika - "
 
 # ==============================================
+# PASSWORD RESET ("Forgot password")
+# ==============================================
+
+# Log the user straight in once they've set a new password instead of
+# forcing them through a separate login step right after.
+ACCOUNT_LOGIN_ON_PASSWORD_RESET = True
+
+# Password reset links expire after this many days.
+PASSWORD_RESET_TIMEOUT_DAYS = 1
+
+# ==============================================
 # CUSTOM ALLAUTH FORMS
 # ==============================================
 
@@ -322,10 +343,6 @@ ACCOUNT_FORMS = {
 # ==============================================
 # EMAIL / SMTP
 # ==============================================
-
-EMAIL_BACKEND = (
-    "django.core.mail.backends.smtp.EmailBackend"
-)
 
 EMAIL_HOST = os.getenv(
     "EMAIL_HOST",
@@ -356,6 +373,20 @@ DEFAULT_FROM_EMAIL = os.getenv(
     "DEFAULT_FROM_EMAIL",
     EMAIL_HOST_USER
 )
+
+if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+    import warnings
+    warnings.warn(
+        "EMAIL_HOST_USER / EMAIL_HOST_PASSWORD are not set (check your .env "
+        "file) -- falling back to the console email backend. Verification "
+        "codes and password reset emails will print to the terminal instead "
+        "of being sent. Run `python manage.py send_test_email you@example.com` "
+        "once real SMTP credentials are set to confirm delivery works.",
+        RuntimeWarning,
+    )
 
 
 # ==============================================
@@ -390,3 +421,23 @@ SOCIALACCOUNT_PROVIDERS = {
         "VERIFIED_EMAIL": True,
     }
 }
+
+# ==============================================
+# PESAPAL (ticket payments)
+# ==============================================
+SITE_BASE_URL = os.getenv("SITE_BASE_URL", "http://127.0.0.1:8000").rstrip("/")
+PESAPAL_ENV = os.getenv("PESAPAL_ENV", "sandbox")
+PESAPAL_CONSUMER_KEY = os.getenv("PESAPAL_CONSUMER_KEY", "")
+PESAPAL_CONSUMER_SECRET = os.getenv("PESAPAL_CONSUMER_SECRET", "")
+PESAPAL_IPN_ID = os.getenv("PESAPAL_IPN_ID", "")
+PESAPAL_BASE_URL = (
+    "https://pay.pesapal.com/v3/api" if PESAPAL_ENV == "live"
+    else "https://cybqa.pesapal.com/pesapalv3/api"
+)
+
+
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin.strip()
+]

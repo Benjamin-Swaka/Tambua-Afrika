@@ -1,0 +1,44 @@
+{% extends 'dashboard_base.html' %}
+{% block dashboard_content %}
+
+<div class="mb-4">
+    <h2 class="h4 mb-0 fw-bold">{% if mode == "edit" %}Edit FAQ{% else %}Add a New FAQ{% endif %}</h2>
+    <p class="text-muted small mb-0">
+        {% if mode == "edit" %}Update the question, answer, or visibility below.{% else %}This will appear on the public FAQ page once saved.{% endif %}
+    </p>
+</div>
+
+<div class="card border-0 shadow-sm" style="max-width: 680px;">
+    <div class="card-body p-4">
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="mb-3">
+                <label for="{{ field.id_for_label }}" class="form-label fw-bold">{{ field.label }}</label>
+
+                {% if field.name == "is_active" %}
+                    <div class="form-check form-switch">
+                        {{ field }}
+                        <label class="form-check-label" for="{{ field.id_for_label }}">Visible on the public FAQ page</label>
+                    </div>
+                {% else %}
+                    {{ field }}
+                {% endif %}
+
+                {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                {% for error in field.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+            </div>
+            {% endfor %}
+
+            <div class="d-flex align-items-center gap-3 mt-4">
+                <button type="submit" class="btn btn-dark">
+                    {% if mode == "edit" %}Save Changes{% else %}Add FAQ{% endif %}
+                </button>
+                <a href="{% url 'admin_list' %}" class="text-muted small fw-bold">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

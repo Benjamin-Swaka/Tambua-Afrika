@@ -1,0 +1,16 @@
+Hello{% if ticket.user.first_name %} {{ ticket.user.first_name }}{% endif %},
+
+Your ticket for {{ ticket.show.title }} is confirmed.
+
+Ticket Code: {{ ticket.ticket_code }}
+Venue: {{ ticket.show.venue }}
+Date: {{ ticket.show.date }} at {{ ticket.show.time }}
+Quantity: {{ ticket.quantity }}
+Amount Paid: KES {{ ticket.total_amount }}
+
+Your QR code is attached to this email. Show it at the door (on your
+phone or printed) — the venue staff will scan it to check you in.
+
+See you there!
+
+© {% now "Y" %} Tambua Afrika Studios. All rights reserved.

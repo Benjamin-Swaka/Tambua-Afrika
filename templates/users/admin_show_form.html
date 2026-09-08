@@ -1,0 +1,76 @@
+{% extends 'dashboard_base.html' %}
+{% block dashboard_content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0 fw-bold">{% if is_edit %}Edit Show{% else %}New Show{% endif %}</h4>
+    <a href="{% url 'admin_shows' %}" class="small text-muted">&larr; Back to Shows</a>
+</div>
+
+<div class="card border-0 shadow-sm p-4" style="max-width: 720px;">
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger rounded-0">{{ form.non_field_errors.0 }}</div>
+        {% endif %}
+
+        <div class="row g-3">
+            <div class="col-12">
+                <label class="form-label small text-muted text-uppercase fw-bold">Title</label>
+                {{ form.title }}
+                {% for error in form.title.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+            </div>
+            <div class="col-12">
+                <label class="form-label small text-muted text-uppercase fw-bold">Slug <span class="text-muted normal-case">(leave blank to auto-generate)</span></label>
+                {{ form.slug }}
+                {% for error in form.slug.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+            </div>
+            <div class="col-12">
+                <label class="form-label small text-muted text-uppercase fw-bold">Description</label>
+                {{ form.description }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label small text-muted text-uppercase fw-bold">Venue</label>
+                {{ form.venue }}
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small text-muted text-uppercase fw-bold">Date</label>
+                {{ form.date }}
+                {% for error in form.date.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small text-muted text-uppercase fw-bold">Time</label>
+                {{ form.time }}
+                {% for error in form.time.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small text-muted text-uppercase fw-bold">Price (KES)</label>
+                {{ form.price }}
+                {% for error in form.price.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small text-muted text-uppercase fw-bold">Capacity</label>
+                {{ form.capacity }}
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <div class="form-check">
+                    {{ form.is_active }}
+                    <label class="form-check-label small">Visible / on sale</label>
+                </div>
+            </div>
+            <div class="col-12">
+                <label class="form-label small text-muted text-uppercase fw-bold">Poster Image</label>
+                {% if show.image %}
+                    <div class="mb-2"><img src="{{ show.image.url }}" style="max-width:120px;border-radius:4px;"></div>
+                {% endif %}
+                {{ form.image }}
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-dark px-4 rounded-0">{% if is_edit %}Save Changes{% else %}Create Show{% endif %}</button>
+            <a href="{% url 'admin_shows' %}" class="btn btn-outline-secondary px-4 rounded-0">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

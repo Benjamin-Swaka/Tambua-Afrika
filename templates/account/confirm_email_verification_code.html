@@ -1,0 +1,80 @@
+{% extends "account/auth_base.html" %}
+{% load mask_email %}
+
+{% block auth_heading %}Verify Your Email{% endblock %}
+
+{% block auth_content %}
+<p class="text-muted mb-4 text-center">
+    We've sent a 6-digit code to <strong>{{ email|mask_email }}</strong>. Enter it below to
+    activate your account. The code expires in 15 minutes.
+</p>
+
+<form method="post" action="{% url 'account_email_verification_sent' %}">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="verify">
+
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger rounded-0 small mb-3 border-0 bg-danger bg-opacity-10 text-danger">
+        {{ form.non_field_errors.0 }}
+    </div>
+    {% endif %}
+
+    <div class="mb-3">
+        <label for="id_code" class="form-label small text-muted text-uppercase fw-bold">Verification Code</label>
+        <input type="text"
+               name="code"
+               id="id_code"
+               inputmode="numeric"
+               autocomplete="one-time-code"
+               class="form-control auth-input rounded-0 text-center"
+               style="letter-spacing: 0.5em; font-size: 1.4rem;"
+               maxlength="6"
+               placeholder="••••••"
+               required
+               autofocus>
+        {% for error in form.code.errors %}
+            <div class="text-danger small mt-1">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <button type="submit" class="btn btn-dark w-100 py-3 rounded-0 text-uppercase fw-bold auth-submit-btn">
+        Confirm &amp; Continue
+        <span class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+    </button>
+</form>
+
+{% if can_resend %}
+<div class="text-center mt-4">
+    <form method="post" action="{% url 'account_email_verification_sent' %}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="resend">
+        <p class="small text-muted mb-1">Didn't get a code? Check your spam folder, or</p>
+        <button type="submit" class="btn btn-link text-dark fw-bold p-0 small">Resend code</button>
+    </form>
+</div>
+{% else %}
+<div class="text-center mt-4">
+    <p class="small text-muted mb-1">Didn't get a code? Check your spam folder.</p>
+</div>
+{% endif %}
+
+{% if can_change %}
+<div class="text-center mt-3">
+    <p class="small text-muted">
+        Wrong email address?
+        <a href="#" class="text-dark fw-bold" data-bs-toggle="collapse" data-bs-target="#changeEmailForm">Use a different one</a>
+    </p>
+    <div class="collapse mt-2" id="changeEmailForm">
+        <form method="post" action="{% url 'account_email_verification_sent' %}" class="d-flex gap-2 justify-content-center">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="change">
+            <input type="email" name="{{ change_form.email.name }}" class="form-control form-control-sm rounded-0" style="max-width: 260px;" placeholder="New email address" required>
+            <button type="submit" class="btn btn-sm btn-dark rounded-0">Update</button>
+        </form>
+        {% if change_form.email.errors %}
+            <div class="text-danger small mt-1">{{ change_form.email.errors.0 }}</div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

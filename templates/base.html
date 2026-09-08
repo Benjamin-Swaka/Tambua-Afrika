@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="{% static 'css/cookie_consent.css' %}">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    {% block extra_css %}{% endblock %}
 </head>
 
 <!-- Body class sets the theme color variable -->
@@ -29,10 +30,10 @@
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container">
             <!-- Logo -->
-                <img src="{% static 'images/logo.png' %}" alt="Tambua Afrika" class="navbar-logo me-2">
-            <a class="navbar-brand" href="{% url 'home' %}">
-                TAMBUA AFRIKA
-            </a>
+               <div class="brand-wrapper">
+    <img src="{% static 'images/logo.png' %}" alt="Tambua Afrika" class="navbar-logo me-2">
+    <a class="navbar-brand" href="{% url 'home' %}">TAMBUA AFRIKA</a>
+</div>
 
             <!-- Mobile Toggler -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -80,8 +81,15 @@
                         </a>
                     </li>
 {% if user.is_authenticated %}
+
 <li class="nav-item">
-    <div class="nav-user-pill" data-bs-toggle="dropdown" aria-expanded="false" role="button" tabindex="0">
+    <!-- This is the trigger (user pill) -->
+    <div class="nav-user-pill"
+         data-dashboard-url="{% url 'dashboard_routing' %}"
+         data-bs-toggle="dropdown"
+         aria-expanded="false"
+         role="button"
+         tabindex="0">
         <div class="nav-avatar" aria-hidden="true">
             {% if user.profile.avatar %}
                 <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="nav-avatar-img">
@@ -146,12 +154,15 @@
         <li><hr class="nav-dropdown-divider"></li>
  
         <li>
-            <a class="nav-dropdown-item nav-dropdown-item--signout" href="{% url 'account_logout' %}">
-                <span class="nav-dropdown-icon" aria-hidden="true">
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 12H2V2h3M9 10l3-3-3-3M12 7H5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </span>
-                Sign out
-            </a>
+            <form method="post" action="{% url 'account_logout' %}" class="m-0">
+                {% csrf_token %}
+                <button type="submit" class="nav-dropdown-item nav-dropdown-item--signout border-0 bg-transparent w-100 text-start">
+                    <span class="nav-dropdown-icon" aria-hidden="true">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 12H2V2h3M9 10l3-3-3-3M12 7H5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                    Sign out
+                </button>
+            </form>
         </li>
     </ul>
 </li>
@@ -213,21 +224,37 @@
                 <p class="ta-footer-brand-copy">
                     A multidisciplinary creative ecosystem dedicated to discovering, developing, and distributing authentic African stories across publishing, theatre, comics, and digital media.
                 </p>
-                <!-- Social icons -->
-                <div class="ta-footer-socials" role="list">
-                    <a href="#" class="ta-footer-social" aria-label="Instagram" role="listitem">
-                        <i class="fab fa-instagram" aria-hidden="true"></i>
-                    </a>
-                    <a href="#" class="ta-footer-social" aria-label="LinkedIn" role="listitem">
-                        <i class="fab fa-linkedin-in" aria-hidden="true"></i>
-                    </a>
-                    <a href="#" class="ta-footer-social" aria-label="YouTube" role="listitem">
-                        <i class="fab fa-youtube" aria-hidden="true"></i>
-                    </a>
-                    <a href="#" class="ta-footer-social" aria-label="TikTok" role="listitem">
-                        <i class="fab fa-tiktok" aria-hidden="true"></i>
-                    </a>
-                </div>
+                
+                <!-- Social icons with labels -->
+<div class="ta-footer-socials" role="list">
+    <a href="https://www.instagram.com/tambuaafrika_ink?utm_source=qr&igsh=MTQ3M2ZpNmN4c2Vy" 
+       class="ta-footer-social" 
+       aria-label="Tambua Afrika Ink on Instagram" 
+       role="listitem" 
+       target="_blank" 
+       rel="noopener noreferrer">
+        <i class="fab fa-instagram" aria-hidden="true"></i>
+        <span class="ta-footer-social-label">Tambua Afrika Ink</span>
+    </a>
+    <a href="https://www.instagram.com/tambuaafrika_comics?utm_source=qr&igsh=ZnpwNjl4b3U2cmhr" 
+       class="ta-footer-social" 
+       aria-label="Comics on Instagram" 
+       role="listitem" 
+       target="_blank" 
+       rel="noopener noreferrer">
+        <i class="fab fa-instagram" aria-hidden="true"></i>
+        <span class="ta-footer-social-label">Tambua Afrika Comics</span>
+    </a>
+    <a href="https://www.instagram.com/tambuaafrika_stage?utm_source=qr&igsh=MWpxN3k1dzJ2ODJ1cw%3D%3D" 
+       class="ta-footer-social" 
+       aria-label="Stage on Instagram" 
+       role="listitem" 
+       target="_blank" 
+       rel="noopener noreferrer">
+        <i class="fab fa-instagram" aria-hidden="true"></i>
+        <span class="ta-footer-social-label">Tambua Afrika Stage</span>
+    </a>
+</div>
             </div>
  
             <!-- Departments column -->
@@ -256,8 +283,7 @@
                     <li><a href="{% url 'team' %}" class="ta-footer-link">The Team</a></li>
                     <li><a href="{% url 'contact' %}" class="ta-footer-link">Contact Us</a></li>
                     <li><a href="{% url 'submission_dashboard' %}" class="ta-footer-link">Submit Work</a></li>
-                    <li><a href="#" class="ta-footer-link">Press &amp; Media</a></li>
-                    <li><a href="#" class="ta-footer-link">Partnerships</a></li>
+                    <li><a href="{% url 'partnerships' %}" class="ta-footer-link">Partnerships</a></li>
                 </ul>
             </nav>
  
@@ -268,51 +294,70 @@
                     Creators
                 </h3>
                 <ul class="ta-footer-col-list">
-                    <li><a href="#" class="ta-footer-link">Submission Guidelines</a></li>
-                    <li><a href="#" class="ta-footer-link">Publishing Packages</a></li>
-                    <li><a href="#" class="ta-footer-link">Talent Directory</a></li>
-                    <li><a href="#" class="ta-footer-link">Open Calls</a></li>
-                    <li><a href="#" class="ta-footer-link">Creator FAQs</a></li>
+                    <li><a href="{% url 'submission_guidelines' %}" class="ta-footer-link">Submission Guidelines</a></li>
+                    <li><a href="{% url 'publishing_packages' %}" class="ta-footer-link">Publishing Packages</a></li>
+                    <li><a href="{% url 'faq_list' %}" class="ta-footer-link">Help & FAQs</a></li>
+              
                 </ul>
             </nav>
  
-            <!-- Newsletter column -->
-            <div class="ta-footer-col ta-footer-newsletter">
-                <h3 class="ta-footer-col-heading">
-                    <span class="ta-footer-col-dot" style="background: var(--theme-primary);" aria-hidden="true"></span>
-                    Stay Connected
-                </h3>
-                <p class="ta-footer-newsletter-copy">
-                    Open calls, new releases, and African creative culture — direct to your inbox.
-                </p>
-                <form action="{% url 'newsletter_subscribe' %}" method="POST" class="ta-footer-form" novalidate>
-                    {% csrf_token %}
-                    <div class="ta-footer-form-row">
-                        <label for="footer-email" class="visually-hidden">Email address</label>
-                        <input
-                            type="email"
-                            id="footer-email"
-                            name="email"
-                            class="ta-footer-input"
-                            placeholder="your@email.com"
-                            required
-                            autocomplete="email"
-                        >
-                        <button type="submit" class="ta-footer-btn" aria-label="Subscribe to newsletter">
-                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                                <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </button>
-                    </div>
-                </form>
-                <p class="ta-footer-newsletter-note">
-                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M5 1a4 4 0 100 8A4 4 0 005 1zm0 3v2m0 1.5v.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-                    No spam. Unsubscribe any time.
-                </p>
-                 <div>  
-                {% include "includes/language_switcher.html" %}
-            </div>
-            </div>
+ <!-- ══════════════════════════════════════════════════════════
+     FOOTER NEWSLETTER COLUMN
+     ══════════════════════════════════════════════════════════ -->
+
+<div class="ta-footer-col ta-footer-newsletter">
+    <h3 class="ta-footer-col-heading">
+        <span class="ta-footer-col-dot" style="background: var(--theme-primary);" aria-hidden="true"></span>
+        Stay Connected
+    </h3>
+    <p class="ta-footer-newsletter-copy">
+        Open calls, new releases, and African creative culture — direct to your inbox.
+    </p>
+
+    <!-- Premium response container (inline) -->
+    <div id="newsletter-response" class="ta-footer-response" style="display:none;"></div>
+
+    <form action="{% url 'newsletter_subscribe' %}" method="POST" class="ta-footer-form" novalidate id="newsletter-form">
+        {% csrf_token %}
+        <div class="ta-footer-form-row">
+            <label for="footer-email" class="visually-hidden">Email address</label>
+            <input
+                type="email"
+                id="footer-email"
+                name="email"
+                class="ta-footer-input"
+                placeholder="your@email.com"
+                required
+                autocomplete="email"
+            >
+            <button type="submit" class="ta-footer-btn" aria-label="Subscribe to newsletter">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Consent checkbox with inline error hint -->
+        <div class="ta-footer-consent-wrapper">
+            <input type="checkbox" name="consent" id="footer-consent" required>
+            <label for="footer-consent" style="font-size:0.7rem; color:rgba(255,255,255,0.5);">
+                I agree to receive email updates (you can unsubscribe anytime).
+            </label>
+            <div id="consent-error" class="ta-footer-field-error" style="display:none;"></div>
+        </div>
+    </form>
+
+    <p class="ta-footer-newsletter-note">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+            <path d="M5 1a4 4 0 100 8A4 4 0 005 1zm0 3v2m0 1.5v.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+        No spam. Unsubscribe any time.
+    </p>
+
+    <div>
+        {% include "includes/language_switcher.html" %}
+    </div>
+</div>
            
         </div>
  
@@ -392,5 +437,15 @@
     <script src="{% static 'JS/script.js' %}"></script>
     <script src="{% static 'JS/cookie_consent.js' %}"></script>
 {% include 'cookies/cookie_banner.html' %}
+
+<!-- Floating WhatsApp Button -->
+<a href="https://whatsapp.com/channel/0029VbC0ckIKbYMP4tFPE70E" 
+   class="floating-whatsapp" 
+   target="_blank" 
+   rel="noopener noreferrer" 
+   aria-label="Chat on WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+</a>
+{% block extra_js %}{% endblock %}
 </body>
 </html>

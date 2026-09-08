@@ -1,0 +1,95 @@
+{% extends 'dashboard_base.html' %}
+{% block dashboard_content %}
+
+<div class="row g-4">
+    <div class="col-lg-8">
+
+        <!-- Consent history -->
+        <div class="card border-0 shadow-sm p-4 mb-4">
+            <h4 class="mb-1">Privacy &amp; Data</h4>
+            <p class="text-muted small mb-4">Manage your cookie consent, download your data, or delete your account.</p>
+
+            <h6 class="text-uppercase text-muted small mb-3">Consent History</h6>
+            {% if consent_history %}
+            <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                    <thead>
+                        <tr class="text-muted small text-uppercase">
+                            <th>Date</th>
+                            <th>Analytics</th>
+                            <th>Marketing</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in consent_history %}
+                        <tr>
+                            <td class="small">{{ log.created_at|date:"M d, Y H:i" }}</td>
+                            <td>
+                                {% if log.analytics %}<span class="badge bg-success bg-opacity-10 text-success">Allowed</span>
+                                {% else %}<span class="badge bg-secondary bg-opacity-10 text-secondary">Blocked</span>{% endif %}
+                            </td>
+                            <td>
+                                {% if log.marketing %}<span class="badge bg-success bg-opacity-10 text-success">Allowed</span>
+                                {% else %}<span class="badge bg-secondary bg-opacity-10 text-secondary">Blocked</span>{% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted small">No consent choices recorded yet. <a href="{% url 'cookie_settings' %}">Manage cookie preferences</a>.</p>
+            {% endif %}
+        </div>
+
+        <!-- Data export -->
+        <div class="card border-0 shadow-sm p-4 mb-4">
+            <h6 class="text-uppercase text-muted small mb-2">Download Your Data</h6>
+            <p class="small text-muted mb-3">
+                Get a copy of everything tied to your account &mdash; profile details, submissions,
+                tickets, and consent history &mdash; as a JSON file (GDPR Right to Data Portability).
+            </p>
+            <a href="{% url 'export_my_data' %}" class="btn btn-outline-dark btn-sm px-4">
+                <i class="fas fa-download me-1"></i> Download My Data
+            </a>
+        </div>
+
+        <!-- Account deletion -->
+        <div class="card border-0 shadow-sm p-4 border-start border-danger border-3">
+            <h6 class="text-uppercase text-danger small mb-2">Delete My Account</h6>
+            <p class="small text-muted mb-3">
+                This permanently deletes your account, profile, submissions, and tickets
+                (GDPR Right to Erasure). This cannot be undone.
+            </p>
+            <button type="button" class="btn btn-outline-danger btn-sm px-4" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                Delete My Account
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- Confirm deletion modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-0">
+            <form method="POST" action="{% url 'delete_my_account' %}">
+                {% csrf_token %}
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">Confirm Account Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted">Enter your password to permanently delete your account. This cannot be undone.</p>
+                    <input type="password" name="password" class="form-control rounded-0" placeholder="Password" required>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-link text-muted" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger rounded-0">Yes, Delete My Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

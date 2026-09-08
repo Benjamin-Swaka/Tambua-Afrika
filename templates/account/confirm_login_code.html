@@ -1,10 +1,11 @@
 {% extends "account/auth_base.html" %}
+{% load mask_email %}
 
 {% block auth_heading %}Enter Sign‑In Code{% endblock %}
 
 {% block auth_content %}
 <p class="text-muted mb-4">
-    We’ve sent a code to <strong>{{ email }}</strong>. The code expires shortly, so please enter it soon.
+    We've sent a code to <strong>{{ email|mask_email }}</strong>. The code expires shortly, so please enter it soon.
 </p>
 
 <form method="post" action="{% url 'account_confirm_login_code' %}">

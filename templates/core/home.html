@@ -29,7 +29,6 @@
         <div class="home-depts-header">
             <p class="home-depts-eyebrow">{% trans "Our Ecosystem" %}</p>
             <h2 class="home-depts-title" id="depts-heading">{% trans "Departments &amp; Divisions" %}</h2>
-
         </div>
 
         <!-- Carousel track -->
@@ -49,7 +48,7 @@
                         </div>
                         <div class="home-dept-card-content">
                             <span class="home-dept-card-label">{% trans "Core" %}</span>
-                            <h3 class="home-dept-card-name">{% trans "Studios" %}</h3>
+                            <h3 class="home-dept-card-name">{% trans "Tambua Afrika Studios" %}</h3>
                             <p class="home-dept-card-desc">{% trans "Corporate identity, IP management, and the operational backbone of the Tambua Afrika ecosystem." %}</p>
                             <a href="{% url 'about' %}" class="home-dept-card-link" aria-label="{% trans 'Learn more about Studios' %}">
                                 {% trans "Learn More" %}
@@ -72,7 +71,7 @@
                         </div>
                         <div class="home-dept-card-content">
                             <span class="home-dept-card-label">{% trans "Publishing" %}</span>
-                            <h3 class="home-dept-card-name">{% trans "Tambua Ink" %}</h3>
+                            <h3 class="home-dept-card-name">{% trans "Tambua Afrika Ink" %}</h3>
                             <p class="home-dept-card-desc">{% trans "Books, poetry, and literary journals that give African writers a professional publishing pathway." %}</p>
                             <a href="{% url 'ink_home' %}" class="home-dept-card-link" aria-label="{% trans 'Explore Tambua Ink' %}">
                                 {% trans "Read More" %}
@@ -96,7 +95,7 @@
                         </div>
                         <div class="home-dept-card-content">
                             <span class="home-dept-card-label">{% trans "Theatre" %}</span>
-                            <h3 class="home-dept-card-name">{% trans "Tambua Stage" %}</h3>
+                            <h3 class="home-dept-card-name">{% trans "Tambua Afrika Stage" %}</h3>
                             <p class="home-dept-card-desc">{% trans "Live theatre, voice acting, and performance arts — where stories become embodied experiences." %}</p>
                             <a href="{% url 'stage_home' %}" class="home-dept-card-link" aria-label="{% trans 'Get tickets for Tambua Stage' %}">
                                 {% trans "Get Tickets" %}
@@ -121,7 +120,7 @@
                         </div>
                         <div class="home-dept-card-content">
                             <span class="home-dept-card-label">{% trans "Visual Arts" %}</span>
-                            <h3 class="home-dept-card-name">{% trans "Tambua Comics" %}</h3>
+                            <h3 class="home-dept-card-name">{% trans "Tambua Afrika Comics" %}</h3>
                             <p class="home-dept-card-desc">{% trans "Graphic novels, sequential art, animation, and gaming rooted in African visual culture." %}</p>
                             <a href="{% url 'comics_home' %}" class="home-dept-card-link" aria-label="{% trans 'Explore Tambua Comics' %}">
                                 {% trans "Explore Art" %}
@@ -147,7 +146,7 @@
                             <span class="home-dept-card-label">{% trans "Commerce" %}</span>
                             <h3 class="home-dept-card-name">{% trans "Sales &amp; Marketing" %}</h3>
                             <p class="home-dept-card-desc">{% trans "Merchandise, partnerships, ticket sales, and brand strategy — bringing African creativity to market." %}</p>
-                            <a href="#" class="home-dept-card-link" aria-label="{% trans 'Visit the shop' %}">
+                            <a href="{% url 'shop_home' %}" class="home-dept-card-link" aria-label="{% trans 'Visit the shop' %}">
                                 {% trans "Visit Shop" %}
                                 <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M2 6h8M6 2l4 4-4 4"/>
@@ -173,68 +172,32 @@
         <div class="home-featured-header">
             <p class="home-featured-eyebrow">{% trans "Portfolio" %}</p>
             <h2 class="home-featured-title" id="featured-heading">{% trans "Featured Works" %}</h2>
-           
+            
         </div>
 
         <div class="home-featured-track-wrapper">
             <div class="home-featured-track" id="featuredTrack" role="list">
 
-                <!-- Work 1: Book -->
+                {% for work in featured_works %}
                 <article class="home-featured-item" role="listitem">
-                    <div class="home-featured-item-media" style="background: #e8e0d8;">
-                        <span class="home-featured-item-badge">{% trans "Book" %}</span>
-                        <!-- Placeholder – replace with real cover image -->
-                        <span class="home-featured-item-icon">📖</span>
+                    <div class="home-featured-item-media" style="background: {{ work.background_color }};">
+                        <span class="home-featured-item-badge">{{ work.category_display }}</span>
+                        {% if work.image %}
+                            <img src="{{ work.image.url }}" alt="{{ work.title }}" style="width:100%;height:100%;object-fit:cover;">
+                        {% else %}
+                            <span class="home-featured-item-icon">{{ work.icon_emoji }}</span>
+                        {% endif %}
                     </div>
                     <div class="home-featured-item-content">
-                        <span class="home-featured-item-category">{% trans "Tambua Ink" %}</span>
-                        <h3 class="home-featured-item-title">{% trans "Echoes of the Savanna" %}</h3>
-                        <p class="home-featured-item-meta">{% trans "by A. K. Mwangi · 2025" %}</p>
-                        <a href="#" class="home-featured-item-link">{% trans "Read More" %}</a>
+                        <span class="home-featured-item-category">{{ work.department_label }}</span>
+                        <h3 class="home-featured-item-title">{{ work.title }}</h3>
+                        {% if work.author_meta %}<p class="home-featured-item-meta">{{ work.author_meta }}</p>{% endif %}
+                        <a href="{{ work.link_url|default:'#' }}" class="home-featured-item-link">{{ work.link_text }}</a>
                     </div>
                 </article>
-
-                <!-- Work 2: Comic -->
-                <article class="home-featured-item" role="listitem">
-                    <div class="home-featured-item-media" style="background: #d0d0d0;">
-                        <span class="home-featured-item-badge">{% trans "Comic" %}</span>
-                        <span class="home-featured-item-icon">🎨</span>
-                    </div>
-                    <div class="home-featured-item-content">
-                        <span class="home-featured-item-category">{% trans "Tambua Comics" %}</span>
-                        <h3 class="home-featured-item-title">{% trans "The Golden Mask" %}</h3>
-                        <p class="home-featured-item-meta">{% trans "by S. O. Adebayo · 2025" %}</p>
-                        <a href="#" class="home-featured-item-link">{% trans "Explore" %}</a>
-                    </div>
-                </article>
-
-                <!-- Work 3: Play -->
-                <article class="home-featured-item" role="listitem">
-                    <div class="home-featured-item-media" style="background: #d4c4b0;">
-                        <span class="home-featured-item-badge">{% trans "Play" %}</span>
-                        <span class="home-featured-item-icon">🎭</span>
-                    </div>
-                    <div class="home-featured-item-content">
-                        <span class="home-featured-item-category">{% trans "Tambua Stage" %}</span>
-                        <h3 class="home-featured-item-title">{% trans "The Griot’s Daughter" %}</h3>
-                        <p class="home-featured-item-meta">{% trans "by L. N. Okafor · 2025" %}</p>
-                        <a href="#" class="home-featured-item-link">{% trans "View" %}</a>
-                    </div>
-                </article>
-
-                <!-- Work 4: Animation -->
-                <article class="home-featured-item" role="listitem">
-                    <div class="home-featured-item-media" style="background: #c0d4e8;">
-                        <span class="home-featured-item-badge">{% trans "Animation" %}</span>
-                        <span class="home-featured-item-icon">🎬</span>
-                    </div>
-                    <div class="home-featured-item-content">
-                        <span class="home-featured-item-category">{% trans "Tambua Comics" %}</span>
-                        <h3 class="home-featured-item-title">{% trans "Spirit of the Baobab" %}</h3>
-                        <p class="home-featured-item-meta">{% trans "by K. D. Mensah · 2025" %}</p>
-                        <a href="#" class="home-featured-item-link">{% trans "Watch" %}</a>
-                    </div>
-                </article>
+                {% empty %}
+                <p class="text-muted">{% trans "New featured works coming soon." %}</p>
+                {% endfor %}
 
             </div>
         </div>
@@ -257,80 +220,42 @@
 
         <div class="home-opencalls-grid">
 
-            <!-- Open -->
+            {% for call in open_calls %}
             <div class="home-opencall-card">
-                <div class="home-opencall-status home-opencall-status--open">
-                    <span class="home-opencall-dot"></span> {% trans "Open" %}
+                <div class="home-opencall-status home-opencall-status--{% if call.status == 'closing_soon' %}closing{% else %}{{ call.status }}{% endif %}">
+                    <span class="home-opencall-dot"></span> {{ call.get_status_display }}
                 </div>
-                <h3 class="home-opencall-title">{% trans "2026 Annual Anthology" %}</h3>
-                <p class="home-opencall-desc">{% trans "Manuscripts, poetry collections, and short stories from African writers worldwide." %}</p>
+                <h3 class="home-opencall-title">{{ call.title }}</h3>
+                <p class="home-opencall-desc">{{ call.description }}</p>
                 <div class="home-opencall-meta">
                     <span class="home-opencall-deadline">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
                             <circle cx="12" cy="12" r="10"/>
                             <polyline points="12,6 12,12 16,14" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        {% trans "Closes 31 Dec 2026" %}
+                        {{ call.deadline_label }}
                     </span>
-                    <span class="home-opencall-categories">{% trans "Manuscripts · Poetry · Short Stories · Scripts" %}</span>
+                    <span class="home-opencall-categories">{{ call.categories_label }}</span>
                 </div>
-                <a href="{% url 'submission_dashboard' %}" class="home-opencall-action">
+                {% if call.status == 'closed' %}
+                <span class="home-opencall-action home-opencall-action--disabled">{% trans "Closed for submissions" %}</span>
+                {% else %}
+                <a href="{% if call.link_url %}{{ call.link_url }}{% else %}{% url 'submission_dashboard' %}{% endif %}" class="home-opencall-action">
                     {% trans "View Guidelines &amp; Submit" %}
                     <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M2 6h8M6 2l4 4-4 4"/>
                     </svg>
                 </a>
+                {% endif %}
             </div>
-
-            <!-- Closing Soon -->
-            <div class="home-opencall-card">
-                <div class="home-opencall-status home-opencall-status--closing">
-                    <span class="home-opencall-dot"></span> {% trans "Closing Soon" %}
-                </div>
-                <h3 class="home-opencall-title">{% trans "Stage Play Competition" %}</h3>
-                <p class="home-opencall-desc">{% trans "Original one-act plays by African playwrights. Selected works will be produced in 2027." %}</p>
-                <div class="home-opencall-meta">
-                    <span class="home-opencall-deadline">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="12,6 12,12 16,14" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        {% trans "Closes 15 Oct 2026" %}
-                    </span>
-                    <span class="home-opencall-categories">{% trans "Plays · Scripts" %}</span>
-                </div>
-                <a href="{% url 'submission_dashboard' %}" class="home-opencall-action">
-                    {% trans "Submit Now" %}
-                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M2 6h8M6 2l4 4-4 4"/>
-                    </svg>
-                </a>
-            </div>
-
-            <!-- Closed -->
-            <div class="home-opencall-card">
-                <div class="home-opencall-status home-opencall-status--closed">
-                    <span class="home-opencall-dot"></span> {% trans "Closed" %}
-                </div>
-                <h3 class="home-opencall-title">{% trans "Graphic Novel Fellowship" %}</h3>
-                <p class="home-opencall-desc">{% trans "Emerging African comic artists. The next fellowship round opens early 2027." %}</p>
-                <div class="home-opencall-meta">
-                    <span class="home-opencall-deadline">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="12,6 12,12 16,14" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        {% trans "Closed 30 Jun 2026" %}
-                    </span>
-                    <span class="home-opencall-categories">{% trans "Comics · Illustration" %}</span>
-                </div>
-                <span class="home-opencall-action home-opencall-action--disabled">{% trans "Closed for submissions" %}</span>
-            </div>
+            {% empty %}
+            <p class="text-muted">{% trans "No open calls right now — check back soon." %}</p>
+            {% endfor %}
 
         </div>
 
         <div class="home-opencalls-cta">
-            <a href="{% url 'submission_dashboard' %}" class="home-opencalls-cta-primary">{% trans "All Open Calls" %}</a>
+            <a href="{% url 'all_open_calls' %}" class="home-opencalls-cta-primary">{% trans "All Open Calls" %}</a>
         </div>
 
     </div>
@@ -352,171 +277,103 @@
         <div class="home-shop-track-wrapper">
             <div class="home-shop-track" id="shopTrack" role="list">
 
+                {% for item in shop_highlights %}
                 <div class="home-shop-item" role="listitem">
-                    <div class="home-shop-item-media" style="background: #e8e0d8;">
-                        <span class="home-shop-item-icon">📚</span>
+                    <div class="home-shop-item-media" style="background: {{ item.background_color }};">
+                        {% if item.image %}
+                            <img src="{{ item.image.url }}" alt="{{ item.title }}" style="width:100%;height:100%;object-fit:cover;">
+                        {% else %}
+                            <span class="home-shop-item-icon">{{ item.icon_emoji }}</span>
+                        {% endif %}
                     </div>
                     <div class="home-shop-item-content">
-                        <h3 class="home-shop-item-title">{% trans "Best-Selling Books" %}</h3>
-                        <p class="home-shop-item-desc">{% trans "Novels, poetry, and literary journals" %}</p>
-                        <span class="home-shop-item-price">{% trans "From $14.99" %}</span>
-                        <a href="#" class="home-shop-item-action">{% trans "Browse" %}</a>
+                        <h3 class="home-shop-item-title">{{ item.title }}</h3>
+                        <p class="home-shop-item-desc">{{ item.description }}</p>
+                        <span class="home-shop-item-price">{{ item.price_label }}</span>
+                        <a href="{% if item.link_url %}{{ item.link_url }}{% else %}{% url 'shop_home' %}{% endif %}" class="home-shop-item-action">{{ item.link_text }}</a>
                     </div>
                 </div>
-
-                <div class="home-shop-item" role="listitem">
-                    <div class="home-shop-item-media" style="background: #d4c9b0;">
-                        <span class="home-shop-item-icon">👕</span>
-                    </div>
-                    <div class="home-shop-item-content">
-                        <h3 class="home-shop-item-title">{% trans "Merchandise" %}</h3>
-                        <p class="home-shop-item-desc">{% trans "Apparel, accessories, and collectibles" %}</p>
-                        <span class="home-shop-item-price">{% trans "From $24.99" %}</span>
-                        <a href="#" class="home-shop-item-action">{% trans "Shop Now" %}</a>
-                    </div>
-                </div>
-
-                <div class="home-shop-item" role="listitem">
-                    <div class="home-shop-item-media" style="background: #d4c4b0;">
-                        <span class="home-shop-item-icon">🎫</span>
-                    </div>
-                    <div class="home-shop-item-content">
-                        <h3 class="home-shop-item-title">{% trans "Tickets" %}</h3>
-                        <p class="home-shop-item-desc">{% trans "Live performances, readings, and events" %}</p>
-                        <span class="home-shop-item-price">{% trans "From $12.00" %}</span>
-                        <a href="#" class="home-shop-item-action">{% trans "Get Tickets" %}</a>
-                    </div>
-                </div>
+                {% empty %}
+                <p class="text-muted">{% trans "Shop highlights coming soon." %}</p>
+                {% endfor %}
 
             </div>
         </div>
 
     </div>
 </section>
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 5 — CROWDFUNDING / SUPPORT AFRICAN CREATIVITY
+     Premium full‑width CTA
+     ══════════════════════════════════════════════════════════ -->
 
-<section class="home-crowdfunding-teaser crowdfunding" aria-labelledby="crowdfunding-title">
-    <div class="cf-feature-wrap">
+<section class="home-crowdfunding" aria-labelledby="crowdfunding-heading">
+    <div class="home-crowdfunding-inner">
+        <!-- Decorative background elements -->
+        <div class="home-crowdfunding-orbit home-crowdfunding-orbit--one"></div>
+        <div class="home-crowdfunding-orbit home-crowdfunding-orbit--two"></div>
 
-        <!-- Header -->
-        <div class="cf-feature-header">
+        <div class="container">
+            <div class="home-crowdfunding-grid">
 
-            <div class="cf-heading-block">
-                <span class="cf-kicker">
-                    <span class="cf-kicker-dot"></span>
-                    FUND THE FUTURE
-                </span>
-
-                <h2 id="crowdfunding-title">
-                    Great ideas need<br>
-                    <em>people behind them.</em>
-                </h2>
-
-                <p>
-                    Discover projects worth backing and help bring
-                    ambitious creative work to life.
-                </p>
-            </div>
-
-            <a href="{% url 'campaign_list' %}" class="cf-main-cta">
-                <span>Explore campaigns</span>
-                <strong>↗</strong>
-            </a>
-
-        </div>
-
-
-        {% if featured_campaigns %}
-
-        <!-- Featured campaigns -->
-        <div class="cf-feature-grid">
-
-            {% for campaign in featured_campaigns %}
-
-            <a href="{% url 'campaign_detail' campaign.slug %}"
-               class="cf-project-card {% if forloop.first %}cf-project-card-primary{% endif %}">
-
-                <div class="cf-project-number">
-                    {{ forloop.counter|stringformat:"02d" }}
-                </div>
-
-                <div class="cf-project-body">
-
-                    <div class="cf-project-category">
-                        {{ campaign.department.name|default:"General" }}
-                    </div>
-
-                    <h3>{{ campaign.title }}</h3>
-
-                    {% if campaign.description %}
-                    <p class="cf-project-description">
-                        {{ campaign.description|striptags|truncatechars:120 }}
+                <!-- LEFT: Editorial message -->
+                <div class="home-crowdfunding-copy">
+                    <p class="home-crowdfunding-eyebrow">
+                        {% trans "Fund What Africa Creates" %}
                     </p>
-                    {% endif %}
+                    <h2 class="home-crowdfunding-title" id="crowdfunding-heading">
+                        {% trans "Great African stories need more than an audience." %}
+                    </h2>
+                    <p class="home-crowdfunding-lead">
+                        {% trans "They need people willing to believe in them." %}
+                    </p>
+                    <p class="home-crowdfunding-description">
+                        {% trans "Discover ambitious books, theatre productions, comics, films, and creative projects seeking the support to move from an idea into something the world can experience." %}
+                    </p>
 
-                    <div class="cf-funding">
-
-                        <div class="cf-funding-info">
-                            <span>Currently funded</span>
-                            <strong>{{ campaign.progress_percent }}%</strong>
-                        </div>
-
-                        <div class="cf-progress">
-                            <span style="width: {{ campaign.progress_percent }}%;"></span>
-                        </div>
-
+                    <div class="home-crowdfunding-actions">
+                        <a href="{% url 'campaign_list' %}" class="home-crowdfunding-primary">
+                            <span>{% trans "Explore Campaigns" %}</span>
+                            <span class="home-crowdfunding-arrow" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M5 12h13"/>
+                                    <path d="M13 6l6 6-6 6"/>
+                                </svg>
+                            </span>
+                        </a>
+                        <a href="{% url 'campaign_list' %}" class="home-crowdfunding-secondary">
+                            {% trans "Start a Campaign" %}
+                        </a>
                     </div>
-
-                    <div class="cf-project-action">
-                        <span>Support this project</span>
-                        <span class="cf-project-arrow">→</span>
-                    </div>
-
                 </div>
 
-            </a>
+                <!-- RIGHT: Impact statement -->
+                <div class="home-crowdfunding-feature">
+                    <div class="home-crowdfunding-number">
+                        01
+                    </div>
+                    <div class="home-crowdfunding-feature-line"></div>
+                    <p class="home-crowdfunding-feature-label">
+                        {% trans "Your support becomes part of the story." %}
+                    </p>
+                    <p class="home-crowdfunding-feature-text">
+                        {% trans "Back a creator. Help bring a project to life. Become part of a growing ecosystem built around African imagination, culture and creative independence." %}
+                    </p>
+                    <div class="home-crowdfunding-tags">
+                        <span>{% trans "Books" %}</span>
+                        <span>{% trans "Theatre" %}</span>
+                        <span>{% trans "Comics" %}</span>
+                        <span>{% trans "Film & Media" %}</span>
+                    </div>
+                </div>
 
-            {% endfor %}
-
-        </div>
-
-
-        <!-- Impact statement -->
-        <div class="cf-impact">
-
-            <div class="cf-impact-mark">✦</div>
-
-            <div class="cf-impact-text">
-                <span>YOUR SUPPORT MATTERS</span>
-                <p>
-                    Back a project. Amplify an idea.
-                    Help make something remarkable possible.
-                </p>
-            </div>
-
-            <a href="{% url 'campaign_list' %}" class="cf-impact-link">
-                See all projects
-                <span>↗</span>
-            </a>
-
-        </div>
-
-        {% else %}
-
-        <div class="cf-empty">
-            <span>✦</span>
-            <h3>Something new is taking shape.</h3>
-            <p>
-                New projects will appear here soon.
-            </p>
-        </div>
-
-        {% endif %}
-
-    </div>
+            </div> 
+        </div> 
+    </div> 
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════
-     SECTION 5 — PARTNERS & IMPACT
+     SECTION 6 — PARTNERS & IMPACT
      ═══════════════════════════════════════════════════════════ -->
 <section class="home-partners" aria-labelledby="partners-heading">
     <div class="container">
@@ -574,4 +431,5 @@
 
     </div>
 </section>
+
 {% endblock %}

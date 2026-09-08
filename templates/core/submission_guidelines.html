@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Submission Guidelines | Tambua Afrika{% endblock %}
+
+{% block body_class %}theme-default{% endblock %}
+
+{% block content %}
+<div class="legal-header">
+    <div class="container">
+        <h1>Submission Guidelines</h1>
+        <p class="lead mb-0">Everything you need to know before sharing your work with Tambua Afrika.</p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            <div class="legal-summary-box">
+                <p class="mb-0"><strong>Summary:</strong> Tambua Afrika accepts original, unpublished works from African creators across four departments: Ink (publishing), Stage (theatre), Comics (visual storytelling), and Studios (multidisciplinary). Please read the full guidelines below before submitting.</p>
+            </div>
+
+            <h2>1. General Eligibility</h2>
+            <p>We welcome submissions from creators who identify as African, from the continent or diaspora, aged 18 and above. Works must be original and previously unpublished in any form (print, digital, or performance). We accept submissions in English, Kiswahili, and French. If submitting in a language other than English, please include a brief translation of the synopsis.</p>
+
+            <h2>2. Department‐Specific Guidelines</h2>
+            <h3>Tambua Afrika Ink (Publishing)</h3>
+            <p>We accept fiction, non‑fiction, poetry, and hybrid works. For prose, submissions should be between 3,000 and 15,000 words for short stories, and 50,000–90,000 words for novels. Poetry collections should contain 40–80 poems. Include a one‑page synopsis and the first three chapters (or ten poems).</p>
+
+            <h3>Tambua Afrika Stage (Theatre & Performance)</h3>
+            <p>We seek full‑length plays (60–120 minutes) and one‑act plays (15–40 minutes). Scripts must be in standard play format, with clear stage directions. Include a character list and a short synopsis. Audio/visual performance concepts are also considered; submit a detailed proposal and any supporting links.</p>
+
+            <h3>Tambua Afrika Comics (Illustration & Sequential Art)</h3>
+            <p>We welcome comic scripts, graphic novel proposals, and illustration portfolios. For scripts, submit a full issue or first chapter (10–20 pages) plus a 1–2 page outline. For portfolios, include 10–15 samples of your best work. All files must be PDF or high‑resolution images.</p>
+
+            <h3>Studios of Tambua Afrika (Multidisciplinary)</h3>
+            <p>This department accepts cross‑genre work, collaborations, and experimental projects. Submit a project proposal (2–3 pages) describing the concept, format, target audience, and creative team. Include samples of previous work or a demo reel if applicable.</p>
+
+            <h2>3. Formatting Requirements</h2>
+            <p>All text submissions must be in a single PDF or Word document, double‑spaced, using a 12pt standard font (e.g., Times New Roman, Arial). Include a cover page with your name, contact information, work title, and department. Do not include your name on any page other than the cover page — we review anonymously.</p>
+
+            <h2>4. How to Submit</h2>
+            <p>Go to the <a href="{% url 'submission_dashboard' %}">Submissions Dashboard</a> and click “New Submission.” Fill in the required fields, select the appropriate department, and upload your file(s). You will receive a confirmation email once your submission is received.</p>
+
+            <h2>5. Review Process</h2>
+            <p>Our editorial team reviews submissions on a rolling basis. You can expect a response within 8–12 weeks. We may request revisions or additional materials. All decisions are final but we encourage resubmission after significant changes.</p>
+
+            <h2>6. Rights & Compensation</h2>
+            <p>If your work is accepted, Tambua Afrika will offer a publishing or production agreement outlining rights, royalties, and credits. We do not charge submission fees. Creators retain copyright of their work unless otherwise negotiated.</p>
+
+            <h2>7. Code of Conduct</h2>
+            <p>We expect all submissions to respect human dignity, cultural sensitivity, and intellectual property. Plagiarism, hate speech, or discriminatory content will result in immediate disqualification.</p>
+
+            <div class="alert alert-secondary border-0 rounded-0 mt-5">
+                <p class="mb-0"><strong>Need help?</strong> Contact us at <a href="mailto:submissions@tambuaafrika.com" class="text-dark fw-bold">submissions@tambuaafrika.com</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

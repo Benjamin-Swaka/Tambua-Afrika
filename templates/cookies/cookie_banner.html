@@ -5,11 +5,22 @@
             <h2 class="cookie-banner__title">We value your privacy</h2>
             <p class="cookie-banner__body">
                 We use cookies to enhance your browsing experience, analyse site traffic, and serve personalised content.
+                See our <a href="{% url 'privacy' %}" style="color:#fff; text-decoration:underline;">Privacy Policy</a> for details.
             </p>
         </div>
         <div class="cookie-banner__actions">
-            <button id="cookie-accept-all" class="cookie-btn cookie-btn--primary">Accept All</button>
-            <button id="cookie-reject-all" class="cookie-btn cookie-btn--ghost">Reject All</button>
+            <!-- Real form submissions (not just JS) so consent is recorded
+                 server-side and works even if JS fails to load. -->
+            <form method="post" action="{% url 'cookie_settings' %}?next={{ request.path|urlencode }}" class="d-inline" id="cookie-accept-all-form">
+                {% csrf_token %}
+                <input type="hidden" name="analytics" value="on">
+                <input type="hidden" name="marketing" value="on">
+                <button type="submit" id="cookie-accept-all" class="cookie-btn cookie-btn--primary">Accept All</button>
+            </form>
+            <form method="post" action="{% url 'cookie_settings' %}?next={{ request.path|urlencode }}" class="d-inline" id="cookie-reject-all-form">
+                {% csrf_token %}
+                <button type="submit" id="cookie-reject-all" class="cookie-btn cookie-btn--ghost">Reject All</button>
+            </form>
             <a href="{% url 'cookie_settings' %}" class="cookie-btn cookie-btn--link">Cookie Settings</a>
         </div>
     </div>

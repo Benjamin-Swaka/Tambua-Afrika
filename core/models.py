@@ -10,13 +10,21 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 
+
 class NewsletterSubscriber(models.Model):
     email = models.EmailField(unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
+    consent = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.email
+
+    class Meta:
+        verbose_name = "Newsletter Subscriber"
+        verbose_name_plural = "Newsletter Subscribers"
+        ordering = ['-created_at']
 
 
 class Department(models.Model):
@@ -66,6 +74,138 @@ class DepartmentMembership(models.Model):
         return f"{self.user.email} - {self.department.name} ({self.role})"
 
 
+class ConsentLog(models.Model):
+    """
+    GDPR audit trail: a durable, timestamped record of what a person
+    consented to and when. The `cookie_consent` cookie is the *live*
+    preference the site reads on each request, but cookies can be
+    cleared or expire -- this table is the evidence we can point to if
+    a data-protection question ever comes up ("what did this person
+    agree to, and when?").
+    """
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='consent_logs',
+        help_text="Null for anonymous/pre-login consent.",
+    )
+    session_key = models.CharField(max_length=40, blank=True)
+    essential = models.BooleanField(default=True)
+    analytics = models.BooleanField(default=False)
+    marketing = models.BooleanField(default=False)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        who = self.user.email if self.user else f"session:{self.session_key[:8]}"
+        return f"{who} @ {self.created_at:%Y-%m-%d %H:%M}"
+
+
+class FeaturedWork(models.Model):
+    """A single item in the homepage 'Featured Works' carousel."""
+    CATEGORY_CHOICES = [
+        ('book', 'Book'),
+        ('comic', 'Comic'),
+        ('play', 'Play'),
+        ('animation', 'Animation'),
+    ]
+
+    title = models.CharField(max_length=200)
+    department_label = models.CharField(
+        max_length=100,
+        help_text="Shown as the small eyebrow label, e.g. 'Tambua Ink'.",
+    )
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='book')
+    author_meta = models.CharField(
+        max_length=150,
+        help_text="e.g. 'by A. K. Mwangi · 2025'",
+        blank=True,
+    )
+    link_url = models.CharField(
+        max_length=300, blank=True,
+        help_text="Where the 'Read More' / 'Explore' button goes. Leave blank for '#'.",
+    )
+    link_text = models.CharField(max_length=40, default='Read More')
+    background_color = models.CharField(max_length=7, default='#e8e0d8')
+    icon_emoji = models.CharField(max_length=8, default='📖')
+    image = models.ImageField(upload_to='home/featured_works/', blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', '-created_at']
+
+    def __str__(self):
+        return self.title
+
+
+class OpenCall(models.Model):
+    """A single item in the homepage 'Open Calls' section."""
+    STATUS_OPEN = 'open'
+    STATUS_CLOSING_SOON = 'closing_soon'
+    STATUS_CLOSED = 'closed'
+    STATUS_CHOICES = [
+        (STATUS_OPEN, 'Open'),
+        (STATUS_CLOSING_SOON, 'Closing Soon'),
+        (STATUS_CLOSED, 'Closed'),
+    ]
+
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_OPEN)
+    deadline_label = models.CharField(
+        max_length=100,
+        help_text="e.g. 'Closes 31 Dec 2026' — free text so past calls can say 'Closed 30 Jun 2026'.",
+    )
+    categories_label = models.CharField(
+        max_length=200,
+        help_text="e.g. 'Manuscripts · Poetry · Short Stories · Scripts'",
+    )
+    link_url = models.CharField(
+        max_length=300, blank=True,
+        help_text="Leave blank to use the Submissions page.",
+    )
+    is_active = models.BooleanField(default=True)
+    order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', '-created_at']
+
+    def __str__(self):
+        return self.title
+
+
+class ShopHighlight(models.Model):
+    """A single item in the homepage 'Shop Highlights' carousel."""
+    title = models.CharField(max_length=200)
+    description = models.CharField(max_length=250)
+    price_label = models.CharField(max_length=60, help_text="e.g. 'From $14.99'")
+    link_url = models.CharField(
+        max_length=300, blank=True,
+        help_text="Leave blank to use the Shop homepage.",
+    )
+    link_text = models.CharField(max_length=40, default='Browse')
+    background_color = models.CharField(max_length=7, default='#e8e0d8')
+    icon_emoji = models.CharField(max_length=8, default='🛍️')
+    image = models.ImageField(upload_to='home/shop_highlights/', blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', '-created_at']
+
+    def __str__(self):
+        return self.title
+
+
 class EmailOTP(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     code = models.CharField(max_length=6)
@@ -85,6 +225,9 @@ class EmailOTP(models.Model):
     def generate_otp(cls, user):
         code = ''.join(random.choices(string.digits, k=6))
         return cls.objects.create(user=user, code=code)
+    
+
+
 
 
 class Campaign(models.Model):
@@ -208,3 +351,38 @@ class Pledge(models.Model):
 
     def __str__(self):
         return f"{self.user} -> {self.campaign} ({self.amount})"
+
+
+
+class ContactMessage(models.Model):
+    """Stores messages submitted through the public contact form."""
+
+    SUBJECT_GENERAL = 'general'
+    SUBJECT_INK = 'ink'
+    SUBJECT_STAGE = 'stage'
+    SUBJECT_SHOP = 'shop'
+
+    SUBJECT_CHOICES = [
+        (SUBJECT_GENERAL, 'General Inquiry'),
+        (SUBJECT_INK, 'Tambua Ink'),
+        (SUBJECT_STAGE, 'Tambua Stage'),
+        (SUBJECT_SHOP, 'Shop Support'),
+    ]
+
+    name = models.CharField(max_length=150)
+    email = models.EmailField()
+    subject = models.CharField(max_length=20, choices=SUBJECT_CHOICES, default=SUBJECT_GENERAL)
+    message = models.TextField(max_length=5000)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    # Lightweight metadata for moderation/security auditing — never shown publicly
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Contact Message'
+        verbose_name_plural = 'Contact Messages'
+
+    def __str__(self):
+        return f"{self.name} — {self.get_subject_display()} ({self.created_at:%Y-%m-%d %H:%M})"

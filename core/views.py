@@ -1,21 +1,112 @@
-from django.shortcuts import get_object_or_404, render
-from django.shortcuts import render, redirect
+from functools import wraps
+import json
+import os
+from types import SimpleNamespace
+import uuid
+
+import requests
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .forms import CampaignForm, NewsletterForm, PledgeForm, RewardFormSet
-from .models import Campaign, Department, Pledge, UserProfile, DepartmentMembership
+from django.core.cache import cache
+from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator
 from django.db.models import Q
-from itertools import chain
-from shop.models import Product
+from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+
 from comics.models import Comic
 from journal.models import Article
-from django.shortcuts import render, redirect
-from django.http import HttpResponseBadRequest, HttpResponseRedirect
-import json
-from django.views.decorators.csrf import csrf_exempt
-from itertools import groupby
-from operator import attrgetter
+from shop.models import Product
+from stage.models import Show
 
+from .forms import (
+    CampaignForm,
+    ContactForm,
+    NewsletterForm,
+    PledgeForm,
+    RewardFormSet,
+)
+from .models import (
+    Campaign,
+    ConsentLog,
+    ContactMessage,
+    Department,
+    DepartmentMembership,
+    FeaturedWork,
+    OpenCall,
+    Pledge,
+    Reward,
+    ShopHighlight,
+    UserProfile,
+)
+
+def _shop_highlights(limit=8):
+    """Latest products, reshaped for the home carousel — no separate
+    admin entry required. Add a Product in the shop admin and it
+    appears here automatically."""
+    highlights = []
+    for product in Product.objects.order_by('-created_at')[:limit]:
+        highlights.append(SimpleNamespace(
+            title=product.name,
+            description=product.description,
+            price_label=f"KES {product.price}",
+            image=product.image,
+            icon_emoji='🛍️',
+            background_color='#e8e0d8',
+            link_url=f"{reverse('shop_home')}?category={product.category}",
+            link_text='Shop Now',
+        ))
+    return highlights
+
+
+def _featured_works(limit=6):
+    """Latest comics + shows, reshaped for the home carousel. Add a
+    Comic in the comics admin or a Show in the stage admin and it
+    appears here automatically. (Ink isn't wired in yet — plug its
+    model in here the same way once it's available.)"""
+    works = []
+
+    for comic in Comic.objects.order_by('-created_at')[:limit]:
+        works.append(SimpleNamespace(
+            title=comic.title,
+            department_label='Tambua Afrika Comics',
+            category_display='Comic',
+            author_meta=f"by {comic.artist}",
+            image=comic.cover_image,
+            icon_emoji='🎨',
+            background_color='#e8e0d8',
+            link_url=reverse('comic_detail', args=[comic.pk]),
+            link_text='Read More',
+        ))
+
+    for show in Show.objects.filter(is_active=True).order_by('-date')[:limit]:
+        works.append(SimpleNamespace(
+            title=show.title,
+            department_label='Tambua Afrika Stage',
+            category_display='Play',
+            author_meta=f"{show.venue} · {show.date:%d %b %Y}",
+            image=show.image,
+            icon_emoji='🎭',
+            background_color='#e8e0d8',
+            link_url=reverse('show_detail', kwargs={'slug': show.slug}),
+            link_text='Get Tickets',
+        ))
+
+    return works[:limit]
+
+
+def home(request):
+    context = {
+        'featured_works': _featured_works(),
+        'open_calls': OpenCall.objects.filter(is_active=True),
+        'shop_highlights': _shop_highlights(),
+    }
+    return render(request, 'core/home.html', context)
 
 def cookie_settings(request):
     if request.method == 'POST':
@@ -26,13 +117,11 @@ def cookie_settings(request):
             'analytics': analytics,
             'marketing': marketing,
         }
-        # Use GET 'next' or default to home
         next_url = request.GET.get('next', '/')
         response = HttpResponseRedirect(next_url)
-        # Set cookie for 1 year
         response.set_cookie(
             'cookie_consent',
-            json.dumps(consent),
+            quote(json.dumps(consent)),   # <-- percent-encode
             max_age=365 * 24 * 60 * 60,
             samesite='Lax',
         )
@@ -40,8 +129,8 @@ def cookie_settings(request):
     else:
         return render(request, 'cookies/cookie_settings.html')
 
-def home(request):
-    return render(request, 'core/home.html')
+
+
 
 def about(request):
     return render(request, 'core/about.html')
@@ -55,26 +144,74 @@ def terms_conditions(request):
 def copyright_policy(request):
     return render(request, 'core/copyright.html')
 
+
+
 def subscribe_newsletter(request):
+    """
+    Handles newsletter subscription via AJAX or regular POST.
+    Returns JSON for AJAX requests; otherwise uses Django messages.
+    """
     if request.method == 'POST':
         form = NewsletterForm(request.POST)
+        is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
+
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Thank you for subscribing to our creative community!')
+            email = form.cleaned_data['email']
+            consent = form.cleaned_data.get('consent', False)
+
+            try:
+                subscriber = NewsletterSubscriber.objects.get(email=email)
+                if subscriber.is_active:
+                    msg = 'You are already subscribed to our newsletter.'
+                    if is_ajax:
+                        return JsonResponse({'status': 'info', 'message': msg})
+                    messages.info(request, msg)
+                else:
+                    # Reactivate inactive subscriber
+                    subscriber.is_active = True
+                    subscriber.consent = consent
+                    subscriber.save()
+                    msg = 'Welcome back! You have been resubscribed.'
+                    if is_ajax:
+                        return JsonResponse({'status': 'success', 'message': msg})
+                    messages.success(request, msg)
+            except NewsletterSubscriber.DoesNotExist:
+                # New subscriber
+                NewsletterSubscriber.objects.create(
+                    email=email,
+                    consent=consent,
+                    is_active=True
+                )
+                msg = 'Thank you for subscribing to our creative community!'
+                if is_ajax:
+                    return JsonResponse({'status': 'success', 'message': msg})
+                messages.success(request, msg)
+
+            # Non‑AJAX redirect after handling
+            if not is_ajax:
+                return redirect('home')
+
         else:
-            messages.error(request, 'This email is already subscribed or invalid.')
-    return redirect('home') # Redirects back to home (or wherever the user was)
+            # Form invalid (e.g., malformed email, missing consent)
+            if is_ajax:
+                errors = {}
+                for field, err_list in form.errors.items():
+                    errors[field] = [str(err) for err in err_list]
+                return JsonResponse({'status': 'error', 'errors': errors}, status=400)
+            else:
+                for field, err_list in form.errors.items():
+                    for err in err_list:
+                        messages.error(request, f'{field}: {err}')
+                return redirect('home')
 
-
-def cookie_settings(request):
-    return render(request, 'cookies/cookie_settings.html')
+    # GET request – shouldn't happen, but redirect safely
+    return redirect('home')
 
 
 def team(request):
     return render(request, 'core/team.html')
 
-def contact(request):
-    return render(request, 'core/contact.html')
+
 
 
 def global_search(request):
@@ -147,26 +284,23 @@ def select_department(request):
         'profile': profile,
     })
 
-
-
-# Required environment variables :
+# ============================================================
+# CROWDFUNDING: PAYMENT GATEWAY ADAPTER
+# ============================================================
+# Everything gateway-specific lives in this section. To swap
+# Flutterwave for Stripe, rewrite initiate_payment() and the
+# webhook handling in campaign_pledge_confirm() -- nothing else
+# needs to change.
+#
+# Required environment variables (see .env.example):
 #   FLUTTERWAVE_SECRET_KEY
-#   FLUTTERWAVE_PUBLIC_KEY  (only needed if you render their inline JS widget)
-#   SITE_BASE_URL           (e.g. https://tambuaafrika.com — used for redirect_url)
+#   FLUTTERWAVE_PUBLIC_KEY  (only needed for their inline JS widget)
+#   SITE_BASE_URL           (e.g. https://tambuaafrika.com)
 
 FLUTTERWAVE_INITIATE_URL = "https://api.flutterwave.com/v3/payments"
 
 
 def initiate_payment(pledge, request):
-    """
-    Creates a payment session with the gateway and returns the
-    URL the user should be redirected to in order to pay.
-
-    Swap point: to switch to Stripe, replace this function's body
-    with a call to stripe.checkout.Session.create(...) and return
-    session.url instead. campaign_pledge() below only cares that
-    this function returns a URL string.
-    """
     secret_key = os.environ.get("FLUTTERWAVE_SECRET_KEY")
     base_url = os.environ.get("SITE_BASE_URL", request.build_absolute_uri("/")[:-1])
 
@@ -204,20 +338,12 @@ def initiate_payment(pledge, request):
     if data.get("status") == "success":
         return data["data"]["link"]
 
-    # Payment provider rejected the request — surface a generic
-    # failure so campaign_pledge() can show a message and let the
-    # user retry, rather than crashing.
     pledge.status = Pledge.STATUS_FAILED
     pledge.save(update_fields=["status"])
     return None
 
 
 def verify_payment(transaction_id, flutterwave_transaction_id):
-    """
-    Confirms a transaction actually succeeded, server-side, rather
-    than trusting the redirect query params alone (those can be
-    spoofed by a user). Called from campaign_pledge_confirm.
-    """
     secret_key = os.environ.get("FLUTTERWAVE_SECRET_KEY")
     verify_url = f"https://api.flutterwave.com/v3/transactions/{flutterwave_transaction_id}/verify"
     headers = {"Authorization": f"Bearer {secret_key}"}
@@ -230,9 +356,9 @@ def verify_payment(transaction_id, flutterwave_transaction_id):
     return False
 
 
-# ------------------------------------------------------------
-# CAMPAIGN VIEWS
-# ------------------------------------------------------------
+# ============================================================
+# CROWDFUNDING: CAMPAIGN VIEWS
+# ============================================================
 
 def campaign_list(request):
     campaigns = (
@@ -274,8 +400,6 @@ def campaign_detail(request, slug):
 
 @login_required
 def campaign_create(request):
-    # Adjust this check to match however your project marks a
-    # "creator" role (e.g. request.user.profile.role == "creator").
     if not getattr(request.user, "is_creator", True):
         messages.error(request, "Only creator accounts can start a campaign.")
         return redirect("campaign_list")
@@ -367,12 +491,6 @@ def campaign_pledge(request, slug):
 
 @csrf_exempt
 def campaign_pledge_confirm(request):
-    """
-    Handles both the browser redirect back from the gateway AND
-    (if you configure Flutterwave's dashboard to call this same
-    URL) server-to-server webhook notifications. Always re-verifies
-    with the provider rather than trusting query params directly.
-    """
     tx_ref = request.GET.get("tx_ref") or request.POST.get("tx_ref")
     gateway_tx_id = request.GET.get("transaction_id") or request.POST.get("transaction_id")
     status = request.GET.get("status", "")
@@ -419,3 +537,130 @@ def campaign_dashboard(request):
         "campaigns/campaign_dashboard.html",
         {"my_campaigns": my_campaigns, "my_pledges": my_pledges},
     )
+
+
+
+def _client_ip(request):
+    forwarded = request.META.get('HTTP_X_FORWARDED_FOR')
+    if forwarded:
+        return forwarded.split(',')[0].strip()
+    return request.META.get('REMOTE_ADDR', 'unknown')
+
+
+def contact(request):
+    if request.method == 'POST':
+        ip = _client_ip(request)
+        cooldown_key = f'contact_form_cooldown_{ip}'
+
+        form = ContactForm(request.POST)
+
+        # Simple per-IP cooldown to blunt automated/repeat spam submissions.
+        # Requires Django's cache framework (works out of the box with the
+        # default LocMemCache — no extra setup needed, though a shared cache
+        # like Redis is recommended in production with multiple app servers).
+        if cache.get(cooldown_key):
+            form.add_error(None, "You're sending messages too quickly. Please wait a moment and try again.")
+        elif form.is_valid():
+            contact_message = form.save(commit=False)
+            contact_message.ip_address = ip
+            contact_message.save()
+            cache.set(cooldown_key, True, timeout=60)  # 60 second cooldown per IP
+
+            # Redirect-after-POST so refreshing the confirmation page never
+            # resubmits the form.
+            return redirect(f"{reverse('contact')}?sent=1")
+    else:
+        form = ContactForm()
+
+    sent = request.method == 'GET' and request.GET.get('sent') == '1'
+    return render(request, 'core/contact.html', {'form': form, 'sent': sent})
+
+def _client_ip(request):
+    forwarded = request.META.get('HTTP_X_FORWARDED_FOR')
+    if forwarded:
+        return forwarded.split(',')[0].strip()
+    return request.META.get('REMOTE_ADDR', 'unknown')
+
+
+def contact(request):
+    if request.method == 'POST':
+        ip = _client_ip(request)
+        cooldown_key = f'contact_form_cooldown_{ip}'
+
+        form = ContactForm(request.POST)
+
+        # Simple per-IP cooldown to blunt automated/repeat spam submissions.
+        # Requires Django's cache framework (works out of the box with the
+        # default LocMemCache — no extra setup needed, though a shared cache
+        # like Redis is recommended in production with multiple app servers).
+        if cache.get(cooldown_key):
+            form.add_error(None, "You're sending messages too quickly. Please wait a moment and try again.")
+        elif form.is_valid():
+            contact_message = form.save(commit=False)
+            contact_message.ip_address = ip
+            contact_message.save()
+            cache.set(cooldown_key, True, timeout=60)  # 60 second cooldown per IP
+
+            # Redirect-after-POST so refreshing the confirmation page never
+            # resubmits the form.
+            return redirect(f"{reverse('contact')}?sent=1")
+    else:
+        form = ContactForm()
+
+    sent = request.method == 'GET' and request.GET.get('sent') == '1'
+    return render(request, 'core/contact.html', {'form': form, 'sent': sent})
+
+
+
+
+def staff_required(view_func):
+    """Like @login_required, but also requires request.user.is_staff."""
+    @wraps(view_func)
+    @login_required
+    def _wrapped(request, *args, **kwargs):
+        if not request.user.is_staff:
+            raise PermissionDenied
+        return view_func(request, *args, **kwargs)
+    return _wrapped
+
+
+@staff_required
+def admin_messages(request):
+    queryset = ContactMessage.objects.all()
+    paginator = Paginator(queryset, 20)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
+    context = {
+        'messages_list': page_obj.object_list,
+        'page_obj': page_obj,
+        'is_paginated': page_obj.has_other_pages(),
+        'total_count': queryset.count(),
+        'unread_count': queryset.filter(is_read=False).count(),
+        'segment': 'admin_messages',
+    }
+    return render(request, 'users/admin_messages.html', context)
+
+
+@staff_required
+@require_POST
+def admin_message_mark_read(request, pk):
+    msg = get_object_or_404(ContactMessage, pk=pk)
+    msg.is_read = True
+    msg.save(update_fields=['is_read'])
+    return redirect('admin_messages')
+
+def submission_guidelines(request):
+    """Render the submission guidelines page."""
+    context = {
+        'segment': 'guidelines',
+    }
+    return render(request, 'core/submission_guidelines.html', context)
+
+
+def publishing_packages(request):
+    """Render the publishing packages page."""
+    return render(request, 'core/publishing_packages.html', {'segment': 'packages'})
+
+def partnerships(request):
+    """Render the partnerships page."""
+    return render(request, 'core/partnerships.html', {'segment': 'partnerships'})

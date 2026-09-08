@@ -11,6 +11,7 @@ requests = "*"
 pyjwt = "*"
 cryptography = "*"
 python-gettext = "*"
+qrcode = "*"
 
 [dev-packages]
 

@@ -2,58 +2,227 @@
 {% block body_class %}theme-default{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<style>
+    /* Scoped styles for this page only — namespaced under .tmb-contact so
+       they cannot override Bootstrap or base.html, and nothing outside
+       this page is affected by them. */
+    .tmb-contact { --tmb-accent: #111111; --tmb-accent-soft: #f4f3ef; }
+
+    .tmb-contact .tmb-eyebrow {
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        font-size: .8rem;
+        font-weight: 600;
+        color: #8a8a8a;
+    }
+
+    .tmb-contact .tmb-hairline {
+        width: 48px;
+        height: 2px;
+        background: var(--tmb-accent);
+        margin: 1rem 0 1.5rem;
+    }
+
+    .tmb-contact .tmb-info-block {
+        border-left: 2px solid #eee;
+        padding-left: 1.25rem;
+    }
+
+    .tmb-contact .tmb-info-block h5 {
+        font-size: .95rem;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+    }
+
+    .tmb-contact .tmb-form-panel {
+        background: var(--tmb-accent-soft);
+        border: 1px solid #eceae4;
+        padding: 3rem;
+        position: relative;
+    }
+
+    .tmb-contact .tmb-input {
+        border: 1px solid #d9d7d0;
+        background: #fff;
+        transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .tmb-contact .tmb-input:focus {
+        border-color: var(--tmb-accent);
+        box-shadow: 0 0 0 .15rem rgba(17,17,17,.08);
+        outline: none;
+    }
+
+    .tmb-contact .tmb-input.is-invalid {
+        border-color: #b3261e;
+    }
+
+    .tmb-contact .tmb-field-error {
+        color: #b3261e;
+        font-size: .85rem;
+        margin-top: .35rem;
+    }
+
+    .tmb-contact .tmb-submit-btn {
+        letter-spacing: .08em;
+        transition: opacity .15s ease;
+    }
+
+    .tmb-contact .tmb-submit-btn:hover {
+        opacity: .85;
+    }
+
+    .tmb-contact .tmb-submit-btn:disabled {
+        opacity: .6;
+        cursor: not-allowed;
+    }
+
+    /* Top-of-form banner shown when the form has errors */
+    .tmb-contact .tmb-error-banner {
+        border: 1px solid #f1c7c4;
+        background: #fdf1f0;
+        color: #7a1f18;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.75rem;
+        font-size: .95rem;
+    }
+
+    /* Premium success confirmation, shown in place of the form banner */
+    .tmb-contact .tmb-success-card {
+        background: #fff;
+        border: 1px solid #e4e2db;
+        padding: 3rem;
+        text-align: center;
+        animation: tmb-fade-in .35s ease;
+    }
+
+    .tmb-contact .tmb-success-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: #111111;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.25rem;
+        font-size: 1.5rem;
+    }
+
+    @keyframes tmb-fade-in {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 991.98px) {
+        .tmb-contact .tmb-form-panel,
+        .tmb-contact .tmb-success-card { padding: 2rem; }
+    }
+</style>
+
+<div class="tmb-contact container py-5">
     <div class="row">
         <!-- Info Side -->
         <div class="col-lg-5 mb-5">
-            <h1 class="display-4 mb-4">Get in Touch</h1>
-            <p class="lead mb-5">Have a project, submission, or partnership inquiry? We’d love to hear from you.</p>
-            
-            <div class="mb-4">
+            <p class="tmb-eyebrow mb-0">Contact</p>
+            <h1 class="display-4 mb-3">Get in Touch</h1>
+            <div class="tmb-hairline"></div>
+            <p class="lead mb-5">Have a project, submission, or partnership inquiry? We'd love to hear from you.</p>
+
+            <div class="tmb-info-block mb-4">
                 <h5 class="fw-bold">General Inquiries</h5>
-                <p class="text-muted"><a href="mailto:info@tambuaafrika.com" class="text-decoration-none text-dark">info@tambuaafrika.com</a></p>
+                <p class="text-muted mb-0"><a href="mailto:info@tambuaafrika.com" class="text-decoration-none text-dark">info@tambuaafrika.com</a></p>
             </div>
-            <div class="mb-4">
+            <div class="tmb-info-block mb-4">
                 <h5 class="fw-bold">Submissions</h5>
-                <p class="text-muted">Please use our <a href="{% url 'submission_dashboard' %}">Submission Portal</a> for all creative work.</p>
+                <p class="text-muted mb-0">Please use our <a href="{% url 'submission_dashboard' %}" class="text-dark">Submission Portal</a> for all creative work.</p>
             </div>
-            <div class="mb-4">
+            <div class="tmb-info-block mb-4">
                 <h5 class="fw-bold">Visit Us</h5>
-                <p class="text-muted">The Creative Hub, Westlands<br>Nairobi, Kenya</p>
+                <p class="text-muted mb-0">The Creative Hub, Westlands<br>Nairobi, Kenya</p>
             </div>
         </div>
 
-        <!-- Map/Form Side -->
+        <!-- Form / Confirmation Side -->
         <div class="col-lg-7">
-            <div class="bg-light p-5 h-100">
+            {% if sent %}
+            <div class="tmb-success-card h-100 d-flex flex-column justify-content-center">
+                <div class="tmb-success-icon">&#10003;</div>
+                <h3 class="mb-2">Message Sent</h3>
+                <p class="text-muted mb-4">Thank you for reaching out — a member of our team will get back to you within 1–2 business days.</p>
+                <a href="{% url 'contact' %}" class="btn btn-outline-dark rounded-0 px-4 py-2 align-self-center text-uppercase fw-bold" style="letter-spacing:.06em;">Send Another Message</a>
+            </div>
+            {% else %}
+            <div class="tmb-form-panel h-100">
                 <h3 class="mb-4">Send a Message</h3>
-                <form>
+
+                {% if form.non_field_errors %}
+                <div class="tmb-error-banner" role="alert">
+                    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                </div>
+                {% elif form.errors %}
+                <div class="tmb-error-banner" role="alert">
+                    Please correct the highlighted field{{ form.errors|length|pluralize }} below.
+                </div>
+                {% endif %}
+
+                <form method="post" novalidate id="tmb-contact-form">
+                    {% csrf_token %}
+
+                    <!-- Honeypot field: hidden from real visitors, off-screen -->
+                    <div style="position:absolute; left:-9999px;" aria-hidden="true">
+                        {{ form.website }}
+                    </div>
+
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <input type="text" class="form-control rounded-0 p-3" placeholder="Your Name">
+                            {{ form.name }}
+                            {% for error in form.name.errors %}
+                                <div class="tmb-field-error">{{ error }}</div>
+                            {% endfor %}
                         </div>
                         <div class="col-md-6">
-                            <input type="email" class="form-control rounded-0 p-3" placeholder="Your Email">
+                            {{ form.email }}
+                            {% for error in form.email.errors %}
+                                <div class="tmb-field-error">{{ error }}</div>
+                            {% endfor %}
                         </div>
                         <div class="col-12">
-                            <select class="form-select rounded-0 p-3">
-                                <option selected>Subject / Department</option>
-                                <option value="1">General Inquiry</option>
-                                <option value="2">Tambua Ink</option>
-                                <option value="3">Tambua Stage</option>
-                                <option value="4">Shop Support</option>
-                            </select>
+                            {{ form.subject }}
+                            {% for error in form.subject.errors %}
+                                <div class="tmb-field-error">{{ error }}</div>
+                            {% endfor %}
                         </div>
                         <div class="col-12">
-                            <textarea class="form-control rounded-0 p-3" rows="5" placeholder="Your Message"></textarea>
+                            {{ form.message }}
+                            {% for error in form.message.errors %}
+                                <div class="tmb-field-error">{{ error }}</div>
+                            {% endfor %}
                         </div>
                         <div class="col-12">
-                            <button type="submit" class="btn btn-dark w-100 py-3 rounded-0 text-uppercase fw-bold ls-1">Send Message</button>
+                            <button type="submit" class="tmb-submit-btn btn btn-dark w-100 py-3 rounded-0 text-uppercase fw-bold" id="tmb-submit-btn">Send Message</button>
                         </div>
                     </div>
                 </form>
             </div>
+            {% endif %}
         </div>
     </div>
 </div>
+
+<script>
+    // Progressive enhancement only — the server remains the source of truth
+    // for all validation. This just prevents duplicate submissions and
+    // gives immediate feedback while the request is in flight.
+    (function () {
+        var form = document.getElementById('tmb-contact-form');
+        var btn = document.getElementById('tmb-submit-btn');
+        if (form && btn) {
+            form.addEventListener('submit', function () {
+                btn.disabled = true;
+                btn.textContent = 'Sending…';
+            });
+        }
+    })();
+</script>
 {% endblock %}

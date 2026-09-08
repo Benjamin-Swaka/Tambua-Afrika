@@ -11,23 +11,57 @@
 </head>
 <body class="theme-default">
     <div class="dashboard-container">
+
         <!-- SIDEBAR -->
-        <aside class="sidebar d-none d-lg-block">
-            <div class="sidebar-header">
+        <aside class="sidebar" id="dashboardSidebar">
+            <div class="sidebar-header d-flex justify-content-between align-items-center">
                 <a href="{% url 'home' %}" class="text-white text-decoration-none">
                     <h5 class="mb-0" style="font-family: 'Playfair Display', serif;">TAMBUA AFRIKA</h5>
                 </a>
+             
             </div>
-            
+
             <nav class="sidebar-menu">
                 {% if user.is_staff %}
                     <small class="px-4 text-muted text-uppercase mb-2 d-block" style="font-size: 0.7rem;">Administration</small>
                     <a href="{% url 'staff_dashboard' %}" class="sidebar-link {% if segment == 'admin_overview' %}active{% endif %}">
                         <i class="fas fa-chart-line"></i> Overview
                     </a>
-                    <a href="/admin/" class="sidebar-link" target="_blank">
-                        <i class="fas fa-database"></i> Database
+                    <a href="{% url 'admin_submissions' %}" class="sidebar-link {% if segment == 'admin_submissions' %}active{% endif %}">
+                        <i class="fas fa-file-alt"></i> Submissions
                     </a>
+                    <a href="{% url 'admin_messages' %}" class="sidebar-link {% if segment == 'admin_messages' %}active{% endif %}">
+                        <i class="fas fa-envelope"></i> Messages
+                        {% if unread_messages_count %}
+                        <span class="badge bg-dark rounded-pill ms-1">{{ unread_messages_count }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="{% url 'admin_tickets' %}" class="sidebar-link {% if segment == 'admin_tickets' %}active{% endif %}">
+                        <i class="fas fa-ticket-alt"></i> Tickets &amp; Shows
+                    </a>
+                    <a href="{% url 'admin_ticket_verify' %}" class="sidebar-link {% if segment == 'admin_tickets' and request.resolver_match.url_name == 'admin_ticket_verify' %}active{% endif %}">
+                        <i class="fas fa-qrcode"></i> Verify Ticket
+                    </a>
+                    <a href="{% url 'admin_shows' %}" class="sidebar-link {% if segment == 'admin_shows' %}active{% endif %}">
+                        <i class="fas fa-theater-masks"></i> Manage Shows
+                    </a>
+                    <a href="{% url 'admin_homepage_content' %}" class="sidebar-link {% if segment == 'admin_homepage' %}active{% endif %}">
+                        <i class="fas fa-home"></i> Homepage Content
+                    </a>
+                    <a href="{% url 'admin_products' %}" class="sidebar-link {% if segment == 'admin_products' %}active{% endif %}">
+                        <i class="fas fa-shopping-bag"></i> Shop
+                    </a>
+                    <a href="{% url 'admin_users' %}" class="sidebar-link {% if segment == 'admin_users' %}active{% endif %}">
+                        <i class="fas fa-users"></i> Users
+                    </a>
+                    <a href="{% url 'admin_list' %}" class="sidebar-link {% if segment == 'admin_faqs' %}active{% endif %}">
+                            <i class="fas fa-question-circle"></i> FAQs
+                    </a>
+                    {% if user.is_superuser %}
+                    <a href="/admin/" class="sidebar-link" target="_blank">
+                        <i class="fas fa-database"></i> Django Admin
+                    </a>
+                    {% endif %}
                 {% else %}
                     <small class="px-4 text-muted text-uppercase mb-2 d-block" style="font-size: 0.7rem;">Creator Menu</small>
                     <a href="{% url 'user_dashboard' %}" class="sidebar-link {% if segment == 'overview' %}active{% endif %}">
@@ -43,24 +77,40 @@
                         <i class="fas fa-shopping-bag"></i> My Orders
                     </a>
                 {% endif %}
-                
+
                 <div class="my-3 border-top border-secondary opacity-25"></div>
-                
+
                 <a href="{% url 'profile_settings' %}" class="sidebar-link {% if segment == 'settings' %}active{% endif %}">
                     <i class="fas fa-cog"></i> Settings
                 </a>
-                <a href="{% url 'account_logout' %}" class="sidebar-link">
-                    <i class="fas fa-sign-out-alt"></i> Logout
+                <a href="{% url 'privacy_center' %}" class="sidebar-link {% if segment == 'privacy' %}active{% endif %}">
+                    <i class="fas fa-user-shield"></i> Privacy &amp; Data
                 </a>
+                <form method="post" action="{% url 'account_logout' %}" class="m-0">
+                    {% csrf_token %}
+                    <button type="submit" class="sidebar-link btn btn-link text-start w-100 border-0 bg-transparent">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </form>
             </nav>
         </aside>
 
+        <!-- Backdrop -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
         <!-- MAIN CONTENT -->
         <main class="dashboard-main">
-            <!-- Mobile Header -->
-            <div class="d-lg-none mb-4 d-flex justify-content-between align-items-center">
-                <span class="fw-bold">Tambua Dashboard</span>
-                <button class="btn btn-dark btn-sm"><i class="fas fa-bars"></i></button>
+
+            <!-- Mobile Header — reuses the SAME toggle as the main site nav -->
+            <div class="dashboard-mobile-header">
+                <span class="dashboard-mobile-title">Dashboard</span>
+                <button class="navbar-toggler" type="button"
+                        id="sidebarToggle"
+                        aria-expanded="false"
+                        aria-controls="dashboardSidebar"
+                        aria-label="Open menu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
             </div>
 
             <!-- Top Bar -->
@@ -90,5 +140,50 @@
             {% block dashboard_content %}{% endblock %}
         </main>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+ (function () {
+    const sidebar  = document.getElementById('dashboardSidebar');
+    const overlay  = document.getElementById('sidebarOverlay');
+    const openBtn  = document.getElementById('sidebarToggle');
+    if (!sidebar || !overlay || !openBtn) return;
+
+    function openSidebar() {
+        sidebar.classList.add('sidebar--open');
+        overlay.classList.add('active');
+        openBtn.setAttribute('aria-expanded', 'true');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeSidebar() {
+        sidebar.classList.remove('sidebar--open');
+        overlay.classList.remove('active');
+        openBtn.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+    }
+
+    openBtn.addEventListener('click', function () {
+        if (openBtn.getAttribute('aria-expanded') === 'true') {
+            closeSidebar();
+        } else {
+            openSidebar();
+        }
+    });
+    overlay.addEventListener('click', closeSidebar);
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeSidebar();
+    });
+
+    sidebar.querySelectorAll('a, button[type="submit"]').forEach(function (el) {
+        el.addEventListener('click', function () {
+            if (window.innerWidth < 992) closeSidebar();
+        });
+    });
+
+    window.addEventListener('resize', function () {
+        if (window.innerWidth >= 992) closeSidebar();
+    });
+})();
+    </script>
 </body>
 </html>

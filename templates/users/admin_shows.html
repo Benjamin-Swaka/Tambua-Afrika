@@ -1,0 +1,59 @@
+{% extends 'dashboard_base.html' %}
+{% block dashboard_content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0 fw-bold">Manage Shows</h4>
+    <a href="{% url 'admin_show_create' %}" class="btn btn-dark btn-sm px-4"><i class="fas fa-plus me-1"></i> New Show</a>
+</div>
+
+<div class="table-responsive table-saas">
+    <table class="table mb-0 align-middle">
+        <thead>
+            <tr>
+                <th>Show</th>
+                <th>Venue</th>
+                <th>Date</th>
+                <th>Price</th>
+                <th>Capacity</th>
+                <th>Status</th>
+                <th style="width: 220px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for show in shows %}
+            <tr>
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        {% if show.image %}<img src="{{ show.image.url }}" style="width:36px;height:36px;object-fit:cover;border-radius:4px;">{% endif %}
+                        <span class="fw-bold">{{ show.title }}</span>
+                    </div>
+                </td>
+                <td>{{ show.venue }}</td>
+                <td class="small text-muted">{{ show.date|date:"M d, Y" }} &middot; {{ show.time|time:"H:i" }}</td>
+                <td>KES {{ show.price }}</td>
+                <td>{{ show.tickets_reserved }}/{{ show.capacity }}</td>
+                <td>
+                    {% if show.is_active %}<span class="badge bg-success bg-opacity-10 text-success">Active</span>
+                    {% else %}<span class="badge bg-secondary bg-opacity-10 text-secondary">Hidden</span>{% endif %}
+                </td>
+                <td>
+                    <div class="d-flex gap-1 flex-wrap">
+                        <a href="{% url 'admin_show_edit' show.pk %}" class="btn btn-sm btn-outline-dark">Edit</a>
+                        <form method="POST" action="{% url 'admin_show_toggle_active' show.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">{% if show.is_active %}Hide{% else %}Show{% endif %}</button>
+                        </form>
+                        <form method="POST" action="{% url 'admin_show_delete' show.pk %}" onsubmit="return confirm('Delete {{ show.title|escapejs }}? This cannot be undone.');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="text-center text-muted py-5">No shows yet. <a href="{% url 'admin_show_create' %}">Create the first one</a>.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

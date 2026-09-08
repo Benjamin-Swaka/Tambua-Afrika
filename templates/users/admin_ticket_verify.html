@@ -1,0 +1,57 @@
+{% extends 'dashboard_base.html' %}
+{% block dashboard_content %}
+
+<h4 class="mb-1 fw-bold">Verify Ticket</h4>
+<p class="text-muted small mb-4">Scan a ticket's QR code with your phone camera to land here directly, or type the code in below.</p>
+
+<div class="card border-0 shadow-sm p-4 mb-4" style="max-width: 520px;">
+    <form method="GET" action="{% url 'admin_ticket_verify' %}" class="d-flex gap-2">
+        <input type="text" name="ticket_code" value="{{ searched_code }}" placeholder="e.g. TAS-9F3A2B1C4D" class="form-control rounded-0 text-uppercase" autofocus>
+        <button type="submit" class="btn btn-dark rounded-0 px-4">Look Up</button>
+    </form>
+</div>
+
+{% if ticket %}
+<div class="card border-0 shadow-sm p-4" style="max-width: 520px;">
+
+    {% if ticket.checked_in %}
+        <div class="alert alert-warning rounded-0 mb-3">
+            <i class="fas fa-exclamation-triangle me-1"></i>
+            Already checked in at {{ ticket.checked_in_at|date:"D, d M Y H:i" }}
+            {% if ticket.checked_in_by %}by {{ ticket.checked_in_by.get_full_name|default:ticket.checked_in_by.username }}{% endif %}.
+        </div>
+    {% elif ticket.status == 'paid' %}
+        <div class="alert alert-success rounded-0 mb-3">
+            <i class="fas fa-check-circle me-1"></i> Valid, paid ticket — ready to check in.
+        </div>
+    {% else %}
+        <div class="alert alert-danger rounded-0 mb-3">
+            <i class="fas fa-times-circle me-1"></i> Not paid ({{ ticket.get_status_display }}) — do not admit.
+        </div>
+    {% endif %}
+
+    <h5 class="fw-bold mb-1">{{ ticket.show.title }}</h5>
+    <p class="text-muted small mb-3">{{ ticket.show.venue }} &middot; {{ ticket.show.date|date:"D, d M Y" }} &middot; {{ ticket.show.time|time:"g:i A" }}</p>
+
+    <div class="border-top border-bottom py-3 mb-3">
+        <p class="mb-1"><strong>Ticket Code:</strong> {{ ticket.ticket_code }}</p>
+        <p class="mb-1"><strong>Buyer:</strong> {{ ticket.user.get_full_name|default:ticket.user.username }} ({{ ticket.user.email }})</p>
+        <p class="mb-0"><strong>Quantity:</strong> {{ ticket.quantity }}</p>
+    </div>
+
+    {% if ticket.status == 'paid' and not ticket.checked_in %}
+    <form method="POST" action="{% url 'admin_ticket_verify_code' ticket.ticket_code %}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="checkin">
+        <button type="submit" class="btn btn-dark w-100 py-3 rounded-0 text-uppercase fw-bold">
+            <i class="fas fa-user-check me-2"></i> Confirm Check-In
+        </button>
+    </form>
+    {% endif %}
+</div>
+{% elif searched_code %}
+<div class="card border-0 shadow-sm p-4 text-center text-muted" style="max-width: 520px;">
+    No ticket found for that code.
+</div>
+{% endif %}
+{% endblock %}

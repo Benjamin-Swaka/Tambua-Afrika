@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', function () {
     const COOKIE_NAME = 'cookie_consent';
     const banner = document.getElementById('cookie-banner');
-    const acceptAllBtn = document.getElementById('cookie-accept-all');
-    const rejectAllBtn = document.getElementById('cookie-reject-all');
+    const acceptForm = document.getElementById('cookie-accept-all-form');
+    const rejectForm = document.getElementById('cookie-reject-all-form');
     const settingsForm = document.getElementById('cookie-settings-form');
     const analyticsCheckbox = document.getElementById('cookie-analytics');
     const marketingCheckbox = document.getElementById('cookie-marketing');
@@ -14,17 +14,11 @@ document.addEventListener('DOMContentLoaded', function () {
         return null;
     }
 
-    function setCookie(name, value, days) {
-        const date = new Date();
-        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-        document.cookie = `${name}=${value}; expires=${date.toUTCString()}; path=/; SameSite=Lax`;
-    }
-
     function getConsent() {
         const raw = getCookie(COOKIE_NAME);
         if (raw) {
             try {
-                return JSON.parse(raw);
+                return JSON.parse(decodeURIComponent(raw));
             } catch (e) {
                 return null;
             }
@@ -33,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function applyConsent(consent) {
-        // Placeholder for analytics / marketing scripts
+        // Placeholder hook for gating analytics/marketing scripts.
         if (consent.analytics) console.log('Analytics enabled');
         if (consent.marketing) console.log('Marketing enabled');
     }
@@ -52,42 +46,43 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    if (acceptAllBtn) {
-        acceptAllBtn.addEventListener('click', function () {
-            const consent = { essential: true, analytics: true, marketing: true };
-            setCookie(COOKIE_NAME, JSON.stringify(consent), 365);
-            hideBanner();
-            applyConsent(consent);
+    // Submit a consent form via fetch so the choice is recorded on the
+    // server (audit trail) and the response Set-Cookie header is honoured
+    // by the browser, without a full page reload. Falls back to a normal
+    // form POST automatically if fetch/JS is unavailable.
+    function submitConsentForm(form) {
+        if (!form) return;
+        form.addEventListener('submit', function onSubmit(e) {
+            e.preventDefault();
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                credentials: 'same-origin',
+                redirect: 'follow',
+            }).then(function () {
+                hideBanner();
+                const consent = getConsent();
+                if (consent) applyConsent(consent);
+            }).catch(function () {
+                // Network hiccup — let the browser do a real submit instead.
+                form.removeEventListener('submit', onSubmit);
+                form.submit();
+            });
         });
     }
 
-    if (rejectAllBtn) {
-        rejectAllBtn.addEventListener('click', function () {
-            const consent = { essential: true, analytics: false, marketing: false };
-            setCookie(COOKIE_NAME, JSON.stringify(consent), 365);
-            hideBanner();
-            applyConsent(consent);
-        });
-    }
+    submitConsentForm(acceptForm);
+    submitConsentForm(rejectForm);
 
     if (settingsForm && analyticsCheckbox && marketingCheckbox) {
         const consent = getConsent();
         if (consent) {
-            analyticsCheckbox.checked = consent.analytics;
-            marketingCheckbox.checked = consent.marketing;
+            analyticsCheckbox.checked = !!consent.analytics;
+            marketingCheckbox.checked = !!consent.marketing;
         }
-
-        settingsForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-            const newConsent = {
-                essential: true,
-                analytics: analyticsCheckbox.checked,
-                marketing: marketingCheckbox.checked,
-            };
-            setCookie(COOKIE_NAME, JSON.stringify(newConsent), 365);
-            applyConsent(newConsent);
-            window.location.href = settingsForm.getAttribute('data-redirect') || '/';
-        });
+        // No preventDefault here: let the settings page do a real POST to
+        // the Django view, so it's recorded server-side and works with JS
+        // disabled too. The view redirects back afterwards.
     }
 
     showBannerIfNeeded();

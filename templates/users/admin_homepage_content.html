@@ -1,0 +1,620 @@
+
+{% extends 'dashboard_base.html' %}
+
+{% block dashboard_content %}
+
+<!-- =========================================================
+     HOMEPAGE CONTENT HEADER
+========================================================= -->
+
+<div class="mb-4">
+    <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+        <div>
+            <h4 class="mb-1 fw-bold">Homepage Content</h4>
+            <p class="text-muted small mb-0">
+                Manage the content displayed across your homepage.
+            </p>
+        </div>
+    </div>
+</div>
+
+
+<!-- =========================================================
+     CONTENT TABS
+========================================================= -->
+
+<ul class="nav nav-tabs"
+    id="homeContentTabs"
+    role="tablist">
+
+    <!-- Featured Works -->
+    <li class="nav-item" role="presentation">
+        <button
+            class="nav-link active"
+            id="featured-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#featuredWorksTab"
+            type="button"
+            role="tab"
+            aria-controls="featuredWorksTab"
+            aria-selected="true">
+
+            <i class="fas fa-star"></i>
+            Featured Works
+
+        </button>
+    </li>
+
+
+    <!-- Open Calls -->
+    <li class="nav-item" role="presentation">
+        <button
+            class="nav-link"
+            id="open-calls-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#openCallsTab"
+            type="button"
+            role="tab"
+            aria-controls="openCallsTab"
+            aria-selected="false">
+
+            <i class="fas fa-bullhorn"></i>
+            Open Calls
+
+        </button>
+    </li>
+
+
+    <!-- Shop Highlights -->
+    <li class="nav-item" role="presentation">
+        <button
+            class="nav-link"
+            id="shop-highlights-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#shopHighlightsTab"
+            type="button"
+            role="tab"
+            aria-controls="shopHighlightsTab"
+            aria-selected="false">
+
+            <i class="fas fa-shopping-bag"></i>
+            Shop Highlights
+
+        </button>
+    </li>
+
+</ul>
+
+
+<!-- =========================================================
+     TAB CONTENT
+========================================================= -->
+
+<div class="tab-content pt-4"
+     id="homeContentTabsContent">
+
+
+    <!-- =====================================================
+         FEATURED WORKS
+    ====================================================== -->
+
+    <div
+        class="tab-pane fade show active"
+        id="featuredWorksTab"
+        role="tabpanel"
+        aria-labelledby="featured-tab"
+        tabindex="0">
+
+        <!-- Header / Add button -->
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <div>
+                <h5 class="mb-1 fw-bold">Featured Works</h5>
+                <p class="small text-muted mb-0">
+                    Works displayed in the Featured Works section of the homepage.
+                </p>
+            </div>
+
+            <a
+                href="{% url 'admin_featured_work_create' %}"
+                class="btn btn-dark btn-sm px-4">
+
+                <i class="fas fa-plus me-1"></i>
+                Add Featured Work
+
+            </a>
+
+        </div>
+
+
+        <!-- Table -->
+
+        <div class="table-responsive table-saas">
+
+            <table class="table mb-0 align-middle">
+
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Department Label</th>
+                        <th>Status</th>
+                        <th style="width:180px;">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for work in featured_works %}
+
+                    <tr>
+
+                        <td>
+                            {{ work.order }}
+                        </td>
+
+                        <td class="fw-bold">
+                            {{ work.icon_emoji }}
+                            {{ work.title }}
+                        </td>
+
+                        <td>
+                            {{ work.get_category_display }}
+                        </td>
+
+                        <td>
+                            {{ work.department_label }}
+                        </td>
+
+                        <td>
+
+                            {% if work.is_active %}
+
+                                <span class="badge bg-success bg-opacity-10 text-success">
+                                    Live
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary">
+                                    Hidden
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            <div class="d-flex gap-1">
+
+                                <a
+                                    href="{% url 'admin_featured_work_edit' work.pk %}"
+                                    class="btn btn-sm btn-outline-dark">
+
+                                    Edit
+
+                                </a>
+
+                                <form
+                                    method="POST"
+                                    action="{% url 'admin_featured_work_delete' work.pk %}"
+                                    class="m-0"
+                                    onsubmit="return confirm('Remove {{ work.title|escapejs }}?');">
+
+                                    {% csrf_token %}
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-sm btn-outline-danger">
+
+                                        Remove
+
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td
+                            colspan="6"
+                            class="text-center text-muted py-5">
+
+                            <div class="mb-2">
+                                <i class="fas fa-layer-group fa-2x opacity-25"></i>
+                            </div>
+
+                            <div class="fw-semibold">
+                                No featured works yet
+                            </div>
+
+                            <small>
+                                Add your first featured work to display it on the homepage.
+                            </small>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         OPEN CALLS
+    ====================================================== -->
+
+    <div
+        class="tab-pane fade"
+        id="openCallsTab"
+        role="tabpanel"
+        aria-labelledby="open-calls-tab"
+        tabindex="0">
+
+        <!-- Header / Add button -->
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <div>
+                <h5 class="mb-1 fw-bold">Open Calls</h5>
+
+                <p class="small text-muted mb-0">
+                    Manage submission opportunities displayed on the homepage.
+                </p>
+            </div>
+
+            <a
+                href="{% url 'admin_open_call_create' %}"
+                class="btn btn-dark btn-sm px-4">
+
+                <i class="fas fa-plus me-1"></i>
+                Add Open Call
+
+            </a>
+
+        </div>
+
+
+        <!-- Table -->
+
+        <div class="table-responsive table-saas">
+
+            <table class="table mb-0 align-middle">
+
+                <thead>
+
+                    <tr>
+                        <th>Order</th>
+                        <th>Title</th>
+                        <th>Status</th>
+                        <th>Deadline</th>
+                        <th>Live?</th>
+                        <th style="width:180px;">Actions</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for call in open_calls %}
+
+                    <tr>
+
+                        <td>
+                            {{ call.order }}
+                        </td>
+
+                        <td class="fw-bold">
+                            {{ call.title }}
+                        </td>
+
+                        <td>
+
+                            <span class="badge
+                                {% if call.status == 'open' %}
+                                    bg-success
+                                {% elif call.status == 'closing_soon' %}
+                                    bg-warning text-dark
+                                {% else %}
+                                    bg-secondary
+                                {% endif %}">
+
+                                {{ call.get_status_display }}
+
+                            </span>
+
+                        </td>
+
+                        <td class="small text-muted">
+                            {{ call.deadline_label }}
+                        </td>
+
+                        <td>
+
+                            {% if call.is_active %}
+
+                                <span class="badge bg-success bg-opacity-10 text-success">
+                                    Live
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary">
+                                    Hidden
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            <div class="d-flex gap-1">
+
+                                <a
+                                    href="{% url 'admin_open_call_edit' call.pk %}"
+                                    class="btn btn-sm btn-outline-dark">
+
+                                    Edit
+
+                                </a>
+
+
+                                <form
+                                    method="POST"
+                                    action="{% url 'admin_open_call_delete' call.pk %}"
+                                    class="m-0"
+                                    onsubmit="return confirm('Remove {{ call.title|escapejs }}?');">
+
+                                    {% csrf_token %}
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-sm btn-outline-danger">
+
+                                        Remove
+
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td
+                            colspan="6"
+                            class="text-center text-muted py-5">
+
+                            <div class="mb-2">
+                                <i class="fas fa-bullhorn fa-2x opacity-25"></i>
+                            </div>
+
+                            <div class="fw-semibold">
+                                No open calls yet
+                            </div>
+
+                            <small>
+                                Create an open call to publish an opportunity on the homepage.
+                            </small>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         SHOP HIGHLIGHTS
+    ====================================================== -->
+
+    <div
+        class="tab-pane fade"
+        id="shopHighlightsTab"
+        role="tabpanel"
+        aria-labelledby="shop-highlights-tab"
+        tabindex="0">
+
+        <!-- Header / Add button -->
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <div>
+
+                <h5 class="mb-1 fw-bold">
+                    Shop Highlights
+                </h5>
+
+                <p class="small text-muted mb-0">
+                    Manage products featured in the homepage marketplace section.
+                </p>
+
+            </div>
+
+
+            <a
+                href="{% url 'admin_shop_highlight_create' %}"
+                class="btn btn-dark btn-sm px-4">
+
+                <i class="fas fa-plus me-1"></i>
+                Add Shop Highlight
+
+            </a>
+
+        </div>
+
+
+        <!-- Table -->
+
+        <div class="table-responsive table-saas">
+
+            <table class="table mb-0 align-middle">
+
+                <thead>
+
+                    <tr>
+                        <th>Order</th>
+                        <th>Title</th>
+                        <th>Price Label</th>
+                        <th>Live?</th>
+                        <th style="width:180px;">Actions</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for item in shop_highlights %}
+
+                    <tr>
+
+                        <td>
+                            {{ item.order }}
+                        </td>
+
+
+                        <td class="fw-bold">
+
+                            {{ item.icon_emoji }}
+                            {{ item.title }}
+
+                        </td>
+
+
+                        <td class="small text-muted">
+                            {{ item.price_label }}
+                        </td>
+
+
+                        <td>
+
+                            {% if item.is_active %}
+
+                                <span class="badge bg-success bg-opacity-10 text-success">
+                                    Live
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary">
+                                    Hidden
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            <div class="d-flex gap-1">
+
+                                <a
+                                    href="{% url 'admin_shop_highlight_edit' item.pk %}"
+                                    class="btn btn-sm btn-outline-dark">
+
+                                    Edit
+
+                                </a>
+
+
+                                <form
+                                    method="POST"
+                                    action="{% url 'admin_shop_highlight_delete' item.pk %}"
+                                    class="m-0"
+                                    onsubmit="return confirm('Remove {{ item.title|escapejs }}?');">
+
+                                    {% csrf_token %}
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-sm btn-outline-danger">
+
+                                        Remove
+
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td
+                            colspan="5"
+                            class="text-center text-muted py-5">
+
+                            <div class="mb-2">
+                                <i class="fas fa-shopping-bag fa-2x opacity-25"></i>
+                            </div>
+
+                            <div class="fw-semibold">
+                                No shop highlights yet
+                            </div>
+
+                            <small>
+                                Add products to feature them on the homepage.
+                            </small>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

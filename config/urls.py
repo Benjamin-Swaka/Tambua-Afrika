@@ -19,6 +19,7 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')), 
     path('dashboard/', include('users.urls')),
     path('select-department/', core_views.select_department, name='select_department'),
+    path("faq/", include("faq_app.urls")),
     path('i18n/', include('django.conf.urls.i18n')), 
     
 
