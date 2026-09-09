@@ -39,6 +39,9 @@
                     <a href="{% url 'admin_tickets' %}" class="sidebar-link {% if segment == 'admin_tickets' %}active{% endif %}">
                         <i class="fas fa-ticket-alt"></i> Tickets &amp; Shows
                     </a>
+                    <a href="{% url 'admin_manual_payments' %}" class="sidebar-link {% if segment == 'admin_manual_payments' %}active{% endif %}">
+                        <i class="fas fa-money-bill-wave"></i> Manual Payments
+                    </a>
                     <a href="{% url 'admin_ticket_verify' %}" class="sidebar-link {% if segment == 'admin_tickets' and request.resolver_match.url_name == 'admin_ticket_verify' %}active{% endif %}">
                         <i class="fas fa-qrcode"></i> Verify Ticket
                     </a>
@@ -50,6 +53,12 @@
                     </a>
                     <a href="{% url 'admin_products' %}" class="sidebar-link {% if segment == 'admin_products' %}active{% endif %}">
                         <i class="fas fa-shopping-bag"></i> Shop
+                    </a>
+                    <a href="{% url 'chatbot:admin_list' %}" class="sidebar-link {% if segment == 'admin_chatbot' %}active{% endif %}">
+                        <i class="fas fa-robot"></i> Chatbot
+                        {% if unmatched_chatbot_count %}
+                        <span class="badge bg-dark rounded-pill ms-1">{{ unmatched_chatbot_count }}</span>
+                        {% endif %}
                     </a>
                     <a href="{% url 'admin_users' %}" class="sidebar-link {% if segment == 'admin_users' %}active{% endif %}">
                         <i class="fas fa-users"></i> Users
@@ -63,7 +72,7 @@
                     </a>
                     {% endif %}
                 {% else %}
-                    <small class="px-4 text-muted text-uppercase mb-2 d-block" style="font-size: 0.7rem;">Creator Menu</small>
+                    <small class="px-4 text-white text-uppercase mb-2 d-block" style="font-size: 0.7rem; opacity: 0.8;">Creator Menu</small>
                     <a href="{% url 'user_dashboard' %}" class="sidebar-link {% if segment == 'overview' %}active{% endif %}">
                         <i class="fas fa-home"></i> My Dashboard
                     </a>

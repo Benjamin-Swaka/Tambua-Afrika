@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Tambua Afrika Studios | African Stories</title>
     {% load static %}
 
@@ -12,12 +12,16 @@
 <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon-16x16.png' %}">
 <link rel="apple-touch-icon" href="{% static 'images/apple-touch-icon.png' %}">
 <link rel="manifest" href="{% static 'images/site.webmanifest' %}">
-    
+
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/cookie_consent.css' %}">
+    <!-- Cross-device fix layer: MUST load after style.css -->
+    <link rel="stylesheet" href="{% static 'css/premium-responsive-fixes.css' %}">
+    <!-- Chatbot widget styles -->
+    <link rel="stylesheet" href="{% static 'chatbot/css/chatbot.css' %}">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     {% block extra_css %}{% endblock %}
@@ -43,8 +47,6 @@
             <!-- Links -->
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
-                    <!-- We use 'request.resolver_match.url_name' to set the active class automatically -->
-                    
                     <li class="nav-item">
                         <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">Studios</a>
                     </li>
@@ -68,7 +70,7 @@
 
                 <!-- Right Side: Cart & User -->
                 <ul class="navbar-nav align-items-lg-center">
-                    
+
                     <!-- Cart Icon with Counter -->
                     <li class="nav-item me-3">
                         <a href="{% url 'cart_view' %}" class="nav-link position-relative">
@@ -102,9 +104,8 @@
             <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
     </div>
- 
+
     <ul class="dropdown-menu dropdown-menu-end nav-dropdown-premium">
-        <!-- User identity block -->
         <li class="nav-dropdown-identity">
             <div class="nav-dropdown-avatar-lg" aria-hidden="true">
                 {% if user.profile.avatar %}
@@ -121,10 +122,9 @@
                 {% endif %}
             </div>
         </li>
- 
+
         <li><hr class="nav-dropdown-divider"></li>
- 
-        <!-- Navigation items -->
+
         <li>
             <a class="nav-dropdown-item" href="{% url 'dashboard_routing' %}">
                 <span class="nav-dropdown-icon" aria-hidden="true">
@@ -150,9 +150,9 @@
                 Profile &amp; Settings
             </a>
         </li>
- 
+
         <li><hr class="nav-dropdown-divider"></li>
- 
+
         <li>
             <form method="post" action="{% url 'account_logout' %}" class="m-0">
                 {% csrf_token %}
@@ -166,9 +166,9 @@
         </li>
     </ul>
 </li>
- 
+
 {% else %}
- 
+
 <li class="nav-item d-flex align-items-center gap-2">
     <a href="{% url 'account_login' %}" class="nav-auth-link">Sign In</a>
     <a href="{% url 'account_signup' %}" class="nav-auth-cta">
@@ -178,7 +178,7 @@
         </svg>
     </a>
 </li>
- 
+
 {% endif %}
                 </ul>
             </div>
@@ -204,18 +204,13 @@
 
     <!-- ENHANCED FOOTER -->
 <footer class="ta-footer" role="contentinfo">
- 
-    <!-- Decorative top edge: thin department-color strip -->
+
     <div class="ta-footer-topbar" aria-hidden="true"></div>
- 
+
     <div class="ta-footer-inner">
- 
-        <!-- ═══════════════════════════════════════════
-             ROW 1: Brand + departments + links
-        ════════════════════════════════════════════ -->
+
         <div class="ta-footer-main">
- 
-            <!-- Brand column -->
+
             <div class="ta-footer-brand">
                 <a href="{% url 'home' %}" class="ta-footer-logo-link" aria-label="Tambua Afrika home">
                     <img src="{% static 'images/logo.png' %}" alt="Tambua Afrika" class="ta-footer-logo">
@@ -224,40 +219,38 @@
                 <p class="ta-footer-brand-copy">
                     A multidisciplinary creative ecosystem dedicated to discovering, developing, and distributing authentic African stories across publishing, theatre, comics, and digital media.
                 </p>
-                
-                <!-- Social icons with labels -->
+
 <div class="ta-footer-socials" role="list">
-    <a href="https://www.instagram.com/tambuaafrika_ink?utm_source=qr&igsh=MTQ3M2ZpNmN4c2Vy" 
-       class="ta-footer-social" 
-       aria-label="Tambua Afrika Ink on Instagram" 
-       role="listitem" 
-       target="_blank" 
+    <a href="https://www.instagram.com/tambuaafrika_ink?utm_source=qr&igsh=MTQ3M2ZpNmN4c2Vy"
+       class="ta-footer-social"
+       aria-label="Tambua Afrika Ink on Instagram"
+       role="listitem"
+       target="_blank"
        rel="noopener noreferrer">
         <i class="fab fa-instagram" aria-hidden="true"></i>
         <span class="ta-footer-social-label">Tambua Afrika Ink</span>
     </a>
-    <a href="https://www.instagram.com/tambuaafrika_comics?utm_source=qr&igsh=ZnpwNjl4b3U2cmhr" 
-       class="ta-footer-social" 
-       aria-label="Comics on Instagram" 
-       role="listitem" 
-       target="_blank" 
+    <a href="https://www.instagram.com/tambuaafrika_comics?utm_source=qr&igsh=ZnpwNjl4b3U2cmhr"
+       class="ta-footer-social"
+       aria-label="Comics on Instagram"
+       role="listitem"
+       target="_blank"
        rel="noopener noreferrer">
         <i class="fab fa-instagram" aria-hidden="true"></i>
         <span class="ta-footer-social-label">Tambua Afrika Comics</span>
     </a>
-    <a href="https://www.instagram.com/tambuaafrika_stage?utm_source=qr&igsh=MWpxN3k1dzJ2ODJ1cw%3D%3D" 
-       class="ta-footer-social" 
-       aria-label="Stage on Instagram" 
-       role="listitem" 
-       target="_blank" 
+    <a href="https://www.instagram.com/tambuaafrika_stage?utm_source=qr&igsh=MWpxN3k1dzJ2ODJ1cw%3D%3D"
+       class="ta-footer-social"
+       aria-label="Stage on Instagram"
+       role="listitem"
+       target="_blank"
        rel="noopener noreferrer">
         <i class="fab fa-instagram" aria-hidden="true"></i>
         <span class="ta-footer-social-label">Tambua Afrika Stage</span>
     </a>
 </div>
             </div>
- 
-            <!-- Departments column -->
+
             <nav class="ta-footer-col" aria-label="Departments">
                 <h3 class="ta-footer-col-heading">
                     <span class="ta-footer-col-dot" style="background: #003366;" aria-hidden="true"></span>
@@ -271,8 +264,7 @@
                     <li><a href="{% url 'shop_home' %}" class="ta-footer-link">Shop &amp; Merch</a></li>
                 </ul>
             </nav>
- 
-            <!-- Company column -->
+
             <nav class="ta-footer-col" aria-label="Company">
                 <h3 class="ta-footer-col-heading">
                     <span class="ta-footer-col-dot" style="background: #888;" aria-hidden="true"></span>
@@ -286,8 +278,7 @@
                     <li><a href="{% url 'partnerships' %}" class="ta-footer-link">Partnerships</a></li>
                 </ul>
             </nav>
- 
-            <!-- Creators column -->
+
             <nav class="ta-footer-col" aria-label="For creators">
                 <h3 class="ta-footer-col-heading">
                     <span class="ta-footer-col-dot" style="background: #D2B48C;" aria-hidden="true"></span>
@@ -297,13 +288,8 @@
                     <li><a href="{% url 'submission_guidelines' %}" class="ta-footer-link">Submission Guidelines</a></li>
                     <li><a href="{% url 'publishing_packages' %}" class="ta-footer-link">Publishing Packages</a></li>
                     <li><a href="{% url 'faq_list' %}" class="ta-footer-link">Help & FAQs</a></li>
-              
                 </ul>
             </nav>
- 
- <!-- ══════════════════════════════════════════════════════════
-     FOOTER NEWSLETTER COLUMN
-     ══════════════════════════════════════════════════════════ -->
 
 <div class="ta-footer-col ta-footer-newsletter">
     <h3 class="ta-footer-col-heading">
@@ -314,7 +300,6 @@
         Open calls, new releases, and African creative culture — direct to your inbox.
     </p>
 
-    <!-- Premium response container (inline) -->
     <div id="newsletter-response" class="ta-footer-response" style="display:none;"></div>
 
     <form action="{% url 'newsletter_subscribe' %}" method="POST" class="ta-footer-form" novalidate id="newsletter-form">
@@ -337,7 +322,6 @@
             </button>
         </div>
 
-        <!-- Consent checkbox with inline error hint -->
         <div class="ta-footer-consent-wrapper">
             <input type="checkbox" name="consent" id="footer-consent" required>
             <label for="footer-consent" style="font-size:0.7rem; color:rgba(255,255,255,0.5);">
@@ -358,12 +342,9 @@
         {% include "includes/language_switcher.html" %}
     </div>
 </div>
-           
+
         </div>
- 
-        <!-- ═══════════════════════════════════════════
-             ROW 2: Locations strip
-        ════════════════════════════════════════════ -->
+
         <div class="ta-footer-locations" role="list" aria-label="Office locations">
             <div class="ta-footer-location" role="listitem">
                 <span class="ta-footer-location-dot" aria-hidden="true"></span>
@@ -383,10 +364,7 @@
                 <span class="ta-footer-location-country">South Africa</span>
             </div>
         </div>
- 
-        <!-- ═══════════════════════════════════════════
-             ROW 3: Legal bottom bar
-        ════════════════════════════════════════════ -->
+
         <div class="ta-footer-bottom">
             <p class="ta-footer-copyright">
                 &copy; {% now "Y" %} Tambua Afrika Studios Ltd. All rights reserved.
@@ -401,9 +379,9 @@
     <a href="{% url 'cookie_settings' %}" class="cookie-btn cookie-btn--link">Cookie Settings</a>
             </nav>
         </div>
- 
+
     </div>
-    
+
 </footer>
 <!-- Search Overlay HTML -->
 <div id="searchOverlay" class="d-none">
@@ -424,6 +402,18 @@
     </div>
 </div>
 
+<!-- ============================================================
+     FLOATING ACTION BUTTONS — Chatbot (left) + WhatsApp (right)
+     ============================================================ -->
+<a href="https://whatsapp.com/channel/0029VbC0ckIKbYMP4tFPE70E"
+   class="floating-action-btn floating-whatsapp"
+   target="_blank"
+   rel="noopener noreferrer"
+   aria-label="Chat on WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+</a>
+
+{% include "chatbot/widget.html" %}
 
 <!-- Javascript for Toggle -->
 <script>
@@ -431,6 +421,24 @@
         const overlay = document.getElementById('searchOverlay');
         overlay.classList.toggle('d-none');
     }
+
+    // Keep the mobile nav overlay working identically across every
+    // browser (including ones without :has() support) by mirroring
+    // Bootstrap's collapse state onto explicit classes.
+    document.addEventListener('DOMContentLoaded', function () {
+        const navbarEl = document.querySelector('.navbar');
+        const collapseEl = document.getElementById('navbarNav');
+        if (navbarEl && collapseEl) {
+            collapseEl.addEventListener('shown.bs.collapse', function () {
+                navbarEl.classList.add('nav-open');
+                document.body.classList.add('nav-open');
+            });
+            collapseEl.addEventListener('hidden.bs.collapse', function () {
+                navbarEl.classList.remove('nav-open');
+                document.body.classList.remove('nav-open');
+            });
+        }
+    });
 </script>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -438,14 +446,9 @@
     <script src="{% static 'JS/cookie_consent.js' %}"></script>
 {% include 'cookies/cookie_banner.html' %}
 
-<!-- Floating WhatsApp Button -->
-<a href="https://whatsapp.com/channel/0029VbC0ckIKbYMP4tFPE70E" 
-   class="floating-whatsapp" 
-   target="_blank" 
-   rel="noopener noreferrer" 
-   aria-label="Chat on WhatsApp">
-    <i class="fab fa-whatsapp"></i>
-</a>
+<!-- Chatbot widget script -->
+<script src="{% static 'chatbot/js/chatbot.js' %}"></script>
+
 {% block extra_js %}{% endblock %}
 </body>
 </html>

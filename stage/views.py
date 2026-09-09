@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 
 from . import pesapal
-from .models import Show, Ticket
+from .models import ManualPayment, Show, Ticket
 
 
 def index(request):
@@ -57,6 +57,13 @@ def reserve_ticket(request, slug):
             unit_price=show.price,
             total_amount=show.price * quantity,
         )
+        ManualPayment.objects.create(
+            ticket=ticket,
+            payment_reference=ManualPayment.generate_reference(),
+            amount=ticket.total_amount,
+            paybill=ManualPayment.PAYBILL,
+            account_number=ManualPayment.PAYBILL_ACCOUNT_NUMBER,
+        )
 
     return redirect('ticket_payment', ticket_code=ticket.ticket_code)
 
@@ -64,14 +71,17 @@ def reserve_ticket(request, slug):
 @login_required
 def ticket_payment(request, ticket_code):
     """
-    Step 2: pay first, then get the ticket.
+    Customer payment page.
 
-    For now this is a manual confirmation step: the buyer pays out-of-band
-    (M-Pesa / bank transfer) and submits their transaction reference here.
-    Swap this out for a real payment gateway callback later -- it should
-    call `ticket.mark_as_paid(reference=...)` the same way this view does.
+    Pesapal remains available as an instant-payment option. The manual
+    option is intentionally two-step: submit an M-Pesa transaction code,
+    then wait for staff verification. Submission never marks a ticket paid.
     """
-    ticket = get_object_or_404(Ticket, ticket_code=ticket_code, user=request.user)
+    ticket = get_object_or_404(
+        Ticket.objects.select_related('show', 'user'),
+        ticket_code=ticket_code,
+        user=request.user,
+    )
 
     if ticket.status == Ticket.STATUS_PAID:
         return redirect('ticket_detail', ticket_code=ticket.ticket_code)
@@ -80,16 +90,90 @@ def ticket_payment(request, ticket_code):
         messages.error(request, "This ticket reservation was cancelled.")
         return redirect('stage_home')
 
-    if request.method == 'POST':
-        reference = request.POST.get('payment_reference', '').strip()
-        if not reference:
-            messages.error(request, "Please enter your payment reference / transaction code.")
-        else:
-            ticket.mark_as_paid(reference=reference)
-            messages.success(request, "Payment received! Your ticket is confirmed.")
-            return redirect('ticket_detail', ticket_code=ticket.ticket_code)
+    manual_payment, _ = ManualPayment.objects.get_or_create(
+        ticket=ticket,
+        defaults={
+            'payment_reference': ManualPayment.generate_reference(),
+            'amount': ticket.total_amount,
+            'paybill': ManualPayment.PAYBILL,
+            'account_number': ManualPayment.PAYBILL_ACCOUNT_NUMBER,
+        },
+    )
 
-    return render(request, 'stage/ticket_payment.html', {'ticket': ticket})
+    if request.method == 'POST' and request.POST.get('payment_method') == 'manual':
+        transaction_code = request.POST.get('transaction_code', '').strip().upper()
+
+        # M-Pesa confirmation codes are alphanumeric. Keep validation
+        # deliberately format-oriented; validity is established by staff
+        # against the actual M-Pesa records, not by this regex.
+        import re
+        if not transaction_code:
+            messages.error(request, "Please enter your M-Pesa transaction code.")
+        elif not re.fullmatch(r'[A-Z0-9]{6,30}', transaction_code):
+            messages.error(
+                request,
+                "Enter a valid M-Pesa transaction code using letters and numbers only."
+            )
+        elif manual_payment.status == ManualPayment.STATUS_VERIFIED:
+            messages.success(request, "This payment has already been verified.")
+            return redirect('ticket_detail', ticket_code=ticket.ticket_code)
+        elif manual_payment.status == ManualPayment.STATUS_PENDING and manual_payment.transaction_code:
+            messages.warning(
+                request,
+                "A payment is already awaiting verification. Please wait for our team to review it."
+            )
+        else:
+            try:
+                with transaction.atomic():
+                    # Lock the payment row so two submissions cannot race.
+                    payment = ManualPayment.objects.select_for_update().get(pk=manual_payment.pk)
+
+                    if payment.status == ManualPayment.STATUS_VERIFIED:
+                        messages.success(request, "This payment has already been verified.")
+                        return redirect('ticket_detail', ticket_code=ticket.ticket_code)
+
+                    if ManualPayment.objects.filter(
+                        transaction_code=transaction_code
+                    ).exclude(pk=payment.pk).exists():
+                        messages.error(
+                            request,
+                            "That M-Pesa transaction code has already been submitted for another reservation."
+                        )
+                    else:
+                        payment.transaction_code = transaction_code
+                        payment.status = ManualPayment.STATUS_PENDING
+                        payment.submitted_at = timezone.now()
+                        payment.rejection_reason = ''
+                        payment.save(update_fields=[
+                            'transaction_code',
+                            'status',
+                            'submitted_at',
+                            'rejection_reason',
+                            'updated_at',
+                        ])
+
+                        messages.success(
+                            request,
+                            "Payment submitted successfully. Your ticket will be confirmed after manual verification."
+                        )
+                        return redirect(
+                            'ticket_payment',
+                            ticket_code=ticket.ticket_code,
+                        )
+            except Exception:
+                messages.error(
+                    request,
+                    "We couldn't submit the payment right now. Please try again."
+                )
+
+    return render(
+        request,
+        'stage/ticket_payment.html',
+        {
+            'ticket': ticket,
+            'manual_payment': manual_payment,
+        },
+    )
 
 
 @login_required

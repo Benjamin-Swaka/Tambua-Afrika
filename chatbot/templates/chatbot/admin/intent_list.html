@@ -1,0 +1,123 @@
+{% extends 'dashboard_base.html' %}
+{% block dashboard_content %}
+
+<div class="alert alert-dark border-0 shadow-sm d-flex justify-content-between align-items-center mb-4">
+    <span><i class="fas fa-robot me-2"></i> Chatbot intents &mdash; what the Assistant widget can answer.</span>
+    <a href="{% url 'chatbot:admin_create' %}" class="btn btn-light btn-sm fw-bold">
+        <i class="fas fa-plus me-1"></i> New Intent
+    </a>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_intents }}</div>
+            <div class="stat-label">Total Intents</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card blue">
+            <div class="stat-number">{{ active_intents }}</div>
+            <div class="stat-label">Active</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ inactive_intents }}</div>
+            <div class="stat-label">Inactive</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <a href="{% url 'chatbot:admin_logs' %}?filter=unmatched" class="text-decoration-none">
+            <div class="stat-card brown">
+                <div class="stat-number">{{ unmatched_count }}</div>
+                <div class="stat-label">Unanswered Questions</div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Intents table -->
+    <div class="col-lg-7">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0 fw-bold">All Intents</h5>
+            <a href="{% url 'chatbot:admin_logs' %}" class="small text-dark fw-bold">View chat logs &rarr;</a>
+        </div>
+        <div class="table-responsive table-saas">
+            <table class="table mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Triggers</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for intent in intents %}
+                    <tr>
+                        <td class="fw-bold">{{ intent.name }}</td>
+                        <td class="text-muted small">
+                            {{ intent.trigger_list|slice:":3"|join:", " }}{% if intent.trigger_list|length > 3 %} &hellip;{% endif %}
+                        </td>
+                        <td>{{ intent.priority }}</td>
+                        <td>
+                            <form method="post" action="{% url 'chatbot:admin_toggle' intent.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{% url 'chatbot:admin_list' %}">
+                                <button type="submit" class="badge border-0 {% if intent.is_active %}bg-success{% else %}bg-secondary{% endif %}" style="cursor:pointer;">
+                                    {% if intent.is_active %}Active{% else %}Inactive{% endif %}
+                                </button>
+                            </form>
+                        </td>
+                        <td class="text-end">
+                            <a href="{% url 'chatbot:admin_edit' intent.pk %}" class="btn btn-outline-dark btn-sm">Edit</a>
+                            <a href="{% url 'chatbot:admin_delete' intent.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="text-muted text-center py-4">No intents yet — add your first one.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent unanswered questions -->
+    <div class="col-lg-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0 fw-bold">Recently Unanswered</h5>
+            <a href="{% url 'chatbot:admin_logs' %}?filter=unmatched" class="small text-dark fw-bold">View all &rarr;</a>
+        </div>
+        <div class="table-responsive table-saas">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th>Question</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in recent_unmatched %}
+                    <tr>
+                        <td>
+                            <div class="fw-bold small">{{ log.message|truncatechars:60 }}</div>
+                            <div class="text-muted" style="font-size:0.72rem;">{{ log.created_at|timesince }} ago</div>
+                        </td>
+                        <td class="text-end">
+                            <a href="{% url 'chatbot:admin_create' %}?seed={{ log.message|urlencode }}" class="btn btn-outline-dark btn-sm">
+                                Create Intent
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="2" class="text-muted text-center py-4">Nothing unanswered recently — nice work.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

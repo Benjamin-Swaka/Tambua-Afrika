@@ -30,34 +30,16 @@
                 </div>
             </div>
 
-            <div class="card border-0 shadow-sm p-4 mb-4">
-                <h5 class="mb-3">Pay Instantly with Pesapal</h5>
-                <p class="text-muted small mb-3">
-                    Cards, M-Pesa, and more — pay securely and your ticket (with QR code)
-                    is confirmed and emailed to you automatically.
-                </p>
-                <form method="POST" action="{% url 'pesapal_checkout' ticket.ticket_code %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-custom w-100 py-3">
-                        <i class="fas fa-lock me-2"></i>Pay KES {{ ticket.total_amount }} with Pesapal
-                    </button>
-                </form>
-            </div>
-
-            <div class="text-center text-muted small mb-4">— or —</div>
 
             <div class="card border-0 shadow-sm p-4">
                 <h5 class="mb-3">Pay via M-Pesa / Bank Transfer (Manual)</h5>
                 <p class="text-muted">
                     Send <strong>KES {{ ticket.total_amount }}</strong> to Till/Paybill
-                    <strong>000000</strong> (Tambua Afrika Studios), using reference
+                    <strong>522533</strong> (Tambua Afrika Studios), using reference
                     <strong>{{ ticket.ticket_code }}</strong>. Once paid, enter the
                     M-Pesa/transaction code you received below to confirm your ticket.
                 </p>
-                <p class="text-muted small">
-                    <em>Use this only if you can't complete the Pesapal payment above —
-                    it's confirmed manually by our team rather than instantly.</em>
-                </p>
+             
 
                 <form method="POST">
                     {% csrf_token %}

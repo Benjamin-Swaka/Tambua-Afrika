@@ -70,9 +70,15 @@
                 <td>
                     <div class="d-flex gap-1 flex-wrap">
                         {% if t.status == 'pending_payment' %}
+                        {% if t.manual_payment.transaction_code %}
+                            <a href="{% url 'admin_manual_payment_review' t.manual_payment.payment_reference %}" class="btn btn-sm btn-warning">
+                                Review Payment
+                            </a>
+                        {% else %}
+                            <span class="badge bg-light text-muted border align-self-center">Awaiting customer payment</span>
+                        {% endif %}
                         <form method="POST" action="{% url 'admin_ticket_update_status' t.ticket_code %}" class="d-flex gap-1">
                             {% csrf_token %}
-                            <button type="submit" name="action" value="mark_paid" class="btn btn-sm btn-outline-success">Mark Paid</button>
                             <button type="submit" name="action" value="cancel" class="btn btn-sm btn-outline-danger">Cancel</button>
                         </form>
                         {% endif %}

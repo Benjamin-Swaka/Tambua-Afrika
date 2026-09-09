@@ -6,6 +6,7 @@ from django.contrib.auth import logout
 from django.http import JsonResponse, HttpResponseForbidden
 from django.utils import timezone
 from django.db.models import Sum, Count, Q
+from django.db import transaction
 from functools import wraps
 import json
 
@@ -72,6 +73,11 @@ def staff_dashboard(request):
     paid_tickets = Ticket.objects.filter(status=Ticket.STATUS_PAID)
     ticket_revenue = paid_tickets.aggregate(total=Sum('total_amount'))['total'] or 0
     tickets_sold = paid_tickets.aggregate(qty=Sum('quantity'))['qty'] or 0
+    from stage.models import ManualPayment
+    pending_manual_payments = ManualPayment.objects.filter(
+        status=ManualPayment.STATUS_PENDING,
+        transaction_code__isnull=False,
+    ).count()
     upcoming_shows = Show.objects.filter(is_active=True, date__gte=timezone.localdate()).count()
 
     total_products = Product.objects.count()
@@ -82,6 +88,7 @@ def staff_dashboard(request):
         'pending_reviews': pending_reviews,
         'ticket_revenue': ticket_revenue,
         'tickets_sold': tickets_sold,
+        'pending_manual_payments': pending_manual_payments,
         'upcoming_shows': upcoming_shows,
         'total_products': total_products,
         'recent_tickets': paid_tickets.select_related('show', 'user').order_by('-paid_at')[:6],
@@ -301,13 +308,12 @@ def admin_ticket_update_status(request, ticket_code):
     ticket = get_object_or_404(Ticket, ticket_code=ticket_code)
     if request.method == 'POST':
         action = request.POST.get('action')
-        if action == 'mark_paid':
-            ticket.mark_as_paid(reference=request.POST.get('reference', 'admin-confirmed'))
-            messages.success(request, f"Ticket {ticket.ticket_code} marked as paid.")
-        elif action == 'cancel':
+        if action == 'cancel' and ticket.status != Ticket.STATUS_PAID:
             ticket.status = Ticket.STATUS_CANCELLED
-            ticket.save()
+            ticket.save(update_fields=['status'])
             messages.info(request, f"Ticket {ticket.ticket_code} cancelled.")
+        elif action == 'cancel':
+            messages.warning(request, "A paid ticket cannot be cancelled from this action.")
     return redirect('admin_tickets')
 
 
@@ -570,6 +576,167 @@ def admin_shop_highlight_delete(request, pk):
         obj.delete()
         messages.success(request, "Shop highlight removed.")
     return redirect('admin_homepage_content')
+
+
+# ==============================================
+# CUSTOM ADMIN: MANUAL M-PESA PAYMENT VERIFICATION
+# ==============================================
+
+@staff_required
+def admin_manual_payments(request):
+    """List manual payments submitted by customers."""
+    from stage.models import ManualPayment
+
+    status = request.GET.get('status', ManualPayment.STATUS_PENDING)
+    search = request.GET.get('q', '').strip()
+
+    qs = ManualPayment.objects.select_related(
+        'ticket__show',
+        'ticket__user',
+        'verified_by',
+    )
+
+    if status in dict(ManualPayment.STATUS_CHOICES):
+        qs = qs.filter(status=status)
+    else:
+        status = ''
+
+    if search:
+        qs = qs.filter(
+            Q(payment_reference__icontains=search) |
+            Q(transaction_code__icontains=search) |
+            Q(ticket__ticket_code__icontains=search) |
+            Q(ticket__user__email__icontains=search) |
+            Q(ticket__user__username__icontains=search)
+        )
+
+    context = {
+        'payments': qs.order_by('-created_at')[:300],
+        'status_choices': ManualPayment.STATUS_CHOICES,
+        'current_status': status,
+        'search': search,
+        'pending_count': ManualPayment.objects.filter(
+            status=ManualPayment.STATUS_PENDING
+        ).count(),
+        'segment': 'admin_manual_payments',
+    }
+    return render(request, 'users/admin_manual_payments.html', context)
+
+
+@staff_required
+def admin_manual_payment_review(request, payment_reference):
+    """Review and verify/reject one manual payment."""
+    from stage.models import ManualPayment, Ticket
+
+    payment = get_object_or_404(
+        ManualPayment.objects.select_related(
+            'ticket__show',
+            'ticket__user',
+            'verified_by',
+        ),
+        payment_reference=payment_reference,
+    )
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if payment.status != ManualPayment.STATUS_PENDING:
+            messages.warning(
+                request,
+                f"This payment is already {payment.get_status_display().lower()}."
+            )
+            return redirect(
+                'admin_manual_payment_review',
+                payment_reference=payment.payment_reference,
+            )
+
+        if action == 'verify':
+            with transaction.atomic():
+                payment = ManualPayment.objects.select_for_update().select_related(
+                    'ticket'
+                ).get(pk=payment.pk)
+                ticket = Ticket.objects.select_for_update().get(pk=payment.ticket_id)
+
+                if payment.status != ManualPayment.STATUS_PENDING:
+                    messages.warning(request, "This payment has already been processed.")
+                elif not payment.transaction_code:
+                    messages.error(request, "Cannot verify a payment without an M-Pesa transaction code.")
+                elif payment.amount != ticket.total_amount:
+                    messages.error(
+                        request,
+                        "Payment amount does not match the ticket amount. Do not verify it until resolved."
+                    )
+                elif ticket.status == Ticket.STATUS_CANCELLED:
+                    messages.error(request, "This reservation is cancelled. Do not verify the payment.")
+                elif ticket.status == Ticket.STATUS_PAID:
+                    payment.status = ManualPayment.STATUS_VERIFIED
+                    payment.verified_at = timezone.now()
+                    payment.verified_by = request.user
+                    payment.save(update_fields=[
+                        'status', 'verified_at', 'verified_by', 'updated_at'
+                    ])
+                    messages.warning(
+                        request,
+                        "The ticket was already paid. The manual payment has been recorded as verified."
+                    )
+                else:
+                    # This is the only path that converts the reservation
+                    # into a paid/valid ticket.
+                    ticket.mark_as_paid(reference=payment.transaction_code)
+
+                    payment.status = ManualPayment.STATUS_VERIFIED
+                    payment.verified_at = timezone.now()
+                    payment.verified_by = request.user
+                    payment.rejection_reason = ''
+                    payment.save(update_fields=[
+                        'status',
+                        'verified_at',
+                        'verified_by',
+                        'rejection_reason',
+                        'updated_at',
+                    ])
+
+                    messages.success(
+                        request,
+                        f"Payment {payment.payment_reference} verified. "
+                        f"Ticket {ticket.ticket_code} is now confirmed."
+                    )
+
+            return redirect(
+                'admin_manual_payment_review',
+                payment_reference=payment.payment_reference,
+            )
+
+        if action == 'reject':
+            reason = request.POST.get('rejection_reason', '').strip()
+            if not reason:
+                messages.error(request, "Provide a reason before rejecting the payment.")
+            else:
+                payment.status = ManualPayment.STATUS_REJECTED
+                payment.rejection_reason = reason
+                payment.verified_at = timezone.now()
+                payment.verified_by = request.user
+                payment.save(update_fields=[
+                    'status',
+                    'rejection_reason',
+                    'verified_at',
+                    'verified_by',
+                    'updated_at',
+                ])
+                messages.success(
+                    request,
+                    f"Payment {payment.payment_reference} rejected."
+                )
+                return redirect('admin_manual_payments')
+
+    return render(
+        request,
+        'users/admin_manual_payment_review.html',
+        {
+            'payment': payment,
+            'segment': 'admin_manual_payments',
+        },
+    )
 
 
 # ==============================================

@@ -1,0 +1,23 @@
+{% extends 'dashboard_base.html' %}
+{% block dashboard_content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="h4 mb-0 fw-bold">Delete Intent</h2>
+    <a href="{% url 'chatbot:admin_list' %}" class="btn btn-outline-dark btn-sm">
+        <i class="fas fa-arrow-left me-1"></i> Back to Intents
+    </a>
+</div>
+
+<div class="table-saas p-4" style="max-width: 560px;">
+    <p>
+        Are you sure you want to delete <strong>&ldquo;{{ intent.name }}&rdquo;</strong>?
+        Chat logs that previously matched it will keep the message, but will
+        no longer show which intent answered it.
+    </p>
+    <form method="post" class="d-flex gap-2">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Delete Intent</button>
+        <a href="{% url 'chatbot:admin_list' %}" class="btn btn-outline-dark">Cancel</a>
+    </form>
+</div>
+{% endblock %}

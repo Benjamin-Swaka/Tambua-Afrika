@@ -1,0 +1,63 @@
+{% load static %}
+
+<button
+    type="button"
+    id="chatbotToggle"
+    class="floating-action-btn floating-chatbot-toggle"
+    aria-label="Open Tambua Afrika Assistant"
+    aria-expanded="false"
+    aria-controls="chatbotPanel"
+    data-endpoint="{% url 'chatbot:message' %}"
+>
+  <span id="chatbotToggleIcon" class="chatbot-toggle-icon">
+    <svg class="chatbot-icon-bot" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="12" cy="3" r="1.1" fill="currentColor"/>
+        <path d="M12 4.3V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <rect x="4" y="7" width="16" height="12.5" rx="5" stroke="currentColor" stroke-width="1.5"/>
+        <circle cx="9" cy="13" r="1.15" fill="currentColor"/>
+        <circle cx="15" cy="13" r="1.15" fill="currentColor"/>
+        <path d="M9 16.6c.9.7 1.9 1 3 1s2.1-.3 3-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M2.5 11.5v3M21.5 11.5v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <svg class="chatbot-icon-close" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+</span>
+</button>
+
+<div class="chatbot-panel" id="chatbotPanel" role="dialog" aria-modal="false" aria-labelledby="chatbotPanelTitle" hidden>
+    <div class="chatbot-panel-header">
+        <div class="chatbot-panel-heading">
+            <span class="chatbot-panel-status-dot" aria-hidden="true"></span>
+            <div>
+                <p class="chatbot-panel-title" id="chatbotPanelTitle">Tambua Afrika Assistant</p>
+                <p class="chatbot-panel-subtitle"> Instant replies</p>
+            </div>
+        </div>
+        <button type="button" class="chatbot-panel-close" id="chatbotClose" aria-label="Close chat">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+        </button>
+    </div>
+
+    <div class="chatbot-messages" id="chatbotMessages" aria-live="polite">
+        <div class="chatbot-message chatbot-message--bot">
+            <p>Karibu! I'm the Tambua Afrika Assistant. Ask me about submissions, publishing, our shop, or anything else — I'll do my best to help.</p>
+        </div>
+    </div>
+
+    <div class="chatbot-typing" id="chatbotTyping" hidden>
+        <span></span><span></span><span></span>
+    </div>
+
+    <form class="chatbot-input-row" id="chatbotForm" autocomplete="off">
+        <label for="chatbotInput" class="visually-hidden">Type your question</label>
+        <input type="text" id="chatbotInput" name="message" placeholder="Type your question…" maxlength="500" required>
+        <button type="submit" class="chatbot-send-btn" aria-label="Send message">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M2 8h11M8 2l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+    </form>
+</div>

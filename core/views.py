@@ -1,49 +1,52 @@
-from functools import wraps
-import json
-import os
-from types import SimpleNamespace
-import uuid
-
-import requests
-
+from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.cache import cache
-from django.core.exceptions import PermissionDenied
-from django.core.paginator import Paginator
+from .forms import NewsletterForm, CampaignForm, RewardFormSet, PledgeForm
+from .models import (
+    ContactMessage, Department, UserProfile, DepartmentMembership, ConsentLog, FeaturedWork, OpenCall,
+    ShopHighlight, Campaign, Reward, Pledge,
+)
 from django.db.models import Q
-from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from itertools import chain, groupby
+from operator import attrgetter
+from shop.models import Product
+from comics.models import Comic
+from journal.models import Article
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+import json
+import os
+import uuid
+import requests
+from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
+from django.shortcuts import redirect
+from django.contrib import messages
+from .forms import NewsletterForm
+from .models import NewsletterSubscriber
+from urllib.parse import quote
+import json
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.core.cache import cache
+from .forms import ContactForm
+from functools import wraps
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator
+from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
+from django.shortcuts import render, redirect
+from django.core.cache import cache
+from django.urls import reverse
+from .forms import ContactForm
+from types import SimpleNamespace
+from django.urls import reverse
+from stage.models import Show 
 
-from comics.models import Comic
-from journal.models import Article
-from shop.models import Product
-from stage.models import Show
-
-from .forms import (
-    CampaignForm,
-    ContactForm,
-    NewsletterForm,
-    PledgeForm,
-    RewardFormSet,
-)
-from .models import (
-    Campaign,
-    ConsentLog,
-    ContactMessage,
-    Department,
-    DepartmentMembership,
-    FeaturedWork,
-    OpenCall,
-    Pledge,
-    Reward,
-    ShopHighlight,
-    UserProfile,
-)
 
 def _shop_highlights(limit=8):
     """Latest products, reshaped for the home carousel — no separate
@@ -285,75 +288,121 @@ def select_department(request):
     })
 
 # ============================================================
-# CROWDFUNDING: PAYMENT GATEWAY ADAPTER
+# CROWDFUNDING: PAYMENT GATEWAY ADAPTER (Pesapal)
 # ============================================================
-# Everything gateway-specific lives in this section. To swap
-# Flutterwave for Stripe, rewrite initiate_payment() and the
-# webhook handling in campaign_pledge_confirm() -- nothing else
-# needs to change.
+# Everything gateway-specific lives in this section. Pesapal
+# settings (PESAPAL_CONSUMER_KEY, PESAPAL_CONSUMER_SECRET,
+# PESAPAL_IPN_ID, PESAPAL_BASE_URL, SITE_BASE_URL) are read from
+# config/settings.py, which already loads them from .env.
 #
-# Required environment variables (see .env.example):
-#   FLUTTERWAVE_SECRET_KEY
-#   FLUTTERWAVE_PUBLIC_KEY  (only needed for their inline JS widget)
-#   SITE_BASE_URL           (e.g. https://tambuaafrika.com)
+# NOTE: PESAPAL_IPN_ID must already be a registered IPN URL ID
+# (via Pesapal's /URLSetup/RegisterIPN) before payments can be
+# submitted -- that's a separate one-time setup step, not done here.
 
-FLUTTERWAVE_INITIATE_URL = "https://api.flutterwave.com/v3/payments"
+PESAPAL_TOKEN_CACHE_KEY = "pesapal_auth_token"
+
+
+def _get_pesapal_token():
+    """
+    Fetch (and briefly cache) a Pesapal bearer token.
+    Tokens are short-lived (~5 min per Pesapal's docs), so we cache
+    for a bit less than that to avoid hammering /Auth/RequestToken
+    on every pledge while still refreshing well before expiry.
+    """
+    cached = cache.get(PESAPAL_TOKEN_CACHE_KEY)
+    if cached:
+        return cached
+
+    response = requests.post(
+        f"{settings.PESAPAL_BASE_URL}/Auth/RequestToken",
+        json={
+            "consumer_key": settings.PESAPAL_CONSUMER_KEY,
+            "consumer_secret": settings.PESAPAL_CONSUMER_SECRET,
+        },
+        headers={"Content-Type": "application/json", "Accept": "application/json"},
+        timeout=15,
+    )
+    data = response.json()
+
+    token = data.get("token")
+    if not token:
+        raise RuntimeError(f"Pesapal auth failed: {data.get('error') or data}")
+
+    cache.set(PESAPAL_TOKEN_CACHE_KEY, token, timeout=240)  # refresh before 5 min expiry
+    return token
 
 
 def initiate_payment(pledge, request):
-    secret_key = os.environ.get("FLUTTERWAVE_SECRET_KEY")
-    base_url = os.environ.get("SITE_BASE_URL", request.build_absolute_uri("/")[:-1])
+    base_url = os.environ.get("SITE_BASE_URL", settings.SITE_BASE_URL)
 
     tx_ref = f"tambua-{pledge.pk}-{uuid.uuid4().hex[:8]}"
     pledge.transaction_id = tx_ref
     pledge.save(update_fields=["transaction_id"])
 
+    token = _get_pesapal_token()
+
+    full_name = getattr(pledge.user, "get_full_name", lambda: pledge.user.username)() or pledge.user.username
+    name_parts = full_name.split(" ", 1)
+    first_name = name_parts[0]
+    last_name = name_parts[1] if len(name_parts) > 1 else ""
+
     payload = {
-        "tx_ref": tx_ref,
-        "amount": str(pledge.amount),
+        "id": tx_ref,
         "currency": "KES",
-        "redirect_url": f"{base_url}{reverse('campaign_pledge_confirm')}",
-        "customer": {
-            "email": pledge.user.email,
-            "name": getattr(pledge.user, "get_full_name", lambda: pledge.user.username)() or pledge.user.username,
-        },
-        "customizations": {
-            "title": f"Tambua Afrika — {pledge.campaign.title}",
-            "description": f"Pledge for {pledge.campaign.title}",
-        },
-        "meta": {
-            "pledge_id": pledge.pk,
-            "campaign_id": pledge.campaign_id,
+        "amount": float(pledge.amount),
+        "description": f"Pledge for {pledge.campaign.title}"[:100],  # Pesapal caps description length
+        "callback_url": f"{base_url}{reverse('campaign_pledge_confirm')}",
+        "notification_id": settings.PESAPAL_IPN_ID,
+        "billing_address": {
+            "email_address": pledge.user.email,
+            "first_name": first_name,
+            "last_name": last_name,
         },
     }
 
     headers = {
-        "Authorization": f"Bearer {secret_key}",
+        "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
+        "Accept": "application/json",
     }
 
-    response = requests.post(FLUTTERWAVE_INITIATE_URL, json=payload, headers=headers, timeout=15)
+    response = requests.post(
+        f"{settings.PESAPAL_BASE_URL}/Transactions/SubmitOrderRequest",
+        json=payload,
+        headers=headers,
+        timeout=15,
+    )
     data = response.json()
 
-    if data.get("status") == "success":
-        return data["data"]["link"]
+    redirect_url = data.get("redirect_url")
+    if redirect_url:
+        return redirect_url
 
     pledge.status = Pledge.STATUS_FAILED
     pledge.save(update_fields=["status"])
     return None
 
 
-def verify_payment(transaction_id, flutterwave_transaction_id):
-    secret_key = os.environ.get("FLUTTERWAVE_SECRET_KEY")
-    verify_url = f"https://api.flutterwave.com/v3/transactions/{flutterwave_transaction_id}/verify"
-    headers = {"Authorization": f"Bearer {secret_key}"}
+def verify_payment(order_tracking_id):
+    """
+    Looks up a Pesapal transaction by its OrderTrackingId and returns
+    (is_successful, merchant_reference) so the caller can match it back
+    to the right Pledge without trusting the redirect params alone.
+    """
+    token = _get_pesapal_token()
+    headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
 
-    response = requests.get(verify_url, headers=headers, timeout=15)
+    response = requests.get(
+        f"{settings.PESAPAL_BASE_URL}/Transactions/GetTransactionStatus",
+        params={"orderTrackingId": order_tracking_id},
+        headers=headers,
+        timeout=15,
+    )
     data = response.json()
 
-    if data.get("status") == "success" and data["data"]["status"] == "successful":
-        return data["data"]["tx_ref"] == transaction_id
-    return False
+    is_successful = data.get("payment_status_description") == "Completed"
+    merchant_reference = data.get("merchant_reference")
+    return is_successful, merchant_reference
 
 
 # ============================================================
@@ -491,19 +540,20 @@ def campaign_pledge(request, slug):
 
 @csrf_exempt
 def campaign_pledge_confirm(request):
-    tx_ref = request.GET.get("tx_ref") or request.POST.get("tx_ref")
-    gateway_tx_id = request.GET.get("transaction_id") or request.POST.get("transaction_id")
-    status = request.GET.get("status", "")
+    order_tracking_id = request.GET.get("OrderTrackingId") or request.POST.get("OrderTrackingId")
+    merchant_reference = request.GET.get("OrderMerchantReference") or request.POST.get("OrderMerchantReference")
 
-    if not tx_ref or not gateway_tx_id:
+    if not order_tracking_id or not merchant_reference:
         return HttpResponseBadRequest("Missing transaction reference.")
 
     try:
-        pledge = Pledge.objects.select_related("campaign").get(transaction_id=tx_ref)
+        pledge = Pledge.objects.select_related("campaign").get(transaction_id=merchant_reference)
     except Pledge.DoesNotExist:
         return HttpResponseBadRequest("Unknown transaction.")
 
-    if status == "successful" and verify_payment(tx_ref, gateway_tx_id):
+    is_successful, verified_reference = verify_payment(order_tracking_id)
+
+    if is_successful and verified_reference == pledge.transaction_id:
         if pledge.status != Pledge.STATUS_COMPLETED:
             pledge.status = Pledge.STATUS_COMPLETED
             pledge.save(update_fields=["status"])

@@ -1,0 +1,77 @@
+{% extends 'dashboard_base.html' %}
+{% block dashboard_content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="h4 mb-0 fw-bold">Chat Logs</h2>
+        <p class="text-muted small mb-0">Every question visitors have asked the Assistant, and whether it could answer.</p>
+    </div>
+    <a href="{% url 'chatbot:admin_list' %}" class="btn btn-outline-dark btn-sm">
+        <i class="fas fa-arrow-left me-1"></i> Back to Intents
+    </a>
+</div>
+
+<div class="d-flex gap-2 mb-3">
+    <a href="{% url 'chatbot:admin_logs' %}" class="btn btn-sm {% if not show_unmatched_only %}btn-dark{% else %}btn-outline-dark{% endif %}">
+        All
+    </a>
+    <a href="{% url 'chatbot:admin_logs' %}?filter=unmatched" class="btn btn-sm {% if show_unmatched_only %}btn-dark{% else %}btn-outline-dark{% endif %}">
+        Unanswered only ({{ unmatched_count }})
+    </a>
+</div>
+
+<div class="table-responsive table-saas">
+    <table class="table mb-0 align-middle">
+        <thead>
+            <tr>
+                <th>When</th>
+                <th>Message</th>
+                <th>Matched Intent</th>
+                <th class="text-end">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in page_obj %}
+            <tr>
+                <td class="text-muted small text-nowrap">{{ log.created_at|date:"d M, H:i" }}</td>
+                <td>{{ log.message }}</td>
+                <td>
+                    {% if log.matched_intent %}
+                        <span class="badge bg-success">{{ log.matched_intent.name }}</span>
+                    {% else %}
+                        <span class="badge bg-secondary">No match</span>
+                    {% endif %}
+                </td>
+                <td class="text-end">
+                    {% if not log.matched_intent %}
+                    <a href="{% url 'chatbot:admin_create' %}?seed={{ log.message|urlencode }}" class="btn btn-outline-dark btn-sm">
+                        Create Intent
+                    </a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-muted text-center py-4">No chat activity yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if page_obj.has_other_pages %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if show_unmatched_only %}&filter=unmatched{% endif %}">Previous</a>
+        </li>
+        {% endif %}
+        <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if show_unmatched_only %}&filter=unmatched{% endif %}">Next</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Show, Ticket
+from .models import ManualPayment, Show, Ticket
 
 
 @admin.register(Show)
@@ -18,13 +18,52 @@ class TicketAdmin(admin.ModelAdmin):
                      'status', 'payment_reference', 'created_at', 'paid_at')
     list_filter = ('status', 'show')
     search_fields = ('ticket_code', 'user__email', 'user__username', 'payment_reference')
-    readonly_fields = ('ticket_code', 'total_amount', 'created_at', 'paid_at')
-    actions = ['mark_selected_as_paid']
+    readonly_fields = (
+        'ticket_code',
+        'total_amount',
+        'status',
+        'payment_reference',
+        'pesapal_tracking_id',
+        'qr_code',
+        'checked_in',
+        'checked_in_at',
+        'checked_in_by',
+        'created_at',
+        'paid_at',
+    )
 
-    @admin.action(description="Mark selected tickets as paid (manual confirmation)")
-    def mark_selected_as_paid(self, request, queryset):
-        updated = 0
-        for ticket in queryset.exclude(status=Ticket.STATUS_PAID):
-            ticket.mark_as_paid()
-            updated += 1
-        self.message_user(request, f"{updated} ticket(s) marked as paid.")
+
+@admin.register(ManualPayment)
+class ManualPaymentAdmin(admin.ModelAdmin):
+    list_display = (
+        'payment_reference',
+        'ticket',
+        'amount',
+        'paybill',
+        'account_number',
+        'transaction_code',
+        'status',
+        'submitted_at',
+        'verified_at',
+        'verified_by',
+    )
+    list_filter = ('status', 'paybill')
+    search_fields = (
+        'payment_reference',
+        'transaction_code',
+        'ticket__ticket_code',
+        'ticket__user__email',
+    )
+    readonly_fields = (
+        'payment_reference',
+        'ticket',
+        'amount',
+        'paybill',
+        'account_number',
+        'transaction_code',
+        'submitted_at',
+        'verified_at',
+        'verified_by',
+        'created_at',
+        'updated_at',
+    )

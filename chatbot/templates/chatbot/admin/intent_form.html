@@ -1,0 +1,61 @@
+{% extends 'dashboard_base.html' %}
+{% block dashboard_content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="h4 mb-0 fw-bold">{% if is_new %}New Intent{% else %}Edit Intent{% endif %}</h2>
+        <p class="text-muted small mb-0">Define what a visitor might type, and how the Assistant should reply.</p>
+    </div>
+    <a href="{% url 'chatbot:admin_list' %}" class="btn btn-outline-dark btn-sm">
+        <i class="fas fa-arrow-left me-1"></i> Back to Intents
+    </a>
+</div>
+
+<div class="table-saas p-4" style="max-width: 720px;">
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label for="{{ form.name.id_for_label }}" class="form-label fw-bold small text-uppercase">Name</label>
+            {{ form.name }}
+            {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors|join:", " }}</div>{% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.trigger_phrases.id_for_label }}" class="form-label fw-bold small text-uppercase">Trigger phrases</label>
+            {{ form.trigger_phrases }}
+            <div class="form-text">{{ form.fields.trigger_phrases.help_text }}</div>
+            {% if form.trigger_phrases.errors %}<div class="text-danger small mt-1">{{ form.trigger_phrases.errors|join:", " }}</div>{% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.response.id_for_label }}" class="form-label fw-bold small text-uppercase">Reply</label>
+            {{ form.response }}
+            {% if form.response.errors %}<div class="text-danger small mt-1">{{ form.response.errors|join:", " }}</div>{% endif %}
+        </div>
+
+        <div class="row g-3 align-items-center mb-4">
+            <div class="col-auto">
+                <label for="{{ form.priority.id_for_label }}" class="form-label fw-bold small text-uppercase mb-1">Priority</label>
+                {{ form.priority }}
+                <div class="form-text">{{ form.fields.priority.help_text }}</div>
+            </div>
+            <div class="col-auto">
+                <div class="form-check form-switch mt-4">
+                    {{ form.is_active }}
+                    <label class="form-check-label fw-bold small text-uppercase" for="{{ form.is_active.id_for_label }}">
+                        Active
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-custom">
+                {% if is_new %}Create Intent{% else %}Save Changes{% endif %}
+            </button>
+            <a href="{% url 'chatbot:admin_list' %}" class="btn btn-outline-dark">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

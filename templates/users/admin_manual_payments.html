@@ -1,0 +1,94 @@
+{% extends 'dashboard_base.html' %}
+{% block dashboard_content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h4 class="mb-1 fw-bold">Manual Payments</h4>
+        <p class="small text-muted mb-0">
+            Verify M-Pesa payments against the actual Paybill records before confirming tickets. Paybill: <strong>522533</strong> &middot; Account: <strong>8126862</strong>.
+        </p>
+    </div>
+    {% if pending_count %}
+    <span class="badge bg-warning text-dark fs-6 px-3 py-2">
+        {{ pending_count }} awaiting verification
+    </span>
+    {% endif %}
+</div>
+
+<div class="card border-0 shadow-sm p-3 mb-4">
+    <form method="get" class="row g-2">
+        <div class="col-md-5">
+            <input type="search" name="q" value="{{ search }}" class="form-control"
+                   placeholder="Search reference, transaction, ticket or customer">
+        </div>
+        <div class="col-md-4">
+            <select name="status" class="form-select">
+                {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button class="btn btn-dark flex-fill" type="submit">Filter</button>
+            <a href="{% url 'admin_manual_payments' %}" class="btn btn-outline-secondary">Reset</a>
+        </div>
+    </form>
+</div>
+
+<div class="table-responsive table-saas">
+    <table class="table mb-0 align-middle">
+        <thead>
+            <tr>
+                <th>Reference</th>
+                <th>Ticket / Show</th>
+                <th>Buyer</th>
+                <th>Amount</th>
+                <th>M-Pesa Code</th>
+                <th>Status</th>
+                <th>Submitted</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for payment in payments %}
+            <tr>
+                <td class="font-monospace small fw-bold">{{ payment.payment_reference }}</td>
+                <td>
+                    <div class="fw-bold">{{ payment.ticket.ticket_code }}</div>
+                    <div class="small text-muted">{{ payment.ticket.show.title }}</div>
+                </td>
+                <td>
+                    <div class="small fw-bold">{{ payment.ticket.user.get_full_name|default:payment.ticket.user.username }}</div>
+                    <div class="small text-muted">{{ payment.ticket.user.email }}</div>
+                </td>
+                <td>KES {{ payment.amount }}</td>
+                <td class="font-monospace small">{{ payment.transaction_code|default:"—" }}</td>
+                <td>
+                    {% if payment.status == 'pending' %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                    {% elif payment.status == 'verified' %}
+                        <span class="badge bg-success">Verified</span>
+                    {% else %}
+                        <span class="badge bg-danger">Rejected</span>
+                    {% endif %}
+                </td>
+                <td class="small text-muted">
+                    {{ payment.submitted_at|date:"d M Y H:i"|default:"Not submitted" }}
+                </td>
+                <td>
+                    <a href="{% url 'admin_manual_payment_review' payment.payment_reference %}"
+                       class="btn btn-sm {% if payment.status == 'pending' %}btn-dark{% else %}btn-outline-dark{% endif %}">
+                        {% if payment.status == 'pending' %}Review{% else %}View{% endif %}
+                    </a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="8" class="text-center text-muted py-5">No manual payments found.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
