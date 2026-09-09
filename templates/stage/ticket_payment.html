@@ -13,17 +13,28 @@
     <div class="row justify-content-center">
         <div class="col-lg-6">
 
+            <!-- ORDER SUMMARY -->
             <div class="card border-0 shadow-sm p-4 mb-4">
                 <h5 class="mb-3">Order Summary</h5>
+
                 <div class="d-flex justify-content-between mb-1">
                     <span>{{ ticket.show.title }}</span>
-                    <span>{{ ticket.quantity }} &times; KES {{ ticket.unit_price }}</span>
+                    <span>
+                        {{ ticket.quantity }} &times; KES {{ ticket.unit_price }}
+                    </span>
                 </div>
+
                 <div class="d-flex justify-content-between text-muted small mb-3">
                     <span>{{ ticket.show.venue }}</span>
-                    <span>{{ ticket.show.date|date:"D, d M Y" }} &middot; {{ ticket.show.time|time:"g:i A" }}</span>
+                    <span>
+                        {{ ticket.show.date|date:"D, d M Y" }}
+                        &middot;
+                        {{ ticket.show.time|time:"g:i A" }}
+                    </span>
                 </div>
+
                 <hr>
+
                 <div class="d-flex justify-content-between fw-bold">
                     <span>Total Due</span>
                     <span>KES {{ ticket.total_amount }}</span>
@@ -31,32 +42,197 @@
             </div>
 
 
+            <!-- MANUAL PAYMENT -->
             <div class="card border-0 shadow-sm p-4">
-                <h5 class="mb-3">Pay via M-Pesa / Bank Transfer (Manual)</h5>
-                <p class="text-muted">
-                    Send <strong>KES {{ ticket.total_amount }}</strong> to Till/Paybill
-                    <strong>522533</strong> (Tambua Afrika Studios), using reference
-                    <strong>{{ ticket.ticket_code }}</strong>. Once paid, enter the
-                    M-Pesa/transaction code you received below to confirm your ticket.
-                </p>
-             
 
+            {% if manual_payment.status == 'pending' and manual_payment.transaction_code %}
+
+                <div class="text-center py-3">
+                    <i class="fas fa-clock fa-3x text-warning mb-3"></i>
+                    <h5 class="mb-2">Payment Under Review</h5>
+                    <p class="text-muted mb-4">
+                        We've received your M-Pesa transaction code and it's
+                        awaiting verification by Tambua Afrika Studios. Your
+                        ticket will be confirmed as soon as it's checked.
+                    </p>
+
+                    <div class="alert alert-secondary rounded-0 small text-start mb-4">
+                        <strong>Reservation:</strong> {{ ticket.ticket_code }}<br>
+                        <strong>Transaction Code Submitted:</strong> {{ manual_payment.transaction_code }}<br>
+                        <strong>Submitted:</strong> {{ manual_payment.submitted_at|date:"D, d M Y H:i" }}
+                    </div>
+
+                    <a href="{% url 'my_tickets' %}" class="btn btn-custom w-100">Back to My Tickets</a>
+                </div>
+
+            {% else %}
+
+                <h5 class="mb-3">
+                    Pay via M-Pesa / Bank Transfer
+                </h5>
+
+                <p class="text-muted mb-4">
+                    Complete the payment using the details below. After making
+                    the payment, enter the M-Pesa transaction code you received
+                    to submit your payment for verification.
+                </p>
+
+
+                <!-- M-PESA PAYMENT DETAILS -->
+                <div class="bg-light border rounded-0 p-3 mb-4">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted small text-uppercase fw-bold">
+                            Paybill
+                        </span>
+
+                        <strong class="fs-5">
+                            522533
+                        </strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted small text-uppercase fw-bold">
+                            Account Number
+                        </span>
+
+                        <strong class="fs-5">
+                            8126862
+                        </strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small text-uppercase fw-bold">
+                            Amount
+                        </span>
+
+                        <strong class="fs-5">
+                            KES {{ ticket.total_amount }}
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <!-- PAYMENT INSTRUCTIONS -->
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-2">
+                        How to Pay
+                    </h6>
+
+                    <ol class="text-muted small ps-3 mb-0">
+                        <li class="mb-2">
+                            Open M-Pesa and select <strong>Lipa na M-Pesa</strong>.
+                        </li>
+
+                        <li class="mb-2">
+                            Select <strong>Pay Bill</strong>.
+                        </li>
+
+                        <li class="mb-2">
+                            Enter Business Number:
+                            <strong>522533</strong>.
+                        </li>
+
+                        <li class="mb-2">
+                            Enter Account Number:
+                            <strong>8126862</strong>.
+                        </li>
+
+                        <li class="mb-2">
+                            Enter the exact amount:
+                            <strong>KES {{ ticket.total_amount }}</strong>.
+                        </li>
+
+                        <li>
+                            Complete the payment and keep the
+                            <strong>M-Pesa transaction code</strong>.
+                        </li>
+                    </ol>
+                </div>
+
+
+                <!-- INTERNAL REFERENCE -->
+                <div class="alert alert-secondary rounded-0 small mb-4">
+                    <strong>Your Reservation:</strong>
+                    {{ ticket.ticket_code }}
+
+                    <br>
+
+                    <span class="text-muted">
+                        Keep this reservation number for your records.
+                        The M-Pesa transaction code you receive after payment
+                        is what you should enter below.
+                    </span>
+                </div>
+
+
+                <!-- TRANSACTION CODE -->
                 <form method="POST">
                     {% csrf_token %}
+                    <input type="hidden" name="payment_method" value="manual">
+
                     <div class="mb-3">
-                        <label for="payment_reference" class="form-label small text-muted text-uppercase fw-bold">
-                            Payment Reference / Transaction Code
+                        <label
+                            for="transaction_code"
+                            class="form-label small text-muted text-uppercase fw-bold"
+                        >
+                            M-Pesa Transaction Code
                         </label>
-                        <input type="text" id="payment_reference" name="payment_reference"
-                               class="form-control rounded-0" placeholder="e.g. QK7X8Y9Z12" required>
+
+                        <input
+                            type="text"
+                            id="transaction_code"
+                            name="transaction_code"
+                            class="form-control rounded-0"
+                            placeholder="e.g. QK7X8Y9Z12"
+                            maxlength="30"
+                            autocomplete="off"
+                            required
+                        >
+
+                        <div class="form-text">
+                            Enter the transaction code exactly as shown in your
+                            M-Pesa confirmation message.
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-custom w-100">I've Paid — Confirm Ticket</button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-custom w-100"
+                    >
+                        I've Paid — Submit for Verification
+                    </button>
                 </form>
 
-                <form method="POST" action="{% url 'cancel_ticket' ticket.ticket_code %}" class="mt-2">
+
+                <!-- VERIFICATION NOTICE -->
+                <div class="mt-3 text-center">
+                    <small class="text-muted">
+                        Your ticket will remain pending until the payment is
+                        verified by Tambua Afrika Studios.
+                    </small>
+                </div>
+
+            {% endif %}
+
+
+                <!-- CANCEL -->
+                <form
+                    method="POST"
+                    action="{% url 'cancel_ticket' ticket.ticket_code %}"
+                    class="mt-3"
+                >
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-outline-dark w-100 btn-sm">Cancel Reservation</button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-outline-dark w-100 btn-sm"
+                    >
+                        Cancel Reservation
+                    </button>
                 </form>
+
             </div>
 
         </div>

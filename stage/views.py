@@ -151,14 +151,14 @@ def ticket_payment(request, ticket_code):
                             'rejection_reason',
                             'updated_at',
                         ])
+                        
 
                         messages.success(
                             request,
                             "Payment submitted successfully. Your ticket will be confirmed after manual verification."
                         )
                         return redirect(
-                            'ticket_payment',
-                            ticket_code=ticket.ticket_code,
+                          'my_tickets'
                         )
             except Exception:
                 messages.error(
@@ -184,9 +184,10 @@ def ticket_detail(request, ticket_code):
     return render(request, 'stage/ticket_detail.html', {'ticket': ticket})
 
 
+
 @login_required
 def my_tickets(request):
-    tickets = Ticket.objects.filter(user=request.user).select_related('show')
+    tickets = Ticket.objects.filter(user=request.user).select_related('show', 'manual_payment')
     return render(request, 'stage/my_tickets.html', {'tickets': tickets})
 
 
