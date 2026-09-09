@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+from django.core.checks import DEBUG
+import dj_database_url
 from dotenv import load_dotenv
 
 
@@ -17,15 +19,12 @@ load_dotenv(BASE_DIR / ".env")
 # SECURITY
 # ==============================================
 
-SECRET_KEY = os.getenv(
-    "SECRET_KEY",
-    "django-insecure-development-only-key"
-)
+SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-development-only-key")
 
-DEBUG = os.getenv(
-    "DEBUG",
-    "True"
-).lower() == "true"
+if not DEBUG and SECRET_KEY == "django-insecure-development-only-key":
+    raise RuntimeError("SECRET_KEY env var is not set — refusing to run in production with the insecure default.")
+
+
 
 ALLOWED_HOSTS = [
     host.strip()
@@ -36,6 +35,24 @@ ALLOWED_HOSTS = [
     if host.strip()
 ]
 
+# ==============================================
+# PRODUCTION SECURITY HARDENING
+# ==============================================
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 60 * 60 * 24 * 30   # 30 days; raise once confident
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = "DENY"
+    SESSION_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_HTTPONLY = False  
 
 # ==============================================
 # APPLICATIONS
@@ -82,24 +99,17 @@ INSTALLED_APPS = [
 # MIDDLEWARE
 # ==============================================
 
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-
+    "whitenoise.middleware.WhiteNoiseMiddleware",   # <-- add this line
     "django.contrib.sessions.middleware.SessionMiddleware",
-
     'django.middleware.locale.LocaleMiddleware',
-
     "django.middleware.common.CommonMiddleware",
-
     "django.middleware.csrf.CsrfViewMiddleware",
-
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-
-    
     "allauth.account.middleware.AccountMiddleware",
-
     "django.contrib.messages.middleware.MessageMiddleware",
-
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
@@ -135,7 +145,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
 
                 "django.contrib.messages.context_processors.messages",
-                
+
                 "chatbot.context_processors.chatbot_stats",
             ],
         },
@@ -150,15 +160,14 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 
-# ==============================================
-# DATABASE
-# ==============================================
+
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": dj_database_url.config(
+        default=os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
 
 
@@ -214,14 +223,23 @@ LOCALE_PATHS = [
     BASE_DIR / 'locale',
 ]
 
-
-# STATIC FILES
+# STATIC FILES — replace your existing STATIC_URL block with this
 STATIC_URL = "/static/"
 
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
+STATIC_ROOT = BASE_DIR / "staticfiles"   
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # MEDIA FILES
 MEDIA_URL = "/media/"
@@ -280,51 +298,26 @@ ACCOUNT_SIGNUP_FIELDS = [
 # EMAIL VERIFICATION
 # ==============================================
 
-# We are using mandatory verification because
-# users must verify their email before continuing.
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 
-# Verify by 6-digit OTP code instead of a clickable link.
-# This avoids link-based verification issues entirely (broken email
-# clients stripping links, links opening on the wrong device, spam
-# filters flagging links, etc.) and matches the flow requested by
-# the product team.
 ACCOUNT_EMAIL_VERIFICATION_BY_CODE_ENABLED = True
 
-# allauth's default OTP is an 8-character dashed alphanumeric code (e.g.
-# "VKVD-BNBD") -- fine on its own, but our code-entry screen was built
-# for a plain 6-digit numeric code (numeric keypad, 6-box input), so the
-# two didn't match and codes couldn't be typed in. Force a plain numeric
-# code here so the email content and the entry screen agree.
 ACCOUNT_EMAIL_VERIFICATION_BY_CODE_FORMAT = {
     "numeric": True,
     "length": 6,
     "dashed": False,
 }
 
-# How long (seconds) an emailed signup code stays valid, and how many
-# attempts a user gets before the code is invalidated.
+
 ACCOUNT_EMAIL_VERIFICATION_BY_CODE_TIMEOUT = 900  # 15 minutes
 ACCOUNT_EMAIL_VERIFICATION_BY_CODE_MAX_ATTEMPTS = 5
 
-# Let a user request a fresh code if the first one expires or never
-# arrives, instead of getting stuck (a fresh code is automatically sent
-# the next time they attempt to log in with an unverified address).
+
 ACCOUNT_EMAIL_VERIFICATION_SUPPORTS_RESEND = True
 
 ACCOUNT_UNIQUE_EMAIL = True
 
-# IMPORTANT: with mandatory verification, allauth deliberately shows the
-# *same* "check your email" screen whether or not the address is already
-# registered (this stops attackers from using signup to discover which
-# emails exist on the site). If the address already belongs to a
-# verified account, allauth still emails that address -- but the email
-# says "you already have an account, log in / reset your password"
-# instead of containing a new OTP code. So: if a genuinely first-time
-# user says they got an "account already exists" email, the real fix is
-# to check for (and clean up) a stale/duplicate User + EmailAddress row
-# already sitting in the database for that email -- see the
-# `find_stale_signups` management command added below.
+
 ACCOUNT_PREVENT_ENUMERATION = True
 
 
@@ -409,13 +402,6 @@ DEFAULT_FROM_EMAIL = os.getenv(
     EMAIL_HOST_USER
 )
 
-# If SMTP credentials aren't configured (e.g. no .env file, or it's
-# missing EMAIL_HOST_USER/EMAIL_HOST_PASSWORD), silently trying to send
-# real mail would just fail every time verification codes are needed --
-# often with no obvious error to the person testing signup. Fall back to
-# printing emails straight to the console so local development still
-# works, and log a loud warning so it's obvious *why* nothing is landing
-# in an inbox.
 if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 else:
@@ -483,3 +469,22 @@ CSRF_TRUSTED_ORIGINS = [
     for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
     if origin.strip()
 ]
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {"class": "logging.StreamHandler"},
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+    "loggers": {
+        "django.request": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+    },
+}
