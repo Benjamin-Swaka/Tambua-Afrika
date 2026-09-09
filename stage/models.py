@@ -263,8 +263,7 @@ class Ticket(models.Model):
             to=[self.user.email],
         )
         email.attach_alternative(html_body, 'text/html')
-        email.mixed_subtype = 'related'  # lets the inline <img cid:...> render in the HTML body
-
+       
         if self.qr_code:
             self.qr_code.open('rb')
             qr_bytes = self.qr_code.read()
