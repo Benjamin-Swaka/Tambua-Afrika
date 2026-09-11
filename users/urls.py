@@ -22,6 +22,7 @@ urlpatterns = [
     path('admin-panel/users/', views.admin_users, name='admin_users'),
     path('admin-panel/users/<int:pk>/toggle-staff/', views.admin_user_toggle_staff, name='admin_user_toggle_staff'),
     path('admin-panel/users/<int:pk>/toggle-active/', views.admin_user_toggle_active, name='admin_user_toggle_active'),
+    path('admin-panel/users/<int:pk>/departments/', views.admin_user_departments_update, name='admin_user_departments_update'),
 
     # Shows
     path('admin-panel/shows/', views.admin_shows, name='admin_shows'),

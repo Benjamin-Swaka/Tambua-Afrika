@@ -1,11 +1,25 @@
 {% extends 'dashboard_base.html' %}
 {% block dashboard_content %}
 
+{% if is_full_admin %}
 <div class="alert alert-dark border-0 shadow-sm d-flex justify-content-between align-items-center mb-4">
     <span><i class="fas fa-shield-alt me-2"></i> Site-wide overview &mdash; visible only to authorized admins.</span>
 </div>
+{% else %}
+<div class="alert alert-info border-0 shadow-sm d-flex justify-content-between align-items-center mb-4">
+    <span>
+        <i class="fas fa-shield-alt me-2"></i>
+        Department admin overview for:
+        {% for slug in admin_department_slugs %}
+            <span class="badge bg-dark text-uppercase ms-1">{{ slug }}</span>
+        {% endfor %}
+        &mdash; you can only view and manage these department(s).
+    </span>
+</div>
+{% endif %}
 
 <div class="row g-4 mb-5">
+    {% if submissions is not None %}
     <div class="col-6 col-lg-3">
         <a href="{% url 'admin_submissions' %}" class="text-decoration-none">
             <div class="stat-card blue">
@@ -14,6 +28,8 @@
             </div>
         </a>
     </div>
+    {% endif %}
+    {% if is_full_admin %}
     <div class="col-6 col-lg-3">
         <a href="{% url 'admin_users' %}" class="text-decoration-none">
             <div class="stat-card">
@@ -30,6 +46,8 @@
             </div>
         </a>
     </div>
+    {% endif %}
+    {% if tickets_sold is not None %}
     <div class="col-6 col-lg-3">
         <a href="{% url 'admin_tickets' %}" class="text-decoration-none">
             <div class="stat-card brown">
@@ -54,9 +72,21 @@
             </div>
         </a>
     </div>
+    {% endif %}
+    {% if total_products is not None %}
+    <div class="col-6 col-lg-3">
+        <a href="{% url 'admin_products' %}" class="text-decoration-none">
+            <div class="stat-card">
+                <div class="stat-number">{{ total_products }}</div>
+                <div class="stat-label">Shop Products</div>
+            </div>
+        </a>
+    </div>
+    {% endif %}
 </div>
 
 <div class="row g-4">
+    {% if submissions is not None %}
     <!-- Recent submissions -->
     <div class="col-lg-7">
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -95,7 +125,9 @@
             </table>
         </div>
     </div>
+    {% endif %}
 
+    {% if recent_tickets is not None %}
     <!-- Recent paid tickets -->
     <div class="col-lg-5">
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -130,11 +162,21 @@
                 <div class="fw-bold h5 mb-0">{{ upcoming_shows }}</div>
                 <div class="small text-muted text-uppercase">Upcoming Shows</div>
             </div>
+            {% if total_products is not None %}
             <div class="p-3 border rounded flex-fill text-center">
                 <div class="fw-bold h5 mb-0">{{ total_products }}</div>
                 <div class="small text-muted text-uppercase">Shop Products</div>
             </div>
+            {% endif %}
         </div>
     </div>
+    {% endif %}
 </div>
+
+{% if not submissions and not recent_tickets and total_products is None %}
+<div class="text-center text-muted py-5">
+    <i class="fas fa-info-circle fa-2x mb-3"></i>
+    <p>You don't have any department assignments with dashboard content yet. Contact a site admin.</p>
+</div>
+{% endif %}
 {% endblock %}

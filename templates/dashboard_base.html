@@ -23,19 +23,27 @@
 
             <nav class="sidebar-menu">
                 {% if user.is_staff %}
-                    <small class="px-4 text-muted text-uppercase mb-2 d-block" style="font-size: 0.7rem;">Administration</small>
+                    <small class="px-4 text-muted text-uppercase mb-2 d-block" style="font-size: 0.7rem;">
+                        Administration
+                        {% if is_department_admin %}<span class="text-white-50">&middot; Department Admin</span>{% endif %}
+                    </small>
                     <a href="{% url 'staff_dashboard' %}" class="sidebar-link {% if segment == 'admin_overview' %}active{% endif %}">
                         <i class="fas fa-chart-line"></i> Overview
                     </a>
+                    {% if is_full_admin or 'ink' in admin_department_slugs or 'stage' in admin_department_slugs or 'comics' in admin_department_slugs %}
                     <a href="{% url 'admin_submissions' %}" class="sidebar-link {% if segment == 'admin_submissions' %}active{% endif %}">
                         <i class="fas fa-file-alt"></i> Submissions
                     </a>
+                    {% endif %}
+                    {% if is_full_admin %}
                     <a href="{% url 'admin_messages' %}" class="sidebar-link {% if segment == 'admin_messages' %}active{% endif %}">
                         <i class="fas fa-envelope"></i> Messages
                         {% if unread_messages_count %}
                         <span class="badge bg-dark rounded-pill ms-1">{{ unread_messages_count }}</span>
                         {% endif %}
                     </a>
+                    {% endif %}
+                    {% if is_full_admin or 'stage' in admin_department_slugs %}
                     <a href="{% url 'admin_tickets' %}" class="sidebar-link {% if segment == 'admin_tickets' %}active{% endif %}">
                         <i class="fas fa-ticket-alt"></i> Tickets &amp; Shows
                     </a>
@@ -48,12 +56,18 @@
                     <a href="{% url 'admin_shows' %}" class="sidebar-link {% if segment == 'admin_shows' %}active{% endif %}">
                         <i class="fas fa-theater-masks"></i> Manage Shows
                     </a>
+                    {% endif %}
+                    {% if is_full_admin %}
                     <a href="{% url 'admin_homepage_content' %}" class="sidebar-link {% if segment == 'admin_homepage' %}active{% endif %}">
                         <i class="fas fa-home"></i> Homepage Content
                     </a>
+                    {% endif %}
+                    {% if is_full_admin or 'shop' in admin_department_slugs %}
                     <a href="{% url 'admin_products' %}" class="sidebar-link {% if segment == 'admin_products' %}active{% endif %}">
                         <i class="fas fa-shopping-bag"></i> Shop
                     </a>
+                    {% endif %}
+                    {% if is_full_admin %}
                     <a href="{% url 'chatbot:admin_list' %}" class="sidebar-link {% if segment == 'admin_chatbot' %}active{% endif %}">
                         <i class="fas fa-robot"></i> Chatbot
                         {% if unmatched_chatbot_count %}
@@ -66,6 +80,7 @@
                     <a href="{% url 'admin_list' %}" class="sidebar-link {% if segment == 'admin_faqs' %}active{% endif %}">
                             <i class="fas fa-question-circle"></i> FAQs
                     </a>
+                    {% endif %}
                     {% if user.is_superuser %}
                     <a href="/admin/" class="sidebar-link" target="_blank">
                         <i class="fas fa-database"></i> Django Admin

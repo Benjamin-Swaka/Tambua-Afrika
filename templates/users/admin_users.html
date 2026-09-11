@@ -16,8 +16,9 @@
                 <th>User</th>
                 <th>Joined</th>
                 <th>Access</th>
+                <th>Departments</th>
                 <th>Status</th>
-                {% if user.is_superuser %}<th style="width: 260px;">Actions</th>{% endif %}
+                {% if user.is_superuser %}<th style="width: 320px;">Actions</th>{% endif %}
             </tr>
         </thead>
         <tbody>
@@ -30,8 +31,24 @@
                 <td class="small text-muted">{{ u.date_joined|date:"M d, Y" }}</td>
                 <td>
                     {% if u.is_superuser %}<span class="badge bg-dark">Superuser</span>
-                    {% elif u.is_staff %}<span class="badge bg-primary">Admin</span>
+                    {% elif u.is_staff %}
+                        {% if u.admin_department_ids %}<span class="badge bg-info text-dark">Department Admin</span>
+                        {% else %}<span class="badge bg-primary">Admin</span>{% endif %}
                     {% else %}<span class="badge bg-secondary">Member</span>{% endif %}
+                </td>
+                <td>
+                    {% if u.is_superuser %}
+                        <span class="small text-muted">All (main admin)</span>
+                    {% else %}
+                        <div class="d-flex flex-wrap gap-1">
+                            {% for dept in departments %}
+                                {% if dept.id in u.admin_department_ids %}
+                                <span class="badge rounded-pill" style="background-color: {{ dept.color }};">{{ dept.name }}</span>
+                                {% endif %}
+                            {% endfor %}
+                            {% if not u.admin_department_ids %}<span class="text-muted small">&mdash;</span>{% endif %}
+                        </div>
+                    {% endif %}
                 </td>
                 <td>
                     {% if u.is_active %}<span class="badge bg-success bg-opacity-10 text-success">Active</span>
@@ -47,12 +64,54 @@
                                 {% if u.is_staff %}Revoke Admin{% else %}Make Admin{% endif %}
                             </button>
                         </form>
+                        <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#deptModal{{ u.pk }}">
+                            Departments
+                        </button>
                         <form method="POST" action="{% url 'admin_user_toggle_active' u.pk %}">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-sm btn-outline-{% if u.is_active %}danger{% else %}success{% endif %}">
                                 {% if u.is_active %}Deactivate{% else %}Reactivate{% endif %}
                             </button>
                         </form>
+
+                        <!-- Assign department-admin modal -->
+                        <div class="modal fade" id="deptModal{{ u.pk }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <form method="POST" action="{% url 'admin_user_departments_update' u.pk %}" class="modal-content">
+                                    {% csrf_token %}
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Department Admin Access</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p class="small text-muted">
+                                            Check the department(s) <strong>{{ u.email }}</strong> should manage.
+                                            They'll get their own admin dashboard scoped to just those
+                                            departments, and won't be able to view or change any other
+                                            department's content. Leave everything unchecked to remove
+                                            department-admin access entirely.
+                                        </p>
+                                        {% for dept in departments %}
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" name="departments"
+                                                   value="{{ dept.id }}" id="dept{{ dept.id }}_{{ u.pk }}"
+                                                   {% if dept.id in u.admin_department_ids %}checked{% endif %}>
+                                            <label class="form-check-label" for="dept{{ dept.id }}_{{ u.pk }}">
+                                                <span class="badge rounded-pill me-1" style="background-color: {{ dept.color }};">&nbsp;</span>
+                                                {{ dept.name }}
+                                            </label>
+                                        </div>
+                                        {% empty %}
+                                        <p class="text-muted small mb-0">No departments have been set up yet.</p>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-dark btn-sm">Save Departments</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                         {% else %}
                         <span class="text-muted small">&mdash;</span>
                         {% endif %}
@@ -61,7 +120,7 @@
                 {% endif %}
             </tr>
             {% empty %}
-            <tr><td colspan="5" class="text-center text-muted py-5">No users found.</td></tr>
+            <tr><td colspan="6" class="text-center text-muted py-5">No users found.</td></tr>
             {% endfor %}
         </tbody>
     </table>

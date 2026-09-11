@@ -1,7 +1,20 @@
+"""
+Django settings for config project — PRODUCTION.
+
+Deploy with:
+    DJANGO_SETTINGS_MODULE=config.settings_prod
+
+Required environment variables (see .env.example):
+    SECRET_KEY, DEBUG=False, ALLOWED_HOSTS, DATABASE_URL,
+    EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, DEFAULT_FROM_EMAIL,
+    GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
+    SITE_BASE_URL, PESAPAL_*, CSRF_TRUSTED_ORIGINS
+"""
+
 import os
+import warnings
 from pathlib import Path
 
-from django.core.checks import DEBUG
 import dj_database_url
 from dotenv import load_dotenv
 
@@ -19,21 +32,33 @@ load_dotenv(BASE_DIR / ".env")
 # SECURITY
 # ==============================================
 
-SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-development-only-key")
+# DEBUG must come from the environment, never from a code default.
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+
+if not DEBUG and not SECRET_KEY:
+    raise RuntimeError(
+        "SECRET_KEY environment variable is not set. "
+        "Refusing to start in production with no secret key."
+    )
 
 if not DEBUG and SECRET_KEY == "django-insecure-development-only-key":
-    raise RuntimeError("SECRET_KEY env var is not set — refusing to run in production with the insecure default.")
-
+    raise RuntimeError(
+        "SECRET_KEY is still the insecure development default. "
+        "Set a real SECRET_KEY in the environment before deploying."
+    )
 
 
 ALLOWED_HOSTS = [
     host.strip()
     for host in os.getenv(
         "ALLOWED_HOSTS",
-        "127.0.0.1,localhost"
+        "127.0.0.1,localhost",
     ).split(",")
     if host.strip()
 ]
+
 
 # ==============================================
 # PRODUCTION SECURITY HARDENING
@@ -52,7 +77,8 @@ if not DEBUG:
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = "DENY"
     SESSION_COOKIE_HTTPONLY = True
-    CSRF_COOKIE_HTTPONLY = False  
+    CSRF_COOKIE_HTTPONLY = False
+
 
 # ==============================================
 # APPLICATIONS
@@ -81,7 +107,6 @@ INSTALLED_APPS = [
     # ==========================================
     # CUSTOM APPLICATIONS
     # ==========================================
-
     "core",
     "ink",
     "stage",
@@ -99,12 +124,11 @@ INSTALLED_APPS = [
 # MIDDLEWARE
 # ==============================================
 
-
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",   # <-- add this line
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    'django.middleware.locale.LocaleMiddleware',
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -128,25 +152,17 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-
-        "DIRS": [
-            BASE_DIR / "templates",
-        ],
-
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
-
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.debug",
-
                 # Required by allauth
                 "django.template.context_processors.request",
-
                 "django.contrib.auth.context_processors.auth",
-
                 "django.contrib.messages.context_processors.messages",
-
                 "chatbot.context_processors.chatbot_stats",
+                "core.context_processors.admin_scope",
             ],
         },
     },
@@ -160,7 +176,9 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 
-
+# ==============================================
+# DATABASE
+# ==============================================
 
 DATABASES = {
     "default": dj_database_url.config(
@@ -176,61 +194,41 @@ DATABASES = {
 # ==============================================
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": (
-            "django.contrib.auth.password_validation."
-            "UserAttributeSimilarityValidator"
-        )
-    },
-    {
-        "NAME": (
-            "django.contrib.auth.password_validation."
-            "MinimumLengthValidator"
-        )
-    },
-    {
-        "NAME": (
-            "django.contrib.auth.password_validation."
-            "CommonPasswordValidator"
-        )
-    },
-    {
-        "NAME": (
-            "django.contrib.auth.password_validation."
-            "NumericPasswordValidator"
-        )
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 
+# ==============================================
 # INTERNATIONALIZATION
+# ==============================================
 
-LANGUAGE_CODE = "en"         
+LANGUAGE_CODE = "en"
 
 USE_I18N = True
-USE_L10N = True             
+USE_L10N = True
 USE_TZ = True
 
-# Supported languages
 LANGUAGES = [
-    ('en', 'English'),
-    ('sw', 'Swahili'),
-    ('fr', 'French'),
+    ("en", "English"),
+    ("sw", "Swahili"),
+    ("fr", "French"),
 ]
 
-# Where Django will look for translation files
-LOCALE_PATHS = [
-    BASE_DIR / 'locale',
-]
+LOCALE_PATHS = [BASE_DIR / "locale"]
 
-# STATIC FILES — replace your existing STATIC_URL block with this
+
+# ==============================================
+# STATIC FILES
+# ==============================================
+
 STATIC_URL = "/static/"
 
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
-STATIC_ROOT = BASE_DIR / "staticfiles"   
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STORAGES = {
     "default": {
@@ -241,13 +239,19 @@ STORAGES = {
     },
 }
 
-# MEDIA FILES
-MEDIA_URL = "/media/"
 
+# ==============================================
+# MEDIA FILES
+# ==============================================
+
+MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 
+# ==============================================
 # DEFAULT PRIMARY KEY
+# ==============================================
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
@@ -263,10 +267,7 @@ SITE_ID = 1
 # ==============================================
 
 AUTHENTICATION_BACKENDS = [
-    # Normal username/password authentication
     "django.contrib.auth.backends.ModelBackend",
-
-    # django-allauth authentication
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
@@ -275,10 +276,7 @@ AUTHENTICATION_BACKENDS = [
 # DJANGO-ALLAUTH
 # ==============================================
 
-# Users log in using their email address
-ACCOUNT_LOGIN_METHODS = {
-    "email",
-}
+ACCOUNT_LOGIN_METHODS = {"email"}
 
 
 # ==============================================
@@ -308,15 +306,12 @@ ACCOUNT_EMAIL_VERIFICATION_BY_CODE_FORMAT = {
     "dashed": False,
 }
 
-
-ACCOUNT_EMAIL_VERIFICATION_BY_CODE_TIMEOUT = 900  # 15 minutes
+ACCOUNT_EMAIL_VERIFICATION_BY_CODE_TIMEOUT = 900       # 15 minutes
 ACCOUNT_EMAIL_VERIFICATION_BY_CODE_MAX_ATTEMPTS = 5
-
 
 ACCOUNT_EMAIL_VERIFICATION_SUPPORTS_RESEND = True
 
 ACCOUNT_UNIQUE_EMAIL = True
-
 
 ACCOUNT_PREVENT_ENUMERATION = True
 
@@ -332,31 +327,23 @@ ACCOUNT_SESSION_REMEMBER = True
 # REDIRECTS
 # ==============================================
 
-LOGIN_REDIRECT_URL = "dashboard_routing"
-ACCOUNT_LOGIN_ON_CODE_CONFIRM = True   # default is True, but be explicit
-
 LOGIN_URL = "account_login"
-
 LOGIN_REDIRECT_URL = "dashboard_routing"
-
 LOGOUT_REDIRECT_URL = "home"
 
 ACCOUNT_LOGIN_BY_CODE_ENABLED = False
 ACCOUNT_LOGIN_ON_CODE_CONFIRM = True
 
-# Email subject prefix
 ACCOUNT_EMAIL_SUBJECT_PREFIX = "Tambua Afrika - "
 
+
 # ==============================================
-# PASSWORD RESET ("Forgot password")
+# PASSWORD RESET
 # ==============================================
 
-# Log the user straight in once they've set a new password instead of
-# forcing them through a separate login step right after.
 ACCOUNT_LOGIN_ON_PASSWORD_RESET = True
-
-# Password reset links expire after this many days.
 PASSWORD_RESET_TIMEOUT_DAYS = 1
+
 
 # ==============================================
 # CUSTOM ALLAUTH FORMS
@@ -372,47 +359,23 @@ ACCOUNT_FORMS = {
 # EMAIL / SMTP
 # ==============================================
 
-EMAIL_HOST = os.getenv(
-    "EMAIL_HOST",
-    "smtp.gmail.com"
-)
+EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True").lower() == "true"
 
-EMAIL_PORT = int(
-    os.getenv(
-        "EMAIL_PORT",
-        "587"
-    )
-)
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
-EMAIL_USE_TLS = os.getenv(
-    "EMAIL_USE_TLS",
-    "True"
-).lower() == "true"
-
-EMAIL_HOST_USER = os.getenv(
-    "EMAIL_HOST_USER"
-)
-
-EMAIL_HOST_PASSWORD = os.getenv(
-    "EMAIL_HOST_PASSWORD"
-)
-
-DEFAULT_FROM_EMAIL = os.getenv(
-    "DEFAULT_FROM_EMAIL",
-    EMAIL_HOST_USER
-)
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
 
 if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 else:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-    import warnings
     warnings.warn(
-        "EMAIL_HOST_USER / EMAIL_HOST_PASSWORD are not set (check your .env "
-        "file) -- falling back to the console email backend. Verification "
-        "codes and password reset emails will print to the terminal instead "
-        "of being sent. Run `python manage.py send_test_email you@example.com` "
-        "once real SMTP credentials are set to confirm delivery works.",
+        "EMAIL_HOST_USER / EMAIL_HOST_PASSWORD are not set -- falling back to "
+        "the console email backend. Verification codes and password reset "
+        "emails will print to the server log instead of being sent.",
         RuntimeWarning,
     )
 
@@ -424,45 +387,39 @@ else:
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
         "APP": {
-            "client_id": os.getenv(
-                "GOOGLE_CLIENT_ID"
-            ),
-
-            "secret": os.getenv(
-                "GOOGLE_CLIENT_SECRET"
-            ),
-
+            "client_id": os.getenv("GOOGLE_CLIENT_ID"),
+            "secret": os.getenv("GOOGLE_CLIENT_SECRET"),
             "key": "",
         },
-
-        "SCOPE": [
-            "profile",
-            "email",
-        ],
-
-        "AUTH_PARAMS": {
-            "access_type": "online",
-        },
-
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {"access_type": "online"},
         "METHOD": "oauth2",
-
         "VERIFIED_EMAIL": True,
     }
 }
 
+
 # ==============================================
 # PESAPAL (ticket payments)
 # ==============================================
-SITE_BASE_URL = os.getenv("SITE_BASE_URL", "http://127.0.0.1:8000").rstrip("/")
-PESAPAL_ENV = os.getenv("PESAPAL_ENV", "sandbox")
+
+SITE_BASE_URL = os.getenv("SITE_BASE_URL", "https://yourdomain.com").rstrip("/")
+
+PESAPAL_ENV = os.getenv("PESAPAL_ENV", "live")
 PESAPAL_CONSUMER_KEY = os.getenv("PESAPAL_CONSUMER_KEY", "")
 PESAPAL_CONSUMER_SECRET = os.getenv("PESAPAL_CONSUMER_SECRET", "")
 PESAPAL_IPN_ID = os.getenv("PESAPAL_IPN_ID", "")
+
 PESAPAL_BASE_URL = (
-    "https://pay.pesapal.com/v3/api" if PESAPAL_ENV == "live"
+    "https://pay.pesapal.com/v3/api"
+    if PESAPAL_ENV == "live"
     else "https://cybqa.pesapal.com/pesapalv3/api"
 )
 
+
+# ==============================================
+# CSRF
+# ==============================================
 
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
@@ -470,11 +427,41 @@ CSRF_TRUSTED_ORIGINS = [
     if origin.strip()
 ]
 
+
+# ==============================================
+# ERROR REPORTING
+# ==============================================
+
+ADMINS = [
+    (name.strip(), email.strip())
+    for name, email in (
+        pair.split(":")
+        for pair in os.getenv("DJANGO_ADMINS", "").split(",")
+        if pair.strip()
+    )
+]
+
+MANAGERS = ADMINS
+
+
+# ==============================================
+# LOGGING
+# ==============================================
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "style": "{",
+        },
+    },
     "handlers": {
-        "console": {"class": "logging.StreamHandler"},
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
     },
     "root": {
         "handlers": ["console"],
@@ -484,6 +471,11 @@ LOGGING = {
         "django.request": {
             "handlers": ["console"],
             "level": "ERROR",
+            "propagate": False,
+        },
+        "django.security": {
+            "handlers": ["console"],
+            "level": "WARNING",
             "propagate": False,
         },
     },

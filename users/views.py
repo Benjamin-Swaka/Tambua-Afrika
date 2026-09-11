@@ -12,7 +12,18 @@ import json
 
 from .forms import UserUpdateForm, ProfileUpdateForm
 from submissions.models import Submission   # Ensure this app exists
-from core.models import UserProfile, ConsentLog, FeaturedWork, OpenCall, ShopHighlight
+from core.models import (
+    UserProfile, ConsentLog, FeaturedWork, OpenCall, ShopHighlight,
+    Department, DepartmentMembership,
+)
+from core.permissions import (
+    can_access_section,
+    is_full_admin,
+    is_department_admin,
+    get_admin_department_slugs,
+    allowed_submission_categories,
+    admin_department_queryset,
+)
 
 
 def staff_required(view_func):
@@ -21,6 +32,15 @@ def staff_required(view_func):
     accounts get in -- everyone else is bounced back to their own
     dashboard rather than seeing a raw 403 or being sent through
     Django's built-in admin login.
+
+    This only checks "is this a staff account at all" -- it does NOT
+    know about department scoping. Views that belong to a specific
+    department section use @admin_section_required(...) below instead,
+    which layers department scoping on top of this same check. Views
+    decorated with @staff_required alone (site-wide sections such as
+    Users, Homepage Content, etc.) remain full-admin-only by virtue of
+    not being reachable by department admins from the sidebar/URLs
+    those roles are scoped to -- see admin_section_required.
     """
     @wraps(view_func)
     def _wrapped(request, *args, **kwargs):
@@ -29,6 +49,54 @@ def staff_required(view_func):
         if not (request.user.is_staff or request.user.is_superuser):
             messages.error(request, "You don't have access to the admin dashboard.")
             return redirect('user_dashboard')
+        return view_func(request, *args, **kwargs)
+    return _wrapped
+
+
+def admin_section_required(section):
+    """
+    Gate for a specific custom-admin section (e.g. 'admin_products',
+    'admin_tickets'). Stacks on top of the same authentication/staff
+    check as @staff_required, then additionally checks whether this
+    user's admin access is scoped to a department -- and if so, whether
+    `section` belongs to one of their assigned departments.
+
+    - Superusers and legacy/unscoped staff ("full admins"): always let
+      through, unchanged from current behaviour.
+    - Department admins: only let through for sections that belong to
+      one of their assigned departments; otherwise redirected back to
+      their own dashboard with an explanatory message.
+    """
+    def decorator(view_func):
+        @wraps(view_func)
+        @staff_required
+        def _wrapped(request, *args, **kwargs):
+            if not can_access_section(request.user, section):
+                messages.error(
+                    request,
+                    "You don't have access to that department's admin area."
+                )
+                return redirect('staff_dashboard')
+            return view_func(request, *args, **kwargs)
+        return _wrapped
+    return decorator
+
+
+def full_admin_required(view_func):
+    """
+    Gate for site-wide sections that are never department-scoped
+    (Users, Homepage Content, etc.). Superusers and legacy/unscoped
+    staff pass; department admins are redirected to their dashboard.
+    """
+    @wraps(view_func)
+    @staff_required
+    def _wrapped(request, *args, **kwargs):
+        if not is_full_admin(request.user):
+            messages.error(
+                request,
+                "This area is only available to site-wide admins."
+            )
+            return redirect('staff_dashboard')
         return view_func(request, *args, **kwargs)
     return _wrapped
 
@@ -63,37 +131,58 @@ def user_dashboard(request):
 
 @staff_required
 def staff_dashboard(request):
-    from stage.models import Ticket, Show
-    from shop.models import Product
+    """
+    A superuser or legacy/unscoped staff account gets the full,
+    site-wide overview exactly as before.
 
-    recent_submissions = Submission.objects.all().order_by('-created_at')[:8]
-    total_users = User.objects.count()
-    pending_reviews = Submission.objects.filter(status='review').count()
-
-    paid_tickets = Ticket.objects.filter(status=Ticket.STATUS_PAID)
-    ticket_revenue = paid_tickets.aggregate(total=Sum('total_amount'))['total'] or 0
-    tickets_sold = paid_tickets.aggregate(qty=Sum('quantity'))['qty'] or 0
-    from stage.models import ManualPayment
-    pending_manual_payments = ManualPayment.objects.filter(
-        status=ManualPayment.STATUS_PENDING,
-        transaction_code__isnull=False,
-    ).count()
-    upcoming_shows = Show.objects.filter(is_active=True, date__gte=timezone.localdate()).count()
-
-    total_products = Product.objects.count()
+    A department admin gets a narrower version of the same page,
+    built only from the department(s) they're assigned to -- they
+    never see numbers or shortcuts for departments they don't manage.
+    """
+    full_admin = is_full_admin(request.user)
+    dept_slugs = get_admin_department_slugs(request.user)
 
     context = {
-        'submissions': recent_submissions,
-        'total_users': total_users,
-        'pending_reviews': pending_reviews,
-        'ticket_revenue': ticket_revenue,
-        'tickets_sold': tickets_sold,
-        'pending_manual_payments': pending_manual_payments,
-        'upcoming_shows': upcoming_shows,
-        'total_products': total_products,
-        'recent_tickets': paid_tickets.select_related('show', 'user').order_by('-paid_at')[:6],
         'segment': 'admin_overview',
+        'is_full_admin': full_admin,
+        'is_department_admin': not full_admin,
+        'admin_department_slugs': dept_slugs,
     }
+
+    show_stage = full_admin or 'stage' in dept_slugs
+    show_shop = full_admin or 'shop' in dept_slugs
+    show_submissions = full_admin or bool(allowed_submission_categories(request.user))
+
+    if show_submissions:
+        sub_qs = Submission.objects.all().order_by('-created_at')
+        allowed_categories = allowed_submission_categories(request.user)
+        if allowed_categories is not None:
+            sub_qs = sub_qs.filter(category__in=allowed_categories)
+        context['submissions'] = sub_qs[:8]
+        context['pending_reviews'] = sub_qs.filter(status='review').count()
+
+    if show_stage:
+        from stage.models import Ticket, Show, ManualPayment
+
+        paid_tickets = Ticket.objects.filter(status=Ticket.STATUS_PAID)
+        context['ticket_revenue'] = paid_tickets.aggregate(total=Sum('total_amount'))['total'] or 0
+        context['tickets_sold'] = paid_tickets.aggregate(qty=Sum('quantity'))['qty'] or 0
+        context['pending_manual_payments'] = ManualPayment.objects.filter(
+            status=ManualPayment.STATUS_PENDING,
+            transaction_code__isnull=False,
+        ).count()
+        context['upcoming_shows'] = Show.objects.filter(
+            is_active=True, date__gte=timezone.localdate()
+        ).count()
+        context['recent_tickets'] = paid_tickets.select_related('show', 'user').order_by('-paid_at')[:6]
+
+    if show_shop:
+        from shop.models import Product
+        context['total_products'] = Product.objects.count()
+
+    if full_admin:
+        context['total_users'] = User.objects.count()
+
     return render(request, 'users/staff_dashboard.html', context)
 
 
@@ -228,14 +317,34 @@ def delete_my_account(request):
 # CUSTOM ADMIN DASHBOARD (staff-only, separate from /admin/)
 # ==============================================
 
-@staff_required
+@admin_section_required('admin_submissions')
 def admin_submissions(request):
-    """Site-wide submissions moderation: filter, review, accept/reject."""
+    """
+    Submissions moderation: filter, review, accept/reject.
+
+    Site-wide for full admins. A department admin only ever sees (and
+    can only filter/act on) submissions in categories that belong to
+    their assigned department(s) -- e.g. an Ink admin only sees
+    manuscripts, never scripts, auditions, or comics.
+    """
     qs = Submission.objects.select_related('user').order_by('-created_at')
 
     status = request.GET.get('status', '')
     category = request.GET.get('category', '')
     search = request.GET.get('q', '')
+
+    allowed_categories = allowed_submission_categories(request.user)
+    category_choices = Submission.CATEGORY_CHOICES
+    if allowed_categories is not None:
+        qs = qs.filter(category__in=allowed_categories)
+        category_choices = [
+            (value, label) for value, label in Submission.CATEGORY_CHOICES
+            if value in allowed_categories
+        ]
+        # A department admin can't use ?category= to peek at a category
+        # outside their department, even by hand-editing the URL.
+        if category and category not in allowed_categories:
+            category = ''
 
     if status:
         qs = qs.filter(status=status)
@@ -247,7 +356,7 @@ def admin_submissions(request):
     context = {
         'submissions': qs[:200],
         'status_choices': Submission.STATUS_CHOICES,
-        'category_choices': Submission.CATEGORY_CHOICES,
+        'category_choices': category_choices,
         'current_status': status,
         'current_category': category,
         'search': search,
@@ -256,10 +365,16 @@ def admin_submissions(request):
     return render(request, 'users/admin_submissions.html', context)
 
 
-@staff_required
+@admin_section_required('admin_submissions')
 def admin_submission_update_status(request, pk):
     """Approve / reject / re-review a single submission."""
     submission = get_object_or_404(Submission, pk=pk)
+
+    allowed_categories = allowed_submission_categories(request.user)
+    if allowed_categories is not None and submission.category not in allowed_categories:
+        messages.error(request, "You don't have access to that submission's department.")
+        return redirect('admin_submissions')
+
     if request.method == 'POST':
         new_status = request.POST.get('status')
         valid_statuses = dict(Submission.STATUS_CHOICES)
@@ -272,7 +387,7 @@ def admin_submission_update_status(request, pk):
     return redirect('admin_submissions')
 
 
-@staff_required
+@admin_section_required('admin_tickets')
 def admin_tickets(request):
     """Site-wide ticket sales overview: filter by show/status, mark paid/cancelled."""
     from stage.models import Ticket, Show
@@ -301,7 +416,7 @@ def admin_tickets(request):
     return render(request, 'users/admin_tickets.html', context)
 
 
-@staff_required
+@admin_section_required('admin_tickets')
 def admin_ticket_update_status(request, ticket_code):
     from stage.models import Ticket
 
@@ -317,9 +432,9 @@ def admin_ticket_update_status(request, ticket_code):
     return redirect('admin_tickets')
 
 
-@staff_required
+@admin_section_required('admin_products')
 def admin_products(request):
-    """Site-wide shop overview."""
+    """Shop overview (full admins see it site-wide; Shop department admins too, since Shop is a single department)."""
     from shop.models import Product
 
     qs = Product.objects.all().order_by('-created_at')
@@ -336,7 +451,7 @@ def admin_products(request):
     return render(request, 'users/admin_products.html', context)
 
 
-@staff_required
+@admin_section_required('admin_products')
 def admin_product_delete(request, pk):
     from shop.models import Product
 
@@ -348,23 +463,39 @@ def admin_product_delete(request, pk):
     return redirect('admin_products')
 
 
-@staff_required
+@full_admin_required
 def admin_users(request):
-    """Site-wide user management: promote/demote staff, deactivate accounts."""
+    """Site-wide user management: promote/demote staff, deactivate accounts,
+    and assign/revoke department-admin access. Full admins only -- a
+    department admin never gets to see or edit the full user list."""
     qs = User.objects.all().order_by('-date_joined')
     search = request.GET.get('q', '')
     if search:
         qs = qs.filter(Q(email__icontains=search) | Q(username__icontains=search))
 
+    users = list(qs[:300])
+
+    # Attach each user's current department-admin assignments so the
+    # template can pre-check the right boxes without extra queries per row.
+    memberships = DepartmentMembership.objects.filter(
+        user__in=users, role='admin'
+    ).values_list('user_id', 'department_id')
+    dept_admin_map = {}
+    for user_id, department_id in memberships:
+        dept_admin_map.setdefault(user_id, set()).add(department_id)
+    for u in users:
+        u.admin_department_ids = dept_admin_map.get(u.pk, set())
+
     context = {
-        'users': qs[:300],
+        'users': users,
         'search': search,
+        'departments': admin_department_queryset(),
         'segment': 'admin_users',
     }
     return render(request, 'users/admin_users.html', context)
 
 
-@staff_required
+@full_admin_required
 def admin_user_toggle_staff(request, pk):
     """Grant/revoke access to this admin dashboard. Superuser-only, and
     a staff member can never demote themselves by accident here."""
@@ -384,7 +515,79 @@ def admin_user_toggle_staff(request, pk):
     return redirect('admin_users')
 
 
-@staff_required
+@full_admin_required
+def admin_user_departments_update(request, pk):
+    """
+    Assign or revoke department-admin access for a user, directly from
+    the custom admin dashboard -- no need to go into the Django admin.
+
+    Superuser-only, same rule as the staff toggle above: department
+    assignment grants dashboard-level power, so only the main admin
+    hands it out. Submitting the form replaces the user's full set of
+    department-admin assignments with whichever departments were
+    checked (unchecking a department revokes admin rights to it).
+    """
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("Only superusers can assign department admins.")
+
+    target = get_object_or_404(User, pk=pk)
+
+    if request.method == 'POST':
+        if target.is_superuser:
+            messages.error(request, "Superusers already have full access and can't be department-scoped.")
+            return redirect('admin_users')
+
+        selected_ids = {
+            int(v) for v in request.POST.getlist('departments') if v.isdigit()
+        }
+        valid_departments = {d.pk: d for d in admin_department_queryset()}
+        selected_ids &= set(valid_departments.keys())
+
+        current_admin_ids = set(
+            DepartmentMembership.objects.filter(
+                user=target, role='admin'
+            ).values_list('department_id', flat=True)
+        )
+
+        to_add = selected_ids - current_admin_ids
+        to_remove = current_admin_ids - selected_ids
+
+        with transaction.atomic():
+            for dept_id in to_add:
+                membership, _ = DepartmentMembership.objects.get_or_create(
+                    user=target, department_id=dept_id,
+                    defaults={'role': 'admin'},
+                )
+                if membership.role != 'admin':
+                    membership.role = 'admin'
+                    membership.save(update_fields=['role'])
+
+            if to_remove:
+                # Demote back to 'viewer' rather than deleting the row,
+                # so the user doesn't lose their general department
+                # membership -- only the admin privilege for it.
+                DepartmentMembership.objects.filter(
+                    user=target, department_id__in=to_remove, role='admin'
+                ).update(role='viewer')
+
+            if selected_ids and not target.is_staff:
+                # A department admin needs dashboard access to use it.
+                target.is_staff = True
+                target.save(update_fields=['is_staff'])
+
+        dept_names = sorted(valid_departments[i].name for i in selected_ids)
+        if dept_names:
+            messages.success(
+                request,
+                f"{target.email} is now a department admin for: {', '.join(dept_names)}."
+            )
+        else:
+            messages.success(request, f"Removed all department-admin assignments for {target.email}.")
+
+    return redirect('admin_users')
+
+
+@full_admin_required
 def admin_user_toggle_active(request, pk):
     target = get_object_or_404(User, pk=pk)
     if target.pk == request.user.pk:
@@ -403,7 +606,7 @@ def admin_user_toggle_active(request, pk):
 # CUSTOM ADMIN: SHOWS (create/edit tickets' Shows without Django admin)
 # ==============================================
 
-@staff_required
+@admin_section_required('admin_shows')
 def admin_shows(request):
     from stage.models import Show
 
@@ -415,7 +618,7 @@ def admin_shows(request):
     return render(request, 'users/admin_shows.html', context)
 
 
-@staff_required
+@admin_section_required('admin_shows')
 def admin_show_create(request):
     from stage.forms import ShowForm
 
@@ -435,7 +638,7 @@ def admin_show_create(request):
     })
 
 
-@staff_required
+@admin_section_required('admin_shows')
 def admin_show_edit(request, pk):
     from stage.models import Show
     from stage.forms import ShowForm
@@ -458,7 +661,7 @@ def admin_show_edit(request, pk):
     })
 
 
-@staff_required
+@admin_section_required('admin_shows')
 def admin_show_delete(request, pk):
     from stage.models import Show
 
@@ -470,7 +673,7 @@ def admin_show_delete(request, pk):
     return redirect('admin_shows')
 
 
-@staff_required
+@admin_section_required('admin_shows')
 def admin_show_toggle_active(request, pk):
     from stage.models import Show
 
@@ -486,7 +689,7 @@ def admin_show_toggle_active(request, pk):
 # (Featured Works / Open Calls / Shop Highlights — add, remove, replace)
 # ==============================================
 
-@staff_required
+@full_admin_required
 def admin_homepage_content(request):
     context = {
         'featured_works': FeaturedWork.objects.all(),
@@ -497,7 +700,7 @@ def admin_homepage_content(request):
     return render(request, 'users/admin_homepage_content.html', context)
 
 
-@staff_required
+@full_admin_required
 def admin_featured_work_form(request, pk=None):
     from core.forms import FeaturedWorkForm
     instance = get_object_or_404(FeaturedWork, pk=pk) if pk else None
@@ -515,7 +718,7 @@ def admin_featured_work_form(request, pk=None):
     })
 
 
-@staff_required
+@full_admin_required
 def admin_featured_work_delete(request, pk):
     obj = get_object_or_404(FeaturedWork, pk=pk)
     if request.method == 'POST':
@@ -524,7 +727,7 @@ def admin_featured_work_delete(request, pk):
     return redirect('admin_homepage_content')
 
 
-@staff_required
+@full_admin_required
 def admin_open_call_form(request, pk=None):
     from core.forms import OpenCallForm
     instance = get_object_or_404(OpenCall, pk=pk) if pk else None
@@ -542,7 +745,7 @@ def admin_open_call_form(request, pk=None):
     })
 
 
-@staff_required
+@full_admin_required
 def admin_open_call_delete(request, pk):
     obj = get_object_or_404(OpenCall, pk=pk)
     if request.method == 'POST':
@@ -551,7 +754,7 @@ def admin_open_call_delete(request, pk):
     return redirect('admin_homepage_content')
 
 
-@staff_required
+@full_admin_required
 def admin_shop_highlight_form(request, pk=None):
     from core.forms import ShopHighlightForm
     instance = get_object_or_404(ShopHighlight, pk=pk) if pk else None
@@ -569,7 +772,7 @@ def admin_shop_highlight_form(request, pk=None):
     })
 
 
-@staff_required
+@full_admin_required
 def admin_shop_highlight_delete(request, pk):
     obj = get_object_or_404(ShopHighlight, pk=pk)
     if request.method == 'POST':
@@ -582,7 +785,7 @@ def admin_shop_highlight_delete(request, pk):
 # CUSTOM ADMIN: MANUAL M-PESA PAYMENT VERIFICATION
 # ==============================================
 
-@staff_required
+@admin_section_required('admin_manual_payments')
 def admin_manual_payments(request):
     """List manual payments submitted by customers."""
     from stage.models import ManualPayment
@@ -623,7 +826,7 @@ def admin_manual_payments(request):
     return render(request, 'users/admin_manual_payments.html', context)
 
 
-@staff_required
+@admin_section_required('admin_manual_payments')
 def admin_manual_payment_review(request, payment_reference):
     """Review and verify/reject one manual payment."""
     from stage.models import ManualPayment, Ticket
@@ -743,7 +946,7 @@ def admin_manual_payment_review(request, payment_reference):
 # CUSTOM ADMIN: TICKET DOOR VERIFICATION / CHECK-IN
 # ==============================================
 
-@staff_required
+@admin_section_required('admin_tickets')
 def admin_ticket_verify(request, ticket_code=None):
     """
     Two ways in:
