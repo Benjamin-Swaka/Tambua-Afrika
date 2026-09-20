@@ -20,6 +20,12 @@ class Submission(models.Model):
     title = models.CharField(max_length=200)
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
     file = models.FileField(upload_to='submissions/')
+    image = models.ImageField(
+        upload_to='submissions/posters/',
+        blank=True,
+        null=True,
+        help_text='Optional cover/poster image for this submission.',
+    )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='received')
     created_at = models.DateTimeField(auto_now_add=True)
 

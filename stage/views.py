@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 
 from . import pesapal
-from .models import ManualPayment, Show, Ticket
+from .models import ManualPayment, Show, Ticket, TicketType
 
 
 def index(request):
@@ -18,7 +18,11 @@ def index(request):
 
 def show_detail(request, slug):
     show = get_object_or_404(Show, slug=slug, is_active=True)
-    return render(request, 'stage/show_detail.html', {'show': show})
+    ticket_types = show.ticket_types.filter(is_active=True)
+    return render(request, 'stage/show_detail.html', {
+        'show': show,
+        'ticket_types': ticket_types,
+    })
 
 
 @login_required
@@ -42,6 +46,20 @@ def reserve_ticket(request, slug):
         messages.error(request, "This show has already taken place.")
         return redirect('show_detail', slug=slug)
 
+    # Optional ticket type (VIP, VVIP, ...). If the show has none, or none
+    # was posted, this falls straight back to the show's own flat price --
+    # the original single-tier behaviour is unchanged.
+    ticket_type = None
+    ticket_type_id = request.POST.get('ticket_type_id')
+    if ticket_type_id:
+        ticket_type = get_object_or_404(TicketType, pk=ticket_type_id, show=show, is_active=True)
+        if ticket_type.capacity is not None and quantity > ticket_type.tickets_remaining:
+            messages.error(
+                request,
+                f"Sorry, only {ticket_type.tickets_remaining} {ticket_type.name} ticket(s) left for this show."
+            )
+            return redirect('show_detail', slug=slug)
+
     if quantity > show.tickets_remaining:
         messages.error(
             request,
@@ -49,13 +67,16 @@ def reserve_ticket(request, slug):
         )
         return redirect('show_detail', slug=slug)
 
+    unit_price = ticket_type.price if ticket_type else show.price
+
     with transaction.atomic():
         ticket = Ticket.objects.create(
             show=show,
+            ticket_type=ticket_type,
             user=request.user,
             quantity=quantity,
-            unit_price=show.price,
-            total_amount=show.price * quantity,
+            unit_price=unit_price,
+            total_amount=unit_price * quantity,
         )
         ManualPayment.objects.create(
             ticket=ticket,

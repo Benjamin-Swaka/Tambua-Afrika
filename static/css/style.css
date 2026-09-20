@@ -4810,6 +4810,17 @@ body.minimal-page {
   transition: opacity .2s ease;
 }
 .home-opencalls-cta-primary:hover{ opacity: 0.6; }
+.home-opencall-desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* prevents a single super-long word from blowing out the card width */
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
 
 /* ==========================================================================
    SECTION 4 — SHOP HIGHLIGHTS

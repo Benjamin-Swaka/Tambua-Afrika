@@ -1,5 +1,21 @@
 from django import forms
-from .models import Show
+from .models import Show, TicketType
+
+
+class TicketTypeForm(forms.ModelForm):
+    class Meta:
+        model = TicketType
+        fields = ['name', 'price', 'capacity', 'is_active', 'order']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control rounded-0', 'placeholder': 'e.g. VIP'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control rounded-0', 'step': '0.01'}),
+            'capacity': forms.NumberInput(attrs={
+                'class': 'form-control rounded-0',
+                'placeholder': 'Leave blank to share the show capacity',
+            }),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'order': forms.NumberInput(attrs={'class': 'form-control rounded-0'}),
+        }
 
 
 class ShowForm(forms.ModelForm):

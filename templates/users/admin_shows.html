@@ -39,6 +39,7 @@
                 <td>
                     <div class="d-flex gap-1 flex-wrap">
                         <a href="{% url 'admin_show_edit' show.pk %}" class="btn btn-sm btn-outline-dark">Edit</a>
+                        <a href="{% url 'admin_ticket_types' show.pk %}" class="btn btn-sm btn-outline-primary">Ticket Types</a>
                         <form method="POST" action="{% url 'admin_show_toggle_active' show.pk %}">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-sm btn-outline-secondary">{% if show.is_active %}Hide{% else %}Show{% endif %}</button>

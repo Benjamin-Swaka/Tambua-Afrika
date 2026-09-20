@@ -18,7 +18,7 @@
                 <h5 class="mb-3">Order Summary</h5>
 
                 <div class="d-flex justify-content-between mb-1">
-                    <span>{{ ticket.show.title }}</span>
+                    <span>{{ ticket.show.title }}{% if ticket.ticket_type %} &mdash; {{ ticket.ticket_type.name }}{% endif %}</span>
                     <span>
                         {{ ticket.quantity }} &times; KES {{ ticket.unit_price }}
                     </span>

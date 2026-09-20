@@ -5,6 +5,9 @@ from django.utils.html import format_html
 from .models import NewsletterSubscriber
 from django.contrib import admin
 from .models import ContactMessage
+from django.contrib import admin
+from .models import HomeDepartment
+
 from .models import (
     Department, UserProfile, DepartmentMembership, EmailOTP, ConsentLog,
     FeaturedWork, OpenCall, ShopHighlight,
@@ -82,3 +85,26 @@ class ContactMessageAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         # Messages should only ever be created via the public contact form.
         return False
+
+
+
+@admin.register(HomeDepartment)
+class HomeDepartmentAdmin(admin.ModelAdmin):
+    list_display  = ('name', 'label', 'accent', 'icon', 'order', 'is_active')
+    list_editable = ('order', 'is_active')
+    list_filter   = ('accent', 'icon', 'is_active')
+    search_fields = ('name', 'label', 'description')
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'label', 'description')
+        }),
+        ('Appearance', {
+            'fields': ('accent', 'icon')
+        }),
+        ('Link', {
+            'fields': ('link_url', 'link_text')
+        }),
+        ('Visibility', {
+            'fields': ('order', 'is_active')
+        }),
+    )

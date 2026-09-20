@@ -41,7 +41,7 @@
             {% for t in tickets %}
             <tr>
                 <td class="small font-monospace">{{ t.ticket_code }}</td>
-                <td class="fw-bold">{{ t.show.title }}</td>
+                <td class="fw-bold">{{ t.show.title }}{% if t.ticket_type %}<div class="small text-muted fw-normal">{{ t.ticket_type.name }}</div>{% endif %}</td>
                 <td>
                     <div class="fw-bold small">{{ t.user.get_full_name|default:t.user.username }}</div>
                     <div class="small text-muted">{{ t.user.email }}</div>

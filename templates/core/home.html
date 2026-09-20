@@ -35,126 +35,30 @@
         <div class="home-depts-track-wrapper">
             <div class="home-depts-track" id="deptsTrack" role="list">
 
-                <!-- 1. Studios -->
-                <article class="home-dept-card home-dept-card--studios" role="listitem">
+                {% for dept in departments %}
+                <article class="home-dept-card home-dept-card--{{ dept.accent }}" role="listitem">
                     <div class="home-dept-card-inner">
                         <div class="home-dept-card-media" aria-hidden="true">
-                            <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.4">
-                                <rect x="2" y="8" width="18" height="12" rx="1.5"/>
-                                <path d="M7 8V6a4 4 0 018 0v2" stroke-linecap="round"/>
-                                <line x1="11" y1="12" x2="11" y2="16" stroke-linecap="round"/>
-                                <line x1="9" y1="14" x2="13" y2="14" stroke-linecap="round"/>
-                            </svg>
+                            {% include 'partials/_dept_icon.html' with type=dept.icon %}
                         </div>
                         <div class="home-dept-card-content">
-                            <span class="home-dept-card-label">{% trans "Core" %}</span>
-                            <h3 class="home-dept-card-name">{% trans "Tambua Afrika Studios" %}</h3>
-                            <p class="home-dept-card-desc">{% trans "Corporate identity, IP management, and the operational backbone of the Tambua Afrika ecosystem." %}</p>
-                            <a href="{% url 'about' %}" class="home-dept-card-link" aria-label="{% trans 'Learn more about Studios' %}">
-                                {% trans "Learn More" %}
-                                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <span class="home-dept-card-label">{{ dept.label }}</span>
+                            <h3 class="home-dept-card-name">{{ dept.name }}</h3>
+                            <p class="home-dept-card-desc">{{ dept.description }}</p>
+                            <a href="{{ dept.get_link }}" class="home-dept-card-link"
+                               aria-label="{% blocktrans with n=dept.name %}Learn more about {{ n }}{% endblocktrans %}">
+                                {{ dept.link_text }}
+                                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor"
+                                     stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M2 6h8M6 2l4 4-4 4"/>
                                 </svg>
                             </a>
                         </div>
                     </div>
                 </article>
-
-                <!-- 2. Tambua Ink -->
-                <article class="home-dept-card home-dept-card--ink" role="listitem">
-                    <div class="home-dept-card-inner">
-                        <div class="home-dept-card-media" aria-hidden="true">
-                            <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.4">
-                                <path d="M14 2L4 12l-1 5 5-1L18 6a2.83 2.83 0 00-4-4z" stroke-linejoin="round"/>
-                                <path d="M12 4l4 4"/>
-                            </svg>
-                        </div>
-                        <div class="home-dept-card-content">
-                            <span class="home-dept-card-label">{% trans "Publishing" %}</span>
-                            <h3 class="home-dept-card-name">{% trans "Tambua Afrika Ink" %}</h3>
-                            <p class="home-dept-card-desc">{% trans "Books, poetry, and literary journals that give African writers a professional publishing pathway." %}</p>
-                            <a href="{% url 'ink_home' %}" class="home-dept-card-link" aria-label="{% trans 'Explore Tambua Ink' %}">
-                                {% trans "Read More" %}
-                                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M2 6h8M6 2l4 4-4 4"/>
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- 3. Tambua Stage -->
-                <article class="home-dept-card home-dept-card--stage" role="listitem">
-                    <div class="home-dept-card-inner">
-                        <div class="home-dept-card-media" aria-hidden="true">
-                            <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.4">
-                                <circle cx="8" cy="9" r="3"/>
-                                <circle cx="14" cy="9" r="3"/>
-                                <path d="M3 20c0-3.31 2.24-6 5-6h6c2.76 0 5 2.69 5 6" stroke-linecap="round"/>
-                            </svg>
-                        </div>
-                        <div class="home-dept-card-content">
-                            <span class="home-dept-card-label">{% trans "Theatre" %}</span>
-                            <h3 class="home-dept-card-name">{% trans "Tambua Afrika Stage" %}</h3>
-                            <p class="home-dept-card-desc">{% trans "Live theatre, voice acting, and performance arts — where stories become embodied experiences." %}</p>
-                            <a href="{% url 'stage_home' %}" class="home-dept-card-link" aria-label="{% trans 'Get tickets for Tambua Stage' %}">
-                                {% trans "Get Tickets" %}
-                                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M2 6h8M6 2l4 4-4 4"/>
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- 4. Tambua Comics -->
-                <article class="home-dept-card home-dept-card--comics" role="listitem">
-                    <div class="home-dept-card-inner">
-                        <div class="home-dept-card-media" aria-hidden="true">
-                            <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.4">
-                                <rect x="2" y="2" width="8" height="8" rx="1.5"/>
-                                <rect x="12" y="2" width="8" height="8" rx="1.5"/>
-                                <rect x="2" y="12" width="8" height="8" rx="1.5"/>
-                                <rect x="12" y="12" width="8" height="8" rx="1.5"/>
-                            </svg>
-                        </div>
-                        <div class="home-dept-card-content">
-                            <span class="home-dept-card-label">{% trans "Visual Arts" %}</span>
-                            <h3 class="home-dept-card-name">{% trans "Tambua Afrika Comics" %}</h3>
-                            <p class="home-dept-card-desc">{% trans "Graphic novels, sequential art, animation, and gaming rooted in African visual culture." %}</p>
-                            <a href="{% url 'comics_home' %}" class="home-dept-card-link" aria-label="{% trans 'Explore Tambua Comics' %}">
-                                {% trans "Explore Art" %}
-                                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M2 6h8M6 2l4 4-4 4"/>
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- 5. Sales & Marketing -->
-                <article class="home-dept-card home-dept-card--sales" role="listitem">
-                    <div class="home-dept-card-inner">
-                        <div class="home-dept-card-media" aria-hidden="true">
-                            <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.4">
-                                <path d="M11 2v18M2 11h18" stroke-linecap="round"/>
-                                <circle cx="11" cy="11" r="9"/>
-                                <path d="M7 7l3 3M14 14l3 3M7 14l3-3M14 7l3-3" stroke-linecap="round"/>
-                            </svg>
-                        </div>
-                        <div class="home-dept-card-content">
-                            <span class="home-dept-card-label">{% trans "Commerce" %}</span>
-                            <h3 class="home-dept-card-name">{% trans "Sales &amp; Marketing" %}</h3>
-                            <p class="home-dept-card-desc">{% trans "Merchandise, partnerships, ticket sales, and brand strategy — bringing African creativity to market." %}</p>
-                            <a href="{% url 'shop_home' %}" class="home-dept-card-link" aria-label="{% trans 'Visit the shop' %}">
-                                {% trans "Visit Shop" %}
-                                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M2 6h8M6 2l4 4-4 4"/>
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
-                </article>
+                {% empty %}
+                <p class="text-muted">{% trans "Departments coming soon." %}</p>
+                {% endfor %}
 
             </div>
         </div>
@@ -226,7 +130,7 @@
                     <span class="home-opencall-dot"></span> {{ call.get_status_display }}
                 </div>
                 <h3 class="home-opencall-title">{{ call.title }}</h3>
-                <p class="home-opencall-desc">{{ call.description }}</p>
+              <p class="home-opencall-desc">{{ call.description|truncatewords:35 }}</p>
                 <div class="home-opencall-meta">
                     <span class="home-opencall-deadline">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">

@@ -387,6 +387,28 @@ def admin_submission_update_status(request, pk):
     return redirect('admin_submissions')
 
 
+@admin_section_required('admin_submissions')
+def admin_submission_create(request):
+    """Let staff create a submission on a user's behalf, poster/image included."""
+    from submissions.forms import AdminSubmissionForm
+
+    allowed_categories = allowed_submission_categories(request.user)
+
+    if request.method == 'POST':
+        form = AdminSubmissionForm(request.POST, request.FILES, allowed_categories=allowed_categories)
+        if form.is_valid():
+            submission = form.save()
+            messages.success(request, f'"{submission.title}" was created.')
+            return redirect('admin_submissions')
+    else:
+        form = AdminSubmissionForm(allowed_categories=allowed_categories)
+
+    return render(request, 'users/admin_submission_form.html', {
+        'form': form,
+        'segment': 'admin_submissions',
+    })
+
+
 @admin_section_required('admin_tickets')
 def admin_tickets(request):
     """Site-wide ticket sales overview: filter by show/status, mark paid/cancelled."""
@@ -682,6 +704,89 @@ def admin_show_toggle_active(request, pk):
         show.is_active = not show.is_active
         show.save()
     return redirect('admin_shows')
+
+
+# ==============================================
+# CUSTOM ADMIN: TICKET TYPES (VIP/VVIP/etc per show)
+# ==============================================
+
+@admin_section_required('admin_shows')
+def admin_ticket_types(request, show_pk):
+    """List/manage the priced ticket tiers (Regular, VIP, VVIP, ...) for one show."""
+    from stage.models import Show
+
+    show = get_object_or_404(Show, pk=show_pk)
+    ticket_types = show.ticket_types.all()
+
+    return render(request, 'users/admin_ticket_types.html', {
+        'show': show,
+        'ticket_types': ticket_types,
+        'segment': 'admin_shows',
+    })
+
+
+@admin_section_required('admin_shows')
+def admin_ticket_type_create(request, show_pk):
+    from stage.models import Show
+    from stage.forms import TicketTypeForm
+
+    show = get_object_or_404(Show, pk=show_pk)
+    if request.method == 'POST':
+        form = TicketTypeForm(request.POST)
+        if form.is_valid():
+            ticket_type = form.save(commit=False)
+            ticket_type.show = show
+            ticket_type.save()
+            messages.success(request, f'Ticket type "{ticket_type.name}" was added to "{show.title}".')
+            return redirect('admin_ticket_types', show_pk=show.pk)
+    else:
+        form = TicketTypeForm()
+
+    return render(request, 'users/admin_ticket_type_form.html', {
+        'form': form,
+        'show': show,
+        'segment': 'admin_shows',
+        'is_edit': False,
+    })
+
+
+@admin_section_required('admin_shows')
+def admin_ticket_type_edit(request, show_pk, pk):
+    from stage.models import Show, TicketType
+    from stage.forms import TicketTypeForm
+
+    show = get_object_or_404(Show, pk=show_pk)
+    ticket_type = get_object_or_404(TicketType, pk=pk, show=show)
+
+    if request.method == 'POST':
+        form = TicketTypeForm(request.POST, instance=ticket_type)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Ticket type "{ticket_type.name}" was updated.')
+            return redirect('admin_ticket_types', show_pk=show.pk)
+    else:
+        form = TicketTypeForm(instance=ticket_type)
+
+    return render(request, 'users/admin_ticket_type_form.html', {
+        'form': form,
+        'show': show,
+        'ticket_type': ticket_type,
+        'segment': 'admin_shows',
+        'is_edit': True,
+    })
+
+
+@admin_section_required('admin_shows')
+def admin_ticket_type_delete(request, show_pk, pk):
+    from stage.models import Show, TicketType
+
+    show = get_object_or_404(Show, pk=show_pk)
+    ticket_type = get_object_or_404(TicketType, pk=pk, show=show)
+    if request.method == 'POST':
+        name = ticket_type.name
+        ticket_type.delete()
+        messages.success(request, f'Ticket type "{name}" was deleted.')
+    return redirect('admin_ticket_types', show_pk=show.pk)
 
 
 # ==============================================

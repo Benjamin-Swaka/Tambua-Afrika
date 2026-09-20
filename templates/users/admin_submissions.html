@@ -3,6 +3,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <h4 class="mb-0 fw-bold">Submissions</h4>
+    <a href="{% url 'admin_submission_create' %}" class="btn btn-dark btn-sm px-3"><i class="fas fa-plus me-1"></i> New Submission</a>
     <form method="get" class="d-flex gap-2 flex-wrap">
         <input type="text" name="q" value="{{ search }}" placeholder="Search title or email" class="form-control form-control-sm" style="width: 220px;">
         <select name="status" class="form-select form-select-sm" style="width: 160px;">
@@ -41,7 +42,12 @@
                     <div class="fw-bold">{{ sub.user.get_full_name|default:sub.user.username }}</div>
                     <div class="small text-muted">{{ sub.user.email }}</div>
                 </td>
-                <td class="fw-bold">{{ sub.title }}</td>
+                <td class="fw-bold">
+                    <div class="d-flex align-items-center gap-2">
+                        {% if sub.image %}<img src="{{ sub.image.url }}" style="width:32px;height:32px;object-fit:cover;border-radius:4px;">{% endif %}
+                        <span>{{ sub.title }}</span>
+                    </div>
+                </td>
                 <td>{{ sub.get_category_display }}</td>
                 <td class="small text-muted">{{ sub.created_at|date:"M d, Y" }}</td>
                 <td>

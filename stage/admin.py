@@ -1,6 +1,12 @@
 from django.contrib import admin
 
-from .models import ManualPayment, Show, Ticket
+from .models import ManualPayment, Show, Ticket, TicketType
+
+
+class TicketTypeInline(admin.TabularInline):
+    model = TicketType
+    extra = 1
+    fields = ('name', 'price', 'capacity', 'is_active', 'order')
 
 
 @admin.register(Show)
@@ -10,13 +16,21 @@ class ShowAdmin(admin.ModelAdmin):
     list_filter = ('is_active', 'date')
     search_fields = ('title', 'venue')
     prepopulated_fields = {'slug': ('title',)}
+    inlines = [TicketTypeInline]
+
+
+@admin.register(TicketType)
+class TicketTypeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'show', 'price', 'capacity', 'tickets_reserved', 'is_active', 'order')
+    list_filter = ('is_active', 'show')
+    search_fields = ('name', 'show__title')
 
 
 @admin.register(Ticket)
 class TicketAdmin(admin.ModelAdmin):
-    list_display = ('ticket_code', 'show', 'user', 'quantity', 'total_amount',
+    list_display = ('ticket_code', 'show', 'ticket_type', 'user', 'quantity', 'total_amount',
                      'status', 'payment_reference', 'created_at', 'paid_at')
-    list_filter = ('status', 'show')
+    list_filter = ('status', 'show', 'ticket_type')
     search_fields = ('ticket_code', 'user__email', 'user__username', 'payment_reference')
     readonly_fields = (
         'ticket_code',

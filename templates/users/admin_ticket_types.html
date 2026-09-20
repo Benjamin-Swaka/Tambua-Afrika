@@ -1,0 +1,60 @@
+{% extends 'dashboard_base.html' %}
+{% block dashboard_content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h4 class="mb-0 fw-bold">Ticket Types</h4>
+        <div class="small text-muted">{{ show.title }}</div>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'admin_ticket_type_create' show.pk %}" class="btn btn-dark btn-sm px-3"><i class="fas fa-plus me-1"></i> New Ticket Type</a>
+        <a href="{% url 'admin_shows' %}" class="btn btn-outline-secondary btn-sm px-3">&larr; Back to Shows</a>
+    </div>
+</div>
+
+<div class="alert alert-light border small">
+    This show's flat price (KES {{ show.price }}) is still used automatically for any ticket
+    bought without picking a type below. Add ticket types here (e.g. Regular, VIP, VVIP) to let
+    buyers choose between priced tiers instead.
+</div>
+
+<div class="table-responsive table-saas">
+    <table class="table mb-0 align-middle">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Capacity</th>
+                <th>Sold / Reserved</th>
+                <th>Status</th>
+                <th style="width: 200px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in ticket_types %}
+            <tr>
+                <td class="fw-bold">{{ t.name }}</td>
+                <td>KES {{ t.price }}</td>
+                <td>{% if t.capacity %}{{ t.capacity }}{% else %}<span class="text-muted">Shares show capacity</span>{% endif %}</td>
+                <td>{{ t.tickets_reserved }}{% if t.capacity %}/{{ t.capacity }}{% endif %}</td>
+                <td>
+                    {% if t.is_active %}<span class="badge bg-success bg-opacity-10 text-success">Active</span>
+                    {% else %}<span class="badge bg-secondary bg-opacity-10 text-secondary">Hidden</span>{% endif %}
+                </td>
+                <td>
+                    <div class="d-flex gap-1 flex-wrap">
+                        <a href="{% url 'admin_ticket_type_edit' show.pk t.pk %}" class="btn btn-sm btn-outline-dark">Edit</a>
+                        <form method="POST" action="{% url 'admin_ticket_type_delete' show.pk t.pk %}" onsubmit="return confirm('Delete {{ t.name|escapejs }}? This cannot be undone.');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-center text-muted py-5">No ticket types yet. This show is still selling at its flat price. <a href="{% url 'admin_ticket_type_create' show.pk %}">Add the first one</a>.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .forms import NewsletterForm, CampaignForm, RewardFormSet, PledgeForm
 from .models import (
-    ContactMessage, Department, UserProfile, DepartmentMembership, ConsentLog, FeaturedWork, OpenCall,
+    ContactMessage, Department, HomeDepartment, UserProfile, DepartmentMembership, ConsentLog, FeaturedWork, OpenCall,
     ShopHighlight, Campaign, Reward, Pledge,
 )
 from django.db.models import Q
@@ -105,8 +105,9 @@ def _featured_works(limit=6):
 
 def home(request):
     context = {
+        'departments':    HomeDepartment.objects.filter(is_active=True).order_by('order', 'name'),
         'featured_works': _featured_works(),
-        'open_calls': OpenCall.objects.filter(is_active=True),
+        'open_calls':     OpenCall.objects.filter(is_active=True),
         'shop_highlights': _shop_highlights(),
     }
     return render(request, 'core/home.html', context)

@@ -1,0 +1,55 @@
+{% extends 'dashboard_base.html' %}
+{% block dashboard_content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0 fw-bold">New Submission</h4>
+    <a href="{% url 'admin_submissions' %}" class="small text-muted">&larr; Back to Submissions</a>
+</div>
+
+<div class="card border-0 shadow-sm p-4" style="max-width: 720px;">
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger rounded-0">{{ form.non_field_errors.0 }}</div>
+        {% endif %}
+
+        <div class="row g-3">
+            <div class="col-12">
+                <label class="form-label small text-muted text-uppercase fw-bold">User</label>
+                {{ form.user }}
+                {% for error in form.user.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+            </div>
+            <div class="col-12">
+                <label class="form-label small text-muted text-uppercase fw-bold">Title</label>
+                {{ form.title }}
+                {% for error in form.title.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label small text-muted text-uppercase fw-bold">Category</label>
+                {{ form.category }}
+                {% for error in form.category.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label small text-muted text-uppercase fw-bold">Status</label>
+                {{ form.status }}
+            </div>
+            <div class="col-12">
+                <label class="form-label small text-muted text-uppercase fw-bold">File (PDF/Doc/Script/Tape)</label>
+                {{ form.file }}
+                {% for error in form.file.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+            </div>
+            <div class="col-12">
+                <label class="form-label small text-muted text-uppercase fw-bold">Poster / Cover Image</label>
+                {{ form.image }}
+                <div class="text-muted small mt-1">Optional. Shown alongside the submission in listings.</div>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-dark px-4 rounded-0">Create Submission</button>
+            <a href="{% url 'admin_submissions' %}" class="btn btn-outline-secondary px-4 rounded-0">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

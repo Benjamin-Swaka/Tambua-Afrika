@@ -9,6 +9,8 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
+from django.db import models
+from django.urls import reverse, NoReverseMatch
 
 
 class NewsletterSubscriber(models.Model):
@@ -145,6 +147,55 @@ class FeaturedWork(models.Model):
         return self.title
 
 
+class HomeDepartment(models.Model):
+    ACCENT_CHOICES = [
+        ('studios', 'Studios (Black)'),
+        ('ink',     'Tambua Ink (Royal Blue)'),
+        ('stage',   'Tambua Stage (Chocolate Brown)'),
+        ('comics',  'Tambua Comics (Silver Grey)'),
+        ('sales',   'Sales & Marketing (Beige / Gold)'),
+    ]
+
+    ICON_CHOICES = [
+        ('studios', 'Studio Box'),
+        ('ink',     'Ink Pen'),
+        ('stage',   'Theatre / People'),
+        ('comics',  'Comics Grid'),
+        ('sales',   'Commerce Crosshair'),
+    ]
+
+    name        = models.CharField(max_length=120, help_text="e.g. Tambua Afrika Ink")
+    label       = models.CharField(max_length=50,  help_text="e.g. Publishing, Core, Theatre")
+    description = models.TextField(max_length=300, help_text="Max 300 characters.")
+    accent      = models.CharField(max_length=20, choices=ACCENT_CHOICES, default='studios')
+    icon        = models.CharField(max_length=20, choices=ICON_CHOICES,   default='studios')
+    link_url    = models.CharField(
+        max_length=200, blank=True,
+        help_text="Named URL (e.g. 'ink_home') or full URL (https://…)."
+    )
+    link_text   = models.CharField(max_length=50, default="Learn More")
+    order       = models.PositiveIntegerField(default=0)
+    is_active   = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['order', 'name']
+        verbose_name = "Home Department"
+        verbose_name_plural = "Home Departments"
+
+    def __str__(self):
+        return self.name
+
+    def get_link(self):
+        """Resolve a named URL or pass through a full/absolute path."""
+        if not self.link_url:
+            return '#'
+        if self.link_url.startswith(('http://', 'https://', '/')):
+            return self.link_url
+        try:
+            return reverse(self.link_url)
+        except NoReverseMatch:
+            return '#'
+
 class OpenCall(models.Model):
     """A single item in the homepage 'Open Calls' section."""
     STATUS_OPEN = 'open'
@@ -157,7 +208,21 @@ class OpenCall(models.Model):
     ]
 
     title = models.CharField(max_length=200)
-    description = models.TextField()
+    slug = models.SlugField(
+        max_length=220,
+        unique=True,
+        blank=True,
+        help_text="Used in the open call's own URL. Auto-generated from the title if left blank.",
+    )
+    description = models.TextField(help_text="Short summary shown on the open call card.")
+    guidelines = models.TextField(
+        blank=True,
+        help_text=(
+            "Full submission guidelines shown on this call's own dedicated page "
+            "(eligibility, format, judging criteria, etc). Leave blank to just "
+            "show the short summary above on that page too."
+        ),
+    )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_OPEN)
     deadline_label = models.CharField(
         max_length=100,
@@ -169,7 +234,11 @@ class OpenCall(models.Model):
     )
     link_url = models.CharField(
         max_length=300, blank=True,
-        help_text="Leave blank to use the Submissions page.",
+        help_text=(
+            "Optional external URL (e.g. guidelines hosted elsewhere). When set, "
+            "'View Guidelines' sends people straight there instead of to this "
+            "call's own details page. Leave blank to use the details page."
+        ),
     )
     is_active = models.BooleanField(default=True)
     order = models.PositiveIntegerField(default=0)
@@ -180,6 +249,20 @@ class OpenCall(models.Model):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.title) or 'open-call'
+            slug = base_slug
+            counter = 2
+            while OpenCall.objects.exclude(pk=self.pk).filter(slug=slug).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('open_call_detail', kwargs={'slug': self.slug})
 
 
 class ShopHighlight(models.Model):

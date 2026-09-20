@@ -20,6 +20,9 @@
                     <p class="mb-1"><strong>Ticket Code:</strong> {{ ticket.ticket_code }}</p>
                     <p class="mb-1"><strong>Venue:</strong> {{ ticket.show.venue }}</p>
                     <p class="mb-1"><strong>Date:</strong> {{ ticket.show.date|date:"D, d M Y" }} &middot; {{ ticket.show.time|time:"g:i A" }}</p>
+                    {% if ticket.ticket_type %}
+                    <p class="mb-1"><strong>Ticket Type:</strong> {{ ticket.ticket_type.name }}</p>
+                    {% endif %}
                     <p class="mb-1"><strong>Quantity:</strong> {{ ticket.quantity }}</p>
                     <p class="mb-0"><strong>Amount Paid:</strong> KES {{ ticket.total_amount }}</p>
                 </div>

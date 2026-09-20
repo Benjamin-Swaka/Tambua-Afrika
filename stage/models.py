@@ -51,6 +51,57 @@ class Show(models.Model):
         return self.tickets_remaining <= 0
 
 
+class TicketType(models.Model):
+    """
+    A priced tier of ticket for a Show (e.g. Regular, VIP, VVIP).
+
+    Additive/optional: a Show can have zero ticket types, in which case
+    buying a ticket still falls back to the Show's own flat `price`
+    exactly as before. As soon as a Show has one or more active
+    TicketTypes, the purchase flow lets the buyer choose one and the
+    ticket is priced/labelled from that type instead.
+    """
+
+    show = models.ForeignKey(Show, on_delete=models.CASCADE, related_name='ticket_types')
+    name = models.CharField(max_length=100, help_text="e.g. Regular, VIP, VVIP")
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    capacity = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text=(
+            "Optional seat limit for this ticket type alone. Leave blank to "
+            "let it share the show's overall capacity with no separate cap."
+        ),
+    )
+    is_active = models.BooleanField(default=True, help_text="Unchecked types are hidden from buyers.")
+    order = models.PositiveIntegerField(default=0, help_text="Lower numbers are shown first.")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', 'price']
+
+    def __str__(self):
+        return f"{self.name} - {self.show.title}"
+
+    @property
+    def tickets_reserved(self):
+        agg = self.tickets.filter(
+            status__in=[Ticket.STATUS_PENDING, Ticket.STATUS_PAID]
+        ).aggregate(total=models.Sum('quantity'))
+        return agg['total'] or 0
+
+    @property
+    def tickets_remaining(self):
+        """None means "no separate cap" -- only the show's overall capacity applies."""
+        if self.capacity is None:
+            return None
+        return max(self.capacity - self.tickets_reserved, 0)
+
+    @property
+    def is_sold_out(self):
+        return self.capacity is not None and self.tickets_remaining <= 0
+
+
 class ManualPayment(models.Model):
     """
     Manual M-Pesa/bank payment submitted by a customer.
@@ -163,6 +214,14 @@ class Ticket(models.Model):
     ]
 
     show = models.ForeignKey(Show, on_delete=models.CASCADE, related_name='tickets')
+    ticket_type = models.ForeignKey(
+        TicketType,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='tickets',
+        help_text="Which priced tier (VIP, VVIP, ...) this ticket is for. Blank means the show's flat price.",
+    )
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='tickets')
     quantity = models.PositiveIntegerField(default=1)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)

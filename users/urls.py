@@ -12,6 +12,7 @@ urlpatterns = [
 
     # Custom admin dashboard (staff-only)
     path('admin-panel/submissions/', views.admin_submissions, name='admin_submissions'),
+    path('admin-panel/submissions/new/', views.admin_submission_create, name='admin_submission_create'),
     path('admin-panel/submissions/<int:pk>/status/', views.admin_submission_update_status, name='admin_submission_update_status'),
     path('admin-panel/tickets/', views.admin_tickets, name='admin_tickets'),
     path('admin-panel/tickets/<str:ticket_code>/status/', views.admin_ticket_update_status, name='admin_ticket_update_status'),
@@ -30,6 +31,12 @@ urlpatterns = [
     path('admin-panel/shows/<int:pk>/edit/', views.admin_show_edit, name='admin_show_edit'),
     path('admin-panel/shows/<int:pk>/delete/', views.admin_show_delete, name='admin_show_delete'),
     path('admin-panel/shows/<int:pk>/toggle-active/', views.admin_show_toggle_active, name='admin_show_toggle_active'),
+
+    # Ticket types (VIP/VVIP/etc per show)
+    path('admin-panel/shows/<int:show_pk>/ticket-types/', views.admin_ticket_types, name='admin_ticket_types'),
+    path('admin-panel/shows/<int:show_pk>/ticket-types/new/', views.admin_ticket_type_create, name='admin_ticket_type_create'),
+    path('admin-panel/shows/<int:show_pk>/ticket-types/<int:pk>/edit/', views.admin_ticket_type_edit, name='admin_ticket_type_edit'),
+    path('admin-panel/shows/<int:show_pk>/ticket-types/<int:pk>/delete/', views.admin_ticket_type_delete, name='admin_ticket_type_delete'),
 
     # Homepage content
     path('admin-panel/homepage/', views.admin_homepage_content, name='admin_homepage_content'),

@@ -60,12 +60,14 @@ class OpenCallForm(forms.ModelForm):
     class Meta:
         model = OpenCall
         fields = [
-            'title', 'description', 'status', 'deadline_label',
+            'title', 'slug', 'description', 'guidelines', 'status', 'deadline_label',
             'categories_label', 'link_url', 'is_active', 'order',
         ]
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control rounded-0'}),
+            'slug': forms.TextInput(attrs={'class': 'form-control rounded-0', 'placeholder': 'auto-generated-if-blank'}),
             'description': forms.Textarea(attrs={'class': 'form-control rounded-0', 'rows': 3}),
+            'guidelines': forms.Textarea(attrs={'class': 'form-control rounded-0', 'rows': 8}),
             'status': forms.Select(attrs={'class': 'form-select rounded-0'}),
             'deadline_label': forms.TextInput(attrs={'class': 'form-control rounded-0'}),
             'categories_label': forms.TextInput(attrs={'class': 'form-control rounded-0'}),
@@ -73,6 +75,10 @@ class OpenCallForm(forms.ModelForm):
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'order': forms.NumberInput(attrs={'class': 'form-control rounded-0'}),
         }
+
+    def clean_slug(self):
+        slug = self.cleaned_data.get('slug', '').strip()
+        return slug  # blank is fine -- OpenCall.save() auto-generates it
 
 
 class ShopHighlightForm(forms.ModelForm):
