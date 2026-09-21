@@ -144,7 +144,7 @@
                 {% if call.status == 'closed' %}
                 <span class="home-opencall-action home-opencall-action--disabled">{% trans "Closed for submissions" %}</span>
                 {% else %}
-                <a href="{% if call.link_url %}{{ call.link_url }}{% else %}{% url 'submission_dashboard' %}{% endif %}" class="home-opencall-action">
+                <a href="{% if call.link_url %}{{ call.link_url }}{% else %}{% url 'open_call_detail' call.slug %}{% endif %}" class="home-opencall-action">
                     {% trans "View Guidelines &amp; Submit" %}
                     <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M2 6h8M6 2l4 4-4 4"/>

@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block body_class %}theme-default{% endblock %}
+
+{% block content %}
+<section class="home-opencalls" aria-labelledby="opencall-detail-heading">
+    <div class="container" style="max-width: 820px;">
+
+        <p class="small mb-3"><a href="{% url 'all_open_calls' %}" class="text-muted">&larr; {% trans "All Open Calls" %}</a></p>
+
+        <div class="home-opencalls-header">
+            <div class="home-opencall-status home-opencall-status--{% if call.status == 'closing_soon' %}closing{% else %}{{ call.status }}{% endif %} mb-3">
+                <span class="home-opencall-dot"></span> {{ call.get_status_display }}
+            </div>
+            <h1 class="home-opencalls-title" id="opencall-detail-heading">{{ call.title }}</h1>
+            <p class="home-opencalls-subtitle">{{ call.description }}</p>
+        </div>
+
+        <div class="home-opencall-meta mb-4">
+            <span class="home-opencall-deadline">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12,6 12,12 16,14" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                {{ call.deadline_label }}
+            </span>
+            <span class="home-opencall-categories">{{ call.categories_label }}</span>
+        </div>
+
+        {% if call.guidelines %}
+        <div class="card border-0 shadow-sm p-4 mb-4">
+            <h5 class="mb-3">{% trans "Guidelines" %}</h5>
+            <div style="white-space: pre-wrap;">{{ call.guidelines }}</div>
+        </div>
+        {% endif %}
+
+        <div class="card border-0 shadow-sm p-4">
+            {% if call.status == 'closed' %}
+                <p class="mb-0"><span class="home-opencall-action home-opencall-action--disabled">{% trans "Closed for submissions" %}</span></p>
+            {% elif user.is_authenticated %}
+                <a href="{% url 'new_submission' %}" class="home-opencall-action">
+                    {% trans "Submit Your Work" %}
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 6h8M6 2l4 4-4 4"/>
+                    </svg>
+                </a>
+            {% else %}
+                <a href="{% url 'account_login' %}?next={% url 'new_submission' %}" class="home-opencall-action">
+                    {% trans "Sign in to Submit" %}
+                </a>
+            {% endif %}
+        </div>
+
+    </div>
+</section>
+{% endblock %}
