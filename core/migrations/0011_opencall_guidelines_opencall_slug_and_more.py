@@ -1,31 +1,6 @@
 from django.db import migrations, models
 
 
-def backfill_open_call_slugs(apps, schema_editor):
-    from django.utils.text import slugify
-
-    OpenCall = apps.get_model('core', 'OpenCall')
-    seen = set(
-        OpenCall.objects.exclude(slug='').values_list('slug', flat=True)
-    )
-    for call in OpenCall.objects.filter(slug=''):
-        base_slug = slugify(call.title) or 'open-call'
-        slug = base_slug
-        counter = 2
-        while slug in seen:
-            slug = f"{base_slug}-{counter}"
-            counter += 1
-        seen.add(slug)
-        call.slug = slug
-        call.save(update_fields=['slug'])
-
-
-def noop_reverse(apps, schema_editor):
-    # Nothing to undo -- reversing just leaves the slugs in place, which is
-    # harmless since the (now-removed) slug field wouldn't be read anyway.
-    pass
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -65,20 +40,12 @@ class Migration(migrations.Migration):
             ),
             preserve_default=False,
         ),
+        # db_index=False is the key fix: the unique AlterField in 0013 creates
+        # the index (and its Postgres "_like" twin) itself. Letting AddField
+        # queue the same index caused DuplicateTable.
         migrations.AddField(
             model_name='opencall',
             name='slug',
-            field=models.SlugField(blank=True, default='', max_length=220),
-        ),
-        migrations.RunPython(backfill_open_call_slugs, noop_reverse),
-        migrations.AlterField(
-            model_name='opencall',
-            name='slug',
-            field=models.SlugField(
-                blank=True,
-                max_length=220,
-                unique=True,
-                help_text="Used in the open call's own URL. Auto-generated from the title if left blank.",
-            ),
+            field=models.SlugField(blank=True, default='', max_length=220, db_index=False),
         ),
     ]
